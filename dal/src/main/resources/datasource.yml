@@ -1,0 +1,8 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://ep-cold-mud-a1mka2qd-pooler.ap-southeast-1.aws.neon.tech/budiboard
+        username:
+        password:
+    jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: create

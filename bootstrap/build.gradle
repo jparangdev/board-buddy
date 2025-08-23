@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':domain')
+    implementation project(':application')
+    implementation project(':web')
+    implementation project(':dal')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+}
