@@ -1,0 +1,46 @@
+### BoardBuddies Game Session API Collection
+### 게임 세션 관련 API 요청들
+
+### Create a game session
+POST {{baseUrl}}/api/game-sessions
+Content-Type: {{contentType}}
+
+{
+  "boardGameId": 1,
+  "hostUserId": 1,
+  "maxPlayers": 4,
+  "scheduledDate": "2024-01-15T19:00:00",
+  "location": "강남구 카페",
+  "description": "보드게임 같이 해요!"
+}
+
+### Get game session by id
+GET {{baseUrl}}/api/game-sessions/1
+
+### Get all game sessions
+GET {{baseUrl}}/api/game-sessions
+
+### Join game session
+POST {{baseUrl}}/api/game-sessions/1/join
+Content-Type: {{contentType}}
+
+{
+  "userId": 2
+}
+
+### Leave game session
+DELETE {{baseUrl}}/api/game-sessions/1/participants/2
+
+### Update game session
+PUT {{baseUrl}}/api/game-sessions/1
+Content-Type: {{contentType}}
+
+{
+  "maxPlayers": 6,
+  "scheduledDate": "2024-01-15T20:00:00",
+  "location": "홍대 보드게임카페",
+  "description": "시간 변경! 보드게임 같이 해요!"
+}
+
+### Search game sessions by location
+GET {{baseUrl}}/api/game-sessions/search?location=강남구

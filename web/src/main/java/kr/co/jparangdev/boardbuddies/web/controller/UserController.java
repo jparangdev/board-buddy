@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
  * REST controller for User operations
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(value = "/api/users", produces = "application/json")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -28,8 +28,8 @@ public class UserController {
 	 * @param createRequest the user creation request
 	 * @return the created user
 	 */
-	@PostMapping
-	public ResponseEntity<UserDto.Response> createUser(@Valid @RequestBody UserDto.CreateRequest createRequest) {
+ @PostMapping(consumes = "application/json")
+ public ResponseEntity<UserDto.Response> createUser(@Valid @RequestBody UserDto.CreateRequest createRequest) {
 		var user = userDtoMapper.toDomain(createRequest);
 		var createdUser = userManagementUseCase.createUser(user);
 		return new ResponseEntity<>(userDtoMapper.toResponse(createdUser), HttpStatus.CREATED);
@@ -66,10 +66,10 @@ public class UserController {
 	 * @param updateRequest the user update request
 	 * @return the updated user
 	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<UserDto.Response> updateUser(
-		@PathVariable Long id,
-		@Valid @RequestBody UserDto.UpdateRequest updateRequest) {
+ @PutMapping(value = "/{id}", consumes = "application/json")
+ public ResponseEntity<UserDto.Response> updateUser(
+ 	@PathVariable Long id,
+ 	@Valid @RequestBody UserDto.UpdateRequest updateRequest) {
 		var user = userDtoMapper.toDomain(updateRequest);
 		var updatedUser = userManagementUseCase.updateUser(id, user);
 		return ResponseEntity.ok(userDtoMapper.toResponse(updatedUser));
@@ -80,9 +80,32 @@ public class UserController {
 	 * @param id the user ID
 	 * @return no content response
 	 */
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-		userManagementUseCase.deleteUser(id);
-		return ResponseEntity.noContent().build();
+ @DeleteMapping("/{id}")
+ public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+ 	userManagementUseCase.deleteUser(id);
+ 	return ResponseEntity.noContent().build();
+ }
+ 	/**
+	 * Search a user by username or email
+	 * Exactly one of username or email must be provided
+	 */
+	@GetMapping(value = "/search")
+	public ResponseEntity<UserDto.Response> searchUser(
+		@RequestParam(required = false) String username,
+		@RequestParam(required = false) String email) {
+		boolean hasUsername = username != null && !username.isBlank();
+		boolean hasEmail = email != null && !email.isBlank();
+		if (hasUsername == hasEmail) { // both true or both false
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+
+		if (hasUsername) {
+			return userManagementUseCase.findByUsername(username)
+				.map(user -> ResponseEntity.ok(userDtoMapper.toResponse(user)))
+				.orElse(ResponseEntity.notFound().build());
+		}
+		return userManagementUseCase.findByEmail(email)
+			.map(user -> ResponseEntity.ok(userDtoMapper.toResponse(user)))
+			.orElse(ResponseEntity.notFound().build());
 	}
 }

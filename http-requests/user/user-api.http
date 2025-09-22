@@ -1,0 +1,40 @@
+### BoardBuddies User API Collection
+### User 도메인 관련 API 요청들
+
+### Create a user
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "john",
+  "email": "john@example.com",
+  "nickname": "Johnny"
+}
+
+### Get user by id
+GET {{baseUrl}}/api/users/1
+
+### Get all users
+GET {{baseUrl}}/api/users
+
+### Update user
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+  "username": "johnny",
+  "email": "johnny@example.com",
+  "nickname": "J"
+}
+
+### Delete user
+DELETE {{baseUrl}}/api/users/1
+
+### Search by username
+GET {{baseUrl}}/api/users/search?username=john
+
+### Search by email
+GET {{baseUrl}}/api/users/search?email=john@example.com
+
+### Search bad request: both params (validation test)
+GET {{baseUrl}}/api/users/search?username=john&email=john@example.com
