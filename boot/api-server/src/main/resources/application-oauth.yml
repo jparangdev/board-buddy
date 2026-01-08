@@ -1,0 +1,29 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+oauth:
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: http://localhost:8080/api/v1/auth/naver/callback
+---
+spring:
+  config:
+    activate:
+      on-profile: develop
+oauth:
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: https://develop.boardbuddy.com/api/v1/auth/naver/callback
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+oauth:
+  naver:
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET}
+    redirect-uri: https://boardbuddy.com/api/v1/auth/naver/callback

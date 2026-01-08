@@ -1,0 +1,4 @@
+jwt:
+  secret: ${JWT_SECRET:local-secret-key-must-be-at-least-256-bits-long-for-hs256}
+  access-token-expiry: 3600000  # 1 hour
+  refresh-token-expiry: 2592000000  # 30 days

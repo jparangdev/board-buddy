@@ -1,0 +1,18 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation project(':application')
+    implementation project(':presentation:api')
+    implementation project(':infrastructure:persistence')
+    implementation project(':infrastructure:transients')
+    implementation project(':infrastructure:client')
+
+    // Spring Web (for servlet APIs)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+}

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: api-server
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:classpath:application-persistence.yml
+      - optional:classpath:application-transients.yml
+      - optional:classpath:application-oauth.yml
+      - optional:classpath:application-security.yml
+
+logging:
+  level:
+    root: INFO
+    kr.co.jparangdev.boardbuddy: DEBUG

@@ -1,9 +1,0 @@
-spring:
-    application:
-        name: boardbuddies
-    config:
-        import:
-            - datasource.yml
-logging:
-    level:
-        root: INFO

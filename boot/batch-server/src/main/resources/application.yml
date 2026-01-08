@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: batch-server
+  profiles:
+    active: local
+  config:
+    import:
+      - optional:classpath:application-persistence.yml
+      - optional:classpath:application-transients.yml
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+    kr.co.jparangdev.boardbuddy: DEBUG

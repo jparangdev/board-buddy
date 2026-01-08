@@ -1,7 +1,19 @@
 dependencies {
-    implementation project(':domain')
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation project(':domain')
+
+    // JWT - application 레이어에서 직접 구현
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // Transaction support
     implementation 'org.springframework:spring-tx'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Security core (for SecurityContextHolder)
+    implementation 'org.springframework.security:spring-security-core'
 }

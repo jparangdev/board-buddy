@@ -1,0 +1,7 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation project(':application')
+
+    // OAuth HTTP client
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}

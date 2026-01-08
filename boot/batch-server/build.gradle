@@ -1,0 +1,11 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation project(':application')
+    implementation project(':presentation:batch')
+    implementation project(':infrastructure:persistence')
+    implementation project(':infrastructure:transients')
+}

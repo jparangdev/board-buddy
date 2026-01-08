@@ -1,6 +1,6 @@
-# BoardBuddies
+# BoardBuddy
 
-BoardBuddies helps board‑game players create groups for their sessions and, inside each group, record wins/losses and scoreboards, and view player rankings over time. The goal is to make it easy to organize meetups, keep track of results, and surface competitive standings.
+BoardBuddy helps board‑game players create groups for their sessions and, inside each group, record wins/losses and scoreboards, and view player rankings over time. The goal is to make it easy to organize meetups, keep track of results, and surface competitive standings.
 
 ## Architecture at a Glance
 
