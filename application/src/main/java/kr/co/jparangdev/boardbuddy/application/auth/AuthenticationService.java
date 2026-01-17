@@ -1,44 +1,35 @@
 package kr.co.jparangdev.boardbuddy.application.auth;
 
 import kr.co.jparangdev.boardbuddy.application.exception.InvalidTokenException;
-import kr.co.jparangdev.boardbuddy.application.user.UserRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService implements AuthenticationUseCase {
 
-    private final NaverOAuthClient naverOAuthClient;
+    private final List<AuthenticationProvider> authenticationProviders;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
-
-    @Override
-    public String getNaverAuthorizationUrl() {
-        return naverOAuthClient.getAuthorizationUrl();
-    }
 
     @Override
     @Transactional
-    public AuthTokens processNaverCallback(String code, String state) {
-        // 1. Exchange code for Naver access token
-        NaverTokenResponse naverToken = naverOAuthClient.getAccessToken(code, state);
+    public AuthTokens authenticate(AuthCredentials credentials) {
+        // Find appropriate provider for the credentials
+        AuthenticationProvider provider = findProvider(credentials.getProviderType());
 
-        // 2. Get user info from Naver
-        NaverUserInfo naverUserInfo = naverOAuthClient.getUserInfo(naverToken.getAccessToken());
+        // Authenticate and get user
+        User user = provider.authenticate(credentials);
 
-        // 3. Find or create user
-        User user = userRepository.findByProviderAndProviderId("NAVER", naverUserInfo.getId())
-            .orElseGet(() -> registerNewUser(naverUserInfo));
-
-        // 4. Generate JWT tokens
+        // Generate JWT tokens
         String accessToken = jwtTokenProvider.generateAccessToken(user.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
-        // 5. Store refresh token in Redis
+        // Store refresh token
         refreshTokenRepository.save(refreshToken, user.getId());
 
         return AuthTokens.builder()
@@ -49,31 +40,12 @@ public class AuthenticationService implements AuthenticationUseCase {
             .build();
     }
 
-    private User registerNewUser(NaverUserInfo naverUserInfo) {
-        String email = naverUserInfo.getEmail();
-        String nickname = extractNickname(naverUserInfo);
-        String discriminator = userRepository.generateUniqueDiscriminator(nickname);
-
-        User newUser = User.fromOAuth(
-            email,
-            "NAVER",
-            naverUserInfo.getId(),
-            nickname,
-            discriminator
-        );
-
-        return userRepository.save(newUser);
-    }
-
-    private String extractNickname(NaverUserInfo info) {
-        // Try nickname first, fallback to name, then email prefix
-        if (info.getNickname() != null && !info.getNickname().isBlank()) {
-            return info.getNickname();
-        }
-        if (info.getName() != null && !info.getName().isBlank()) {
-            return info.getName();
-        }
-        return info.getEmail().split("@")[0];
+    private AuthenticationProvider findProvider(ProviderType providerType) {
+        return authenticationProviders.stream()
+            .filter(provider -> provider.supports(providerType))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Unsupported authentication provider: " + providerType));
     }
 
     @Override
@@ -86,7 +58,7 @@ public class AuthenticationService implements AuthenticationUseCase {
 
         return AuthTokens.builder()
             .accessToken(newAccessToken)
-            .refreshToken(refreshToken) // Same refresh token
+            .refreshToken(refreshToken)
             .expiresIn(jwtTokenProvider.getAccessTokenExpiry())
             .tokenType("Bearer")
             .build();

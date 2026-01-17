@@ -1,16 +1,15 @@
 package kr.co.jparangdev.boardbuddy.application.auth;
 
 public interface AuthenticationUseCase {
-    /**
-     * Generate OAuth authorization URL for Naver login
-     */
-    String getNaverAuthorizationUrl();
 
     /**
-     * Process OAuth callback and register/login user
-     * Returns JWT tokens
+     * Authenticate user with given credentials and return JWT tokens.
+     * Supports multiple authentication providers (LOCAL, NAVER, KAKAO, etc.)
+     *
+     * @param credentials Provider-specific credentials
+     * @return JWT tokens (access token, refresh token)
      */
-    AuthTokens processNaverCallback(String code, String state);
+    AuthTokens authenticate(AuthCredentials credentials);
 
     /**
      * Refresh access token using refresh token

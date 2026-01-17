@@ -1,5 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.auth.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import kr.co.jparangdev.boardbuddy.application.auth.AuthTokens;
 import lombok.*;
@@ -7,20 +8,17 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthDto {
 
-    @Getter
-    @AllArgsConstructor
-    public static class AuthUrlResponse {
-        private String authorizationUrl;
-    }
-
+    /**
+     * Test login request for development/testing
+     */
     @Getter
     @Setter
-    public static class CallbackRequest {
+    public static class TestLoginRequest {
         @NotBlank
-        private String code;
+        @Email
+        private String email;
 
-        @NotBlank
-        private String state;
+        private String nickname; // Optional - will use email prefix if not provided
     }
 
     @Getter

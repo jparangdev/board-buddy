@@ -7,8 +7,8 @@ spring:
     import:
       - optional:classpath:application-persistence.yml
       - optional:classpath:application-transients.yml
-      - optional:classpath:application-oauth.yml
       - optional:classpath:application-security.yml
+      - optional:classpath:application-secret.yml
 
 logging:
   level:

@@ -4,8 +4,8 @@ spring:
       on-profile: local
   datasource:
     url: jdbc:postgresql://localhost:5432/boardbuddy
-    username: user
-    password: password
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 ---
 spring:
   config:
@@ -13,8 +13,8 @@ spring:
       on-profile: develop
   datasource:
     url: jdbc:postgresql://develop-db:5432/boardbuddy
-    username: user
-    password: password
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 ---
 spring:
   config:
@@ -22,5 +22,5 @@ spring:
       on-profile: production
   datasource:
     url: jdbc:postgresql://production-db:5432/boardbuddy
-    username: user
-    password: password
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}

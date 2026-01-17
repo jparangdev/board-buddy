@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
 import kr.co.jparangdev.boardbuddy.application.auth.AuthTokens;
 import kr.co.jparangdev.boardbuddy.application.auth.AuthenticationUseCase;
+import kr.co.jparangdev.boardbuddy.application.auth.TestAuthCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,24 +17,18 @@ public class AuthController {
     private final AuthenticationUseCase authenticationUseCase;
 
     /**
-     * Get Naver OAuth authorization URL
+     * Test login for development/testing.
+     * To add OAuth providers later, add new endpoints like:
+     * - POST /api/v1/auth/kakao/callback
      */
-    @GetMapping("/naver")
-    public ResponseEntity<AuthDto.AuthUrlResponse> getNaverAuthUrl() {
-        String authUrl = authenticationUseCase.getNaverAuthorizationUrl();
-        return ResponseEntity.ok(new AuthDto.AuthUrlResponse(authUrl));
-    }
-
-    /**
-     * Handle Naver OAuth callback
-     */
-    @PostMapping("/naver/callback")
-    public ResponseEntity<AuthDto.TokenResponse> naverCallback(
-            @Valid @RequestBody AuthDto.CallbackRequest request) {
-        AuthTokens tokens = authenticationUseCase.processNaverCallback(
-            request.getCode(),
-            request.getState()
+    @PostMapping("/test/login")
+    public ResponseEntity<AuthDto.TokenResponse> testLogin(
+            @Valid @RequestBody AuthDto.TestLoginRequest request) {
+        TestAuthCredentials credentials = new TestAuthCredentials(
+            request.getEmail(),
+            request.getNickname()
         );
+        AuthTokens tokens = authenticationUseCase.authenticate(credentials);
         return ResponseEntity.ok(AuthDto.TokenResponse.from(tokens));
     }
 
