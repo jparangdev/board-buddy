@@ -8,9 +8,20 @@ spring:
       - optional:classpath:application-persistence.yml
       - optional:classpath:application-transients.yml
       - optional:classpath:application-security.yml
-      - optional:classpath:application-secret.yml
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 logging:
   level:
     root: INFO
     kr.co.jparangdev.boardbuddy: DEBUG
+
+# Swagger (OpenAPI)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha

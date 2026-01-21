@@ -1,26 +1,5 @@
 spring:
-  config:
-    activate:
-      on-profile: local
   datasource:
-    url: jdbc:postgresql://localhost:5432/boardbuddy
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
----
-spring:
-  config:
-    activate:
-      on-profile: develop
-  datasource:
-    url: jdbc:postgresql://develop-db:5432/boardbuddy
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
----
-spring:
-  config:
-    activate:
-      on-profile: production
-  datasource:
-    url: jdbc:postgresql://production-db:5432/boardbuddy
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
