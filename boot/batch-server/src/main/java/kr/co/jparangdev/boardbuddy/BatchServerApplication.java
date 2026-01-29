@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy;
 
-import kr.co.jparangdev.boardbuddy.application.EnableApplication;
+import kr.co.jparangdev.boardbuddy.application.config.EnableApplication;
 import kr.co.jparangdev.boardbuddy.batch.EnablePresentationBatch;
 import kr.co.jparangdev.boardbuddy.persistence.EnablePersistence;
 import kr.co.jparangdev.boardbuddy.transients.EnableTransients;

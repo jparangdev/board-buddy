@@ -1,7 +1,7 @@
 package kr.co.jparangdev.boardbuddy;
 
 import kr.co.jparangdev.boardbuddy.api.EnablePresentationApi;
-import kr.co.jparangdev.boardbuddy.application.EnableApplication;
+import kr.co.jparangdev.boardbuddy.application.config.EnableApplication;
 import kr.co.jparangdev.boardbuddy.client.EnableClient;
 import kr.co.jparangdev.boardbuddy.persistence.EnablePersistence;
 import kr.co.jparangdev.boardbuddy.transients.EnableTransients;

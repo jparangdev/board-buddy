@@ -1,8 +1,10 @@
 package kr.co.jparangdev.boardbuddy.api.exception;
 
-import kr.co.jparangdev.boardbuddy.application.exception.InvalidTokenException;
-import kr.co.jparangdev.boardbuddy.application.exception.OAuthAuthenticationException;
-import kr.co.jparangdev.boardbuddy.application.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.*;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body(new ErrorResponse("OAUTH_AUTHENTICATION_FAILED", e.getMessage()));
+    }
+
+    @ExceptionHandler(GroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGroupNotFound(GroupNotFoundException e) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("GROUP_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(GroupMemberAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleGroupMemberAlreadyExists(GroupMemberAlreadyExistsException e) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("GROUP_MEMBER_ALREADY_EXISTS", e.getMessage()));
+    }
+
+    @ExceptionHandler(NotGroupOwnerException.class)
+    public ResponseEntity<ErrorResponse> handleNotGroupOwner(NotGroupOwnerException e) {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(new ErrorResponse("NOT_GROUP_OWNER", e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotGroupMemberException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotGroupMember(UserNotGroupMemberException e) {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(new ErrorResponse("USER_NOT_GROUP_MEMBER", e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.transients.auth;
 
-import kr.co.jparangdev.boardbuddy.application.auth.RefreshTokenRepository;
+import kr.co.jparangdev.boardbuddy.application.auth.service.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

@@ -1,7 +1,7 @@
 package kr.co.jparangdev.boardbuddy.api.user;
 
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
-import kr.co.jparangdev.boardbuddy.application.user.UserManagementUseCase;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.UserManagementUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

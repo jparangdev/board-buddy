@@ -1,0 +1,143 @@
+package kr.co.jparangdev.boardbuddy.application.group.service;
+
+import kr.co.jparangdev.boardbuddy.application.group.exception.GroupMemberAlreadyExistsException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupManagementUseCase;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
+import kr.co.jparangdev.boardbuddy.application.user.service.UserRepository;
+import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class GroupManagementService implements GroupManagementUseCase {
+
+    private final GroupRepository groupRepository;
+    private final GroupMemberRepository groupMemberRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    @Transactional
+    public Group createGroup(String name) {
+        Long currentUserId = getCurrentUserId();
+
+        // 1. Group 저장 (현재 사용자를 owner로 설정)
+        Group group = Group.create(name, currentUserId);
+        Group savedGroup = groupRepository.save(group);
+
+        // 2. Owner를 첫 번째 GroupMember로 자동 추가
+        GroupMember ownerMember = GroupMember.create(savedGroup.getId(), currentUserId);
+        groupMemberRepository.save(ownerMember);
+
+        return savedGroup;
+    }
+
+    @Override
+    @Transactional
+    public GroupMember inviteMember(Long groupId, String userTag) {
+        Long currentUserId = getCurrentUserId();
+
+        // 1. 모임 존재 확인
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        // 2. 현재 사용자가 owner인지 확인
+        if (!group.isOwner(currentUserId)) {
+            throw new NotGroupOwnerException(groupId, currentUserId);
+        }
+
+        // 3. userTag(닉네임#discriminator)로 User 검색
+        String[] parts = userTag.split("#");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid userTag format. Expected: nickname#discriminator");
+        }
+        String nickname = parts[0];
+        String discriminator = parts[1];
+
+        User invitee = userRepository.findByNicknameAndDiscriminator(nickname, discriminator)
+                .orElseThrow(() -> new UserNotFoundException(userTag));
+
+        // 4. 이미 멤버인지 확인
+        if (groupMemberRepository.existsByGroupIdAndUserId(groupId, invitee.getId())) {
+            throw new GroupMemberAlreadyExistsException(userTag);
+        }
+
+        // 5. GroupMember 저장
+        GroupMember groupMember = GroupMember.create(groupId, invitee.getId());
+        return groupMemberRepository.save(groupMember);
+    }
+
+    @Override
+    public List<User> getGroupMembers(Long groupId) {
+        Long currentUserId = getCurrentUserId();
+
+        // 1. 모임 존재 확인
+        if (groupRepository.findById(groupId).isEmpty()) {
+            throw new GroupNotFoundException(groupId);
+        }
+
+        // 2. 현재 사용자가 멤버인지 확인
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, currentUserId)) {
+            throw new UserNotGroupMemberException(groupId, currentUserId);
+        }
+
+        // 3. 멤버 목록 조회
+        List<GroupMember> members = groupMemberRepository.findAllByGroupId(groupId);
+        List<Long> userIds = members.stream()
+                .map(GroupMember::getUserId)
+                .collect(Collectors.toList());
+
+        return userIds.stream()
+                .map(userId -> userRepository.findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException(userId)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Group getGroupDetail(Long groupId) {
+        Long currentUserId = getCurrentUserId();
+
+        // 1. 모임 존재 확인
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        // 2. 현재 사용자가 멤버인지 확인
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, currentUserId)) {
+            throw new UserNotGroupMemberException(groupId, currentUserId);
+        }
+
+        return group;
+    }
+
+    @Override
+    public List<Group> getMyGroups() {
+        Long currentUserId = getCurrentUserId();
+
+        // 1. 사용자가 속한 모든 GroupMember 조회
+        List<GroupMember> memberships = groupMemberRepository.findAllByUserId(currentUserId);
+
+        // 2. 그룹 ID 목록 추출
+        List<Long> groupIds = memberships.stream()
+                .map(GroupMember::getGroupId)
+                .collect(Collectors.toList());
+
+        // 3. 그룹 정보 조회
+        return groupRepository.findAllByIds(groupIds);
+    }
+
+    private Long getCurrentUserId() {
+        return (Long) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+    }
+}

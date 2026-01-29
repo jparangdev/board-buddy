@@ -1,0 +1,26 @@
+package kr.co.jparangdev.boardbuddy.persistence.group;
+
+import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
+import org.springframework.stereotype.Component;
+
+@Component
+public class GroupMemberMapper {
+
+    public GroupMemberJpaEntity toEntity(GroupMember groupMember) {
+        return new GroupMemberJpaEntity(
+            groupMember.getId(),
+            groupMember.getGroupId(),
+            groupMember.getUserId(),
+            groupMember.getJoinedAt()
+        );
+    }
+
+    public GroupMember toDomain(GroupMemberJpaEntity entity) {
+        return GroupMember.builder()
+            .id(entity.getId())
+            .groupId(entity.getGroupId())
+            .userId(entity.getUserId())
+            .joinedAt(entity.getJoinedAt())
+            .build();
+    }
+}

@@ -2,9 +2,9 @@ package kr.co.jparangdev.boardbuddy.api.auth;
 
 import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
-import kr.co.jparangdev.boardbuddy.application.auth.AuthTokens;
-import kr.co.jparangdev.boardbuddy.application.auth.AuthenticationUseCase;
-import kr.co.jparangdev.boardbuddy.application.auth.TestAuthCredentials;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
+import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.TestAuthCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

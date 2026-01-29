@@ -2,7 +2,7 @@ package kr.co.jparangdev.boardbuddy.api.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import kr.co.jparangdev.boardbuddy.application.auth.AuthTokens;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

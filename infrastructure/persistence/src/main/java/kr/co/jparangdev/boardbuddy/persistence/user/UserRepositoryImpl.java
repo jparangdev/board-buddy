@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.user;
 
-import kr.co.jparangdev.boardbuddy.application.user.UserRepository;
+import kr.co.jparangdev.boardbuddy.application.user.service.UserRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -36,6 +36,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findByProviderAndProviderId(String provider, String providerId) {
         return jpaRepository.findByProviderAndProviderId(provider, providerId)
+            .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByNicknameAndDiscriminator(String nickname, String discriminator) {
+        return jpaRepository.findByNicknameAndDiscriminator(nickname, discriminator)
             .map(mapper::toDomain);
     }
 
