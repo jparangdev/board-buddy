@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupManagementUseCase;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
@@ -8,7 +8,8 @@ import kr.co.jparangdev.boardbuddy.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,13 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GroupController.class)
+@AutoConfigureJson
 class GroupControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @MockitoBean
     private GroupManagementUseCase groupManagementUseCase;
@@ -72,7 +74,7 @@ class GroupControllerTest {
         mockMvc.perform(post("/api/v1/groups")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("New Group"));
@@ -116,7 +118,7 @@ class GroupControllerTest {
         mockMvc.perform(post("/api/v1/groups/{id}/members", groupId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userTag").value(userTag));

@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
@@ -8,7 +8,8 @@ import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCas
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -24,13 +25,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
+@AutoConfigureJson
 class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @MockitoBean
     private AuthenticationUseCase authenticationUseCase;
@@ -58,7 +60,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/test/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access-token"))
@@ -87,7 +89,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("new-access-token"));
@@ -105,7 +107,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/logout")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(jsonMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
