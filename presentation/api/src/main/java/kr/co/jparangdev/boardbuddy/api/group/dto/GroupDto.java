@@ -12,6 +12,8 @@ public class GroupDto {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class CreateRequest {
         @NotBlank(message = "Group name is required")
         @Size(max = 100, message = "Group name must not exceed 100 characters")
@@ -20,6 +22,8 @@ public class GroupDto {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class InviteMemberRequest {
         @NotBlank(message = "User tag is required")
         private String userTag;  // 닉네임#discriminator

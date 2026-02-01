@@ -28,7 +28,7 @@ public class UserController {
      * Get user by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto.Response> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto.Response> getUserById(@PathVariable("id") Long id) {
         return userManagementUseCase.getUserById(id)
             .map(mapper::toResponse)
             .map(ResponseEntity::ok)

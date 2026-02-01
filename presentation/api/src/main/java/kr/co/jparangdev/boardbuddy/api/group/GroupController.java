@@ -34,7 +34,7 @@ public class GroupController {
     @PostMapping("/{id}/members")
     @Operation(summary = "멤버 초대", description = "모임에 새로운 멤버를 초대합니다. Owner만 초대할 수 있습니다.")
     public ResponseEntity<GroupDto.MemberResponse> inviteMember(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody GroupDto.InviteMemberRequest request) {
         groupManagementUseCase.inviteMember(id, request.getUserTag());
         // 초대된 멤버 정보를 다시 조회하여 반환
@@ -48,14 +48,14 @@ public class GroupController {
 
     @GetMapping("/{id}/members")
     @Operation(summary = "멤버 조회", description = "모임의 멤버 목록을 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable Long id) {
+    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable("id") Long id) {
         List<User> members = groupManagementUseCase.getGroupMembers(id);
         return ResponseEntity.ok(mapper.toMemberListResponse(members));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable Long id) {
+    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable("id") Long id) {
         Group group = groupManagementUseCase.getGroupDetail(id);
         return ResponseEntity.ok(mapper.toResponse(group));
     }

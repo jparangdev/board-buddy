@@ -13,6 +13,8 @@ public class AuthDto {
      */
     @Getter
     @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class TestLoginRequest {
         @NotBlank
         @Email
@@ -41,6 +43,8 @@ public class AuthDto {
 
     @Getter
     @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class RefreshRequest {
         @NotBlank
         private String refreshToken;
@@ -48,6 +52,8 @@ public class AuthDto {
 
     @Getter
     @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class LogoutRequest {
         @NotBlank
         private String refreshToken;

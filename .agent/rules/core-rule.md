@@ -5,7 +5,7 @@ trigger: always_on
 # AI Agent Rules
 
 ## Language
-- All comments, docs, commit messages: **English only**
+- All comments, docs, commit messages, test description: **English only**
 
 ## Architecture
 - **Clean Architecture + DDD**
