@@ -1,0 +1,121 @@
+.backLink {
+  display: inline-block;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-light);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+}
+
+.icon {
+  font-size: 2rem;
+}
+
+.section {
+  background: var(--color-cream);
+  border: 2px solid var(--color-wood-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.section h2 {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.memberCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--color-green-felt) 0%, var(--color-green-dark) 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.memberInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.memberName {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.memberTag {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--color-text-light);
+}
+
+.loadingIcon {
+  font-size: 3rem;
+  animation: roll 1s ease-in-out infinite;
+}
+
+@keyframes roll {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  50% { transform: rotate(180deg); }
+  75% { transform: rotate(270deg); }
+}
+
+.notFound {
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.notFound h2 {
+  margin-bottom: var(--spacing-lg);
+}
