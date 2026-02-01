@@ -23,3 +23,6 @@ trigger: always_on
 - **No assumptions**: Investigate codebase first, don't guess
 - **Immutability preferred**: Use records and final fields
 - **No nulls**: Use Optional or throw domain exceptions
+
+## Database Schema Management
+- **Sync DDL with Entities**: When adding or modifying domain entities that require persistence, always update `infrastructure/persistence/src/main/resources/ddl/database-schema.sql` to reflect the changes.
