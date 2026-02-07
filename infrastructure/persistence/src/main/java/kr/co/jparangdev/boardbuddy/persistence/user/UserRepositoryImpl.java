@@ -1,12 +1,14 @@
 package kr.co.jparangdev.boardbuddy.persistence.user;
 
-import kr.co.jparangdev.boardbuddy.application.user.service.UserRepository;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import lombok.RequiredArgsConstructor;
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.Random;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -14,7 +16,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final UserJpaRepository jpaRepository;
     private final UserMapper mapper;
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     @Override
     public User save(User user) {
@@ -46,6 +48,14 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<User> searchByNicknameContaining(String keyword, int limit) {
+        return jpaRepository.findByNicknameContainingIgnoreCase(keyword).stream()
+            .limit(limit)
+            .map(mapper::toDomain)
+            .toList();
+    }
+
+    @Override
     public String generateUniqueDiscriminator(String nickname) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -56,7 +66,7 @@ public class UserRepositoryImpl implements UserRepository {
             }
             String discriminator = sb.toString();
 
-            if (!jpaRepository.findByNicknameAndDiscriminator(nickname, discriminator).isPresent()) {
+            if (jpaRepository.findByNicknameAndDiscriminator(nickname, discriminator).isEmpty()) {
                 return discriminator;
             }
         }

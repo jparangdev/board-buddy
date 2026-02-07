@@ -1,8 +1,11 @@
 package kr.co.jparangdev.boardbuddy.api.user;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserDtoMapper {
@@ -14,6 +17,15 @@ public class UserDtoMapper {
             .nickname(user.getNickname())
             .discriminator(user.getDiscriminator())
             .userTag(user.getUserTag())
+            .build();
+    }
+
+    public UserDto.SearchResponse toSearchResponse(List<User> users) {
+        List<UserDto.Response> responses = users.stream()
+            .map(this::toResponse)
+            .toList();
+        return UserDto.SearchResponse.builder()
+            .users(responses)
             .build();
     }
 }

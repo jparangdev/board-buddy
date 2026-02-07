@@ -1,32 +1,63 @@
-import {type FormEvent, useState} from 'react';
-import type {ApiError, GroupMember} from '@/types';
-import {groupService} from '@/services';
+import {useEffect, useState} from 'react';
+import type {ApiError, GroupMember, User} from '@/types';
+import {groupService, userService} from '@/services';
+import {useAuth, useDebounce} from '@/hooks';
 import styles from './Modal.module.css';
 
 interface Props {
   groupId: number;
+  existingMemberIds: number[];
   onClose: () => void;
   onInvited: (member: GroupMember) => void;
 }
 
-export function InviteMemberModal({ groupId, onClose, onInvited }: Props) {
-  const [userTag, setUserTag] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+export function InviteMemberModal({ groupId, existingMemberIds, onClose, onInvited }: Props) {
+  const [keyword, setKeyword] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
   const [error, setError] = useState('');
+  const { user: currentUser } = useAuth();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const debouncedKeyword = useDebounce(keyword, 300);
+
+  useEffect(() => {
+    if (!debouncedKeyword.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const search = async () => {
+      setIsSearching(true);
+      try {
+        const users = await userService.searchUsers(debouncedKeyword.trim());
+        const filtered = users.filter(
+          (u) => u.id !== currentUser?.id && !existingMemberIds.includes(u.id)
+        );
+        setSearchResults(filtered);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    search();
+  }, [debouncedKeyword, currentUser?.id, existingMemberIds]);
+
+  const handleInvite = async () => {
+    if (!selectedUser) return;
     setError('');
-    setIsLoading(true);
+    setIsInviting(true);
 
     try {
-      const member = await groupService.inviteMember(groupId, userTag);
+      const member = await groupService.inviteMember(groupId, selectedUser.userTag);
       onInvited(member);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || 'Failed to invite member');
     } finally {
-      setIsLoading(false);
+      setIsInviting(false);
     }
   };
 
@@ -40,34 +71,69 @@ export function InviteMemberModal({ groupId, onClose, onInvited }: Props) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="userTag">User Tag</label>
-            <input
-              id="userTag"
-              type="text"
-              className="input"
-              value={userTag}
-              onChange={(e) => setUserTag(e.target.value)}
-              placeholder="e.g., Player#1234"
-              required
-            />
-            <small style={{ color: 'var(--color-text-light)', marginTop: '4px', display: 'block' }}>
-              Enter the user's tag in format: nickname#discriminator
-            </small>
-          </div>
+        <div className="form-group">
+          <label htmlFor="searchUser">Search by nickname</label>
+          <input
+            id="searchUser"
+            type="text"
+            className="input"
+            value={keyword}
+            onChange={(e) => {
+              setKeyword(e.target.value);
+              setSelectedUser(null);
+              setError('');
+            }}
+            placeholder="Type a nickname to search..."
+            autoFocus
+          />
+          <p className={styles.searchHint}>
+            Search for users by their nickname to invite them
+          </p>
+        </div>
 
-          {error && <p className={styles.error}>{error}</p>}
+        {isSearching && (
+          <p className={styles.noResults}>Searching...</p>
+        )}
 
-          <div className={styles.actions}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={isLoading}>
-              {isLoading ? 'Inviting...' : 'Send Invite'}
-            </button>
+        {!isSearching && debouncedKeyword.trim() && searchResults.length === 0 && (
+          <p className={styles.noResults}>No users found</p>
+        )}
+
+        {searchResults.length > 0 && (
+          <div className={styles.searchResults}>
+            {searchResults.map((user) => (
+              <div
+                key={user.id}
+                className={`${styles.userCard} ${selectedUser?.id === user.id ? styles.selected : ''}`}
+                onClick={() => setSelectedUser(user)}
+              >
+                <div className={styles.userCardAvatar}>
+                  {user.nickname.charAt(0).toUpperCase()}
+                </div>
+                <div className={styles.userCardInfo}>
+                  <span className={styles.userCardName}>{user.nickname}</span>
+                  <span className={styles.userCardTag}>{user.userTag}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        </form>
+        )}
+
+        {error && <p className={styles.error}>{error}</p>}
+
+        <div className={styles.actions}>
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={!selectedUser || isInviting}
+            onClick={handleInvite}
+          >
+            {isInviting ? 'Inviting...' : 'Send Invite'}
+          </button>
+        </div>
       </div>
     </div>
   );

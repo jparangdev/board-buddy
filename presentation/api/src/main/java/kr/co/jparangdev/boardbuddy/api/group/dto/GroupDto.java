@@ -1,11 +1,11 @@
 package kr.co.jparangdev.boardbuddy.api.group.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GroupDto {
@@ -18,6 +18,8 @@ public class GroupDto {
         @NotBlank(message = "Group name is required")
         @Size(max = 100, message = "Group name must not exceed 100 characters")
         private String name;
+
+        private List<Long> memberIds;
     }
 
     @Getter

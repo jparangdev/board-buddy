@@ -29,7 +29,7 @@ CREATE TABLE group_members (
     group_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     joined_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (group_id) REFERENCES groups(id),
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE (group_id, user_id)
 );

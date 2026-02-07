@@ -1,18 +1,23 @@
 package kr.co.jparangdev.boardbuddy.api.user;
 
-import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
-import kr.co.jparangdev.boardbuddy.application.user.usecase.UserManagementUseCase;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.*;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserManagementUseCase userManagementUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
+    private final SearchUsersUseCase searchUsersUseCase;
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
     private final UserDtoMapper mapper;
 
     /**
@@ -20,8 +25,17 @@ public class UserController {
      */
     @GetMapping("/me")
     public ResponseEntity<UserDto.Response> getCurrentUser() {
-        User user = userManagementUseCase.getCurrentUser();
+        User user = getCurrentUserUseCase.getCurrentUser();
         return ResponseEntity.ok(mapper.toResponse(user));
+    }
+
+    /**
+     * Search users by nickname keyword
+     */
+    @GetMapping("/search")
+    public ResponseEntity<UserDto.SearchResponse> searchUsers(@RequestParam("keyword") String keyword) {
+        List<User> users = searchUsersUseCase.searchUsers(keyword);
+        return ResponseEntity.ok(mapper.toSearchResponse(users));
     }
 
     /**
@@ -29,7 +43,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserDto.Response> getUserById(@PathVariable("id") Long id) {
-        return userManagementUseCase.getUserById(id)
+        return getUserByIdUseCase.getUserById(id)
             .map(mapper::toResponse)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());

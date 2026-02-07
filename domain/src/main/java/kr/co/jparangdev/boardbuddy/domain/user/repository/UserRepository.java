@@ -1,8 +1,9 @@
 package kr.co.jparangdev.boardbuddy.domain.user.repository;
 
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-
+import java.util.List;
 import java.util.Optional;
+
+import kr.co.jparangdev.boardbuddy.domain.user.User;
 
 public interface UserRepository {
     User save(User user);
@@ -11,4 +12,5 @@ public interface UserRepository {
     Optional<User> findByProviderAndProviderId(String provider, String providerId);
     Optional<User> findByNicknameAndDiscriminator(String nickname, String discriminator);
     String generateUniqueDiscriminator(String nickname);
+    List<User> searchByNicknameContaining(String keyword, int limit);
 }

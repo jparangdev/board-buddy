@@ -1,20 +1,5 @@
 package kr.co.jparangdev.boardbuddy.api.auth;
 
-import tools.jackson.databind.json.JsonMapper;
-import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
-import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
-import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
-import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -24,7 +9,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
+import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
+import tools.jackson.databind.json.JsonMapper;
+
+@ActiveProfiles("local")
+@WebMvcTest({AuthController.class, TestAuthController.class})
 @AutoConfigureJson
 class AuthControllerTest {
 

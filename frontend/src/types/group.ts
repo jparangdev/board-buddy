@@ -23,6 +23,7 @@ export interface MemberListResponse {
 
 export interface CreateGroupRequest {
   name: string;
+  memberIds: number[];
 }
 
 export interface InviteMemberRequest {

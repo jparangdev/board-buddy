@@ -1,12 +1,13 @@
 package kr.co.jparangdev.boardbuddy.application.auth.service;
 
+import org.springframework.stereotype.Component;
+
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.TestAuthCredentials;
-import kr.co.jparangdev.boardbuddy.application.user.service.UserRepository;
 import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 /**
  * Test authentication provider for development and testing.

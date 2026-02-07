@@ -1,13 +1,13 @@
 package kr.co.jparangdev.boardbuddy.persistence.group;
 
-import kr.co.jparangdev.boardbuddy.application.group.service.GroupMemberRepository;
-import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
+import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,18 +32,23 @@ public class GroupMemberRepositoryImpl implements GroupMemberRepository {
     public List<GroupMember> findAllByGroupId(Long groupId) {
         return jpaRepository.findAllByGroupId(groupId).stream()
             .map(mapper::toDomain)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
     public List<GroupMember> findAllByUserId(Long userId) {
         return jpaRepository.findAllByUserId(userId).stream()
             .map(mapper::toDomain)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
     public boolean existsByGroupIdAndUserId(Long groupId, Long userId) {
         return jpaRepository.existsByGroupIdAndUserId(groupId, userId);
+    }
+
+    @Override
+    public void deleteAllByGroupId(Long groupId) {
+        jpaRepository.deleteAllByGroupId(groupId);
     }
 }

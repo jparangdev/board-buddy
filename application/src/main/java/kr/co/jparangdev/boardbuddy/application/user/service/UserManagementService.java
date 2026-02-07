@@ -1,19 +1,24 @@
 package kr.co.jparangdev.boardbuddy.application.user.service;
 
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.usecase.UserManagementUseCase;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.*;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserManagementService implements UserManagementUseCase {
+public class UserManagementService implements GetUserByIdUseCase, SearchUsersUseCase, GetCurrentUserUseCase {
+
+    private static final int SEARCH_RESULT_LIMIT = 10;
 
     private final UserRepository userRepository;
 
@@ -28,5 +33,13 @@ public class UserManagementService implements UserManagementUseCase {
             .getAuthentication().getPrincipal();
         return userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    @Override
+    public List<User> searchUsers(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        return userRepository.searchByNicknameContaining(keyword.trim(), SEARCH_RESULT_LIMIT);
     }
 }

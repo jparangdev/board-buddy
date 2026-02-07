@@ -2,8 +2,8 @@ import {api} from './api';
 import type {Group, GroupListResponse, GroupMember, MemberListResponse} from '@/types';
 
 export const groupService = {
-  async create(name: string): Promise<Group> {
-    return api.post<Group>('/groups', { name });
+  async create(name: string, memberIds: number[] = []): Promise<Group> {
+    return api.post<Group>('/groups', { name, memberIds });
   },
 
   async getMyGroups(): Promise<Group[]> {
@@ -22,5 +22,9 @@ export const groupService = {
 
   async inviteMember(groupId: number, userTag: string): Promise<GroupMember> {
     return api.post<GroupMember>(`/groups/${groupId}/members`, { userTag });
+  },
+
+  async delete(groupId: number): Promise<void> {
+    return api.delete(`/groups/${groupId}`);
   },
 };

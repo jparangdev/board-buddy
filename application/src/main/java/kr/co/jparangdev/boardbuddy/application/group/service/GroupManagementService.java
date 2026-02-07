@@ -1,27 +1,28 @@
 package kr.co.jparangdev.boardbuddy.application.group.service;
 
-import kr.co.jparangdev.boardbuddy.application.group.exception.GroupMemberAlreadyExistsException;
-import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupManagementUseCase;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
-import kr.co.jparangdev.boardbuddy.application.user.service.UserRepository;
-import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import kr.co.jparangdev.boardbuddy.application.group.exception.*;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
+import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
+import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
+import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GroupManagementService implements GroupManagementUseCase {
+public class GroupManagementService implements CreateGroupUseCase, InviteMemberUseCase, GetGroupMembersUseCase,
+        GetGroupDetailUseCase, GetMyGroupsUseCase, DeleteGroupUseCase {
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
@@ -29,16 +30,21 @@ public class GroupManagementService implements GroupManagementUseCase {
 
     @Override
     @Transactional
-    public Group createGroup(String name) {
+    public Group createGroup(String name, List<Long> memberIds) {
         Long currentUserId = getCurrentUserId();
 
-        // 1. Group 저장 (현재 사용자를 owner로 설정)
         Group group = Group.create(name, currentUserId);
         Group savedGroup = groupRepository.save(group);
 
-        // 2. Owner를 첫 번째 GroupMember로 자동 추가
-        GroupMember ownerMember = GroupMember.create(savedGroup.getId(), currentUserId);
-        groupMemberRepository.save(ownerMember);
+        // Use Set to deduplicate; owner is always first
+        Set<Long> uniqueMemberIds = new LinkedHashSet<>();
+        uniqueMemberIds.add(currentUserId);
+        uniqueMemberIds.addAll(memberIds);
+
+        for (Long userId : uniqueMemberIds) {
+            GroupMember member = GroupMember.create(savedGroup.getId(), userId);
+            groupMemberRepository.save(member);
+        }
 
         return savedGroup;
     }
@@ -96,12 +102,12 @@ public class GroupManagementService implements GroupManagementUseCase {
         List<GroupMember> members = groupMemberRepository.findAllByGroupId(groupId);
         List<Long> userIds = members.stream()
                 .map(GroupMember::getUserId)
-                .collect(Collectors.toList());
+                .toList();
 
         return userIds.stream()
                 .map(userId -> userRepository.findById(userId)
                         .orElseThrow(() -> new UserNotFoundException(userId)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -130,10 +136,26 @@ public class GroupManagementService implements GroupManagementUseCase {
         // 2. 그룹 ID 목록 추출
         List<Long> groupIds = memberships.stream()
                 .map(GroupMember::getGroupId)
-                .collect(Collectors.toList());
+                .toList();
 
         // 3. 그룹 정보 조회
         return groupRepository.findAllByIds(groupIds);
+    }
+
+    @Override
+    @Transactional
+    public void deleteGroup(Long groupId) {
+        Long currentUserId = getCurrentUserId();
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        if (!group.isOwner(currentUserId)) {
+            throw new NotGroupOwnerException(groupId, currentUserId);
+        }
+
+        groupMemberRepository.deleteAllByGroupId(groupId);
+        groupRepository.deleteById(groupId);
     }
 
     private Long getCurrentUserId() {

@@ -1,14 +1,12 @@
 package kr.co.jparangdev.boardbuddy.api.group;
 
-import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
-import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
+import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
 
 @Component
 public class GroupDtoMapper {
@@ -19,16 +17,6 @@ public class GroupDtoMapper {
             .name(group.getName())
             .ownerId(group.getOwnerId())
             .createdAt(group.getCreatedAt())
-            .build();
-    }
-
-    public GroupDto.MemberResponse toMemberResponse(User user, GroupMember membership) {
-        return GroupDto.MemberResponse.builder()
-            .id(user.getId())
-            .nickname(user.getNickname())
-            .discriminator(user.getDiscriminator())
-            .userTag(user.getUserTag())
-            .joinedAt(membership != null ? membership.getJoinedAt() : null)
             .build();
     }
 
@@ -44,7 +32,7 @@ public class GroupDtoMapper {
     public GroupDto.GroupListResponse toGroupListResponse(List<Group> groups) {
         List<GroupDto.Response> responses = groups.stream()
             .map(this::toResponse)
-            .collect(Collectors.toList());
+            .toList();
         return GroupDto.GroupListResponse.builder()
             .groups(responses)
             .build();
@@ -53,7 +41,7 @@ public class GroupDtoMapper {
     public GroupDto.MemberListResponse toMemberListResponse(List<User> users) {
         List<GroupDto.MemberResponse> members = users.stream()
             .map(this::toMemberResponse)
-            .collect(Collectors.toList());
+            .toList();
         return GroupDto.MemberListResponse.builder()
             .members(members)
             .build();

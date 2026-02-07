@@ -1,8 +1,9 @@
 package kr.co.jparangdev.boardbuddy.persistence.user;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
 
@@ -13,4 +14,6 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     Optional<UserJpaEntity> findByNicknameAndDiscriminator(String nickname, String discriminator);
 
     boolean existsByEmail(String email);
+
+    List<UserJpaEntity> findByNicknameContainingIgnoreCase(String keyword);
 }

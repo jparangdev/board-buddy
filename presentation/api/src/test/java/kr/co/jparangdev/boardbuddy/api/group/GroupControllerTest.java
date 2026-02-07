@@ -1,31 +1,33 @@
 package kr.co.jparangdev.boardbuddy.api.group;
 
-import tools.jackson.databind.json.JsonMapper;
-import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupManagementUseCase;
-import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
+import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import tools.jackson.databind.json.JsonMapper;
 
 @WebMvcTest(GroupController.class)
 @AutoConfigureJson
@@ -38,7 +40,22 @@ class GroupControllerTest {
     private JsonMapper jsonMapper;
 
     @MockitoBean
-    private GroupManagementUseCase groupManagementUseCase;
+    private CreateGroupUseCase createGroupUseCase;
+
+    @MockitoBean
+    private InviteMemberUseCase inviteMemberUseCase;
+
+    @MockitoBean
+    private GetGroupMembersUseCase getGroupMembersUseCase;
+
+    @MockitoBean
+    private GetGroupDetailUseCase getGroupDetailUseCase;
+
+    @MockitoBean
+    private GetMyGroupsUseCase getMyGroupsUseCase;
+
+    @MockitoBean
+    private DeleteGroupUseCase deleteGroupUseCase;
 
     @MockitoBean
     private GroupDtoMapper mapper;
@@ -51,6 +68,7 @@ class GroupControllerTest {
         // given
         GroupDto.CreateRequest request = GroupDto.CreateRequest.builder()
                 .name("New Group")
+                .memberIds(List.of(2L, 3L))
                 .build();
 
         Group group = Group.builder()
@@ -67,7 +85,7 @@ class GroupControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(groupManagementUseCase.createGroup("New Group")).willReturn(group);
+        given(createGroupUseCase.createGroup(any(String.class), anyList())).willReturn(group);
         given(mapper.toResponse(any(Group.class))).willReturn(response);
 
         // when & then
@@ -109,7 +127,7 @@ class GroupControllerTest {
         // But Controller ignores return value and calls getGroupMembers
 
         // Mock getGroupMembers to return list containing the invited user
-        given(groupManagementUseCase.getGroupMembers(groupId)).willReturn(List.of(invitee));
+        given(getGroupMembersUseCase.getGroupMembers(groupId)).willReturn(List.of(invitee));
 
         // Mock mapper
         given(mapper.toMemberResponse(any(User.class))).willReturn(memberResponse);
@@ -140,7 +158,7 @@ class GroupControllerTest {
                 .members(List.of(memberResponse))
                 .build();
 
-        given(groupManagementUseCase.getGroupMembers(groupId)).willReturn(members);
+        given(getGroupMembersUseCase.getGroupMembers(groupId)).willReturn(members);
         given(mapper.toMemberListResponse(members)).willReturn(response);
 
         // when & then
@@ -159,7 +177,7 @@ class GroupControllerTest {
         Group group = Group.builder().id(groupId).name("My Group").build();
         GroupDto.Response response = GroupDto.Response.builder().id(groupId).name("My Group").build();
 
-        given(groupManagementUseCase.getGroupDetail(groupId)).willReturn(group);
+        given(getGroupDetailUseCase.getGroupDetail(groupId)).willReturn(group);
         given(mapper.toResponse(group)).willReturn(response);
 
         // when & then
@@ -182,7 +200,7 @@ class GroupControllerTest {
                 .groups(List.of(groupResponse))
                 .build();
 
-        given(groupManagementUseCase.getMyGroups()).willReturn(groups);
+        given(getMyGroupsUseCase.getMyGroups()).willReturn(groups);
         given(mapper.toGroupListResponse(groups)).willReturn(response);
 
         // when & then
@@ -190,6 +208,21 @@ class GroupControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.groups[0].name").value("My Group"));
+    }
+
+    @Test
+    @DisplayName("Delete Group Success")
+    @WithMockUser
+    void deleteGroupSuccess() throws Exception {
+        // given
+        Long groupId = 1L;
+        doNothing().when(deleteGroupUseCase).deleteGroup(groupId);
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/groups/{id}", groupId)
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 
 }

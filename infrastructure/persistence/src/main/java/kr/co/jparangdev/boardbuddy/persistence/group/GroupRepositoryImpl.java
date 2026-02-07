@@ -1,13 +1,13 @@
 package kr.co.jparangdev.boardbuddy.persistence.group;
 
-import kr.co.jparangdev.boardbuddy.application.group.service.GroupRepository;
-import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,6 +35,11 @@ public class GroupRepositoryImpl implements GroupRepository {
         }
         return jpaRepository.findAllByIdIn(ids).stream()
             .map(mapper::toDomain)
-            .collect(Collectors.toList());
+            .toList();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepository.deleteById(id);
     }
 }
