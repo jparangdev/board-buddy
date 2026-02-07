@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class GroupController {
 
     private final CreateGroupUseCase createGroupUseCase;
-    private final InviteMemberUseCase inviteMemberUseCase;
     private final GetGroupMembersUseCase getGroupMembersUseCase;
     private final GetGroupDetailUseCase getGroupDetailUseCase;
     private final GetMyGroupsUseCase getMyGroupsUseCase;
@@ -38,35 +36,21 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(group));
     }
 
-    @PostMapping("/{id}/members")
-    @Operation(summary = "멤버 초대", description = "모임에 새로운 멤버를 초대합니다. Owner만 초대할 수 있습니다.")
-    public ResponseEntity<GroupDto.MemberResponse> inviteMember(
-            @PathVariable Long id,
-            @Valid @RequestBody GroupDto.InviteMemberRequest request) {
-        inviteMemberUseCase.inviteMember(id, request.getUserTag());
-        List<User> members = getGroupMembersUseCase.getGroupMembers(id);
-        User invitedUser = members.stream()
-                .filter(user -> user.getUserTag().equals(request.getUserTag()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Invited user not found in group members"));
-        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toMemberResponse(invitedUser));
-    }
-
     @GetMapping("/{id}/members")
     @Operation(summary = "멤버 조회", description = "모임의 멤버 목록을 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable Long id) {
+    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable("id") Long id) {
         return ResponseEntity.ok(mapper.toMemberListResponse(getGroupMembersUseCase.getGroupMembers(id)));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable Long id) {
+    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable("id") Long id) {
         return ResponseEntity.ok(mapper.toResponse(getGroupDetailUseCase.getGroupDetail(id)));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "모임 삭제", description = "모임을 삭제합니다. Owner만 삭제할 수 있습니다.")
-    public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGroup(@PathVariable("id") Long id) {
         deleteGroupUseCase.deleteGroup(id);
         return ResponseEntity.noContent().build();
     }

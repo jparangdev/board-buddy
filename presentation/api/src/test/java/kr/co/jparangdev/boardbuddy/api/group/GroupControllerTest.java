@@ -43,9 +43,6 @@ class GroupControllerTest {
     private CreateGroupUseCase createGroupUseCase;
 
     @MockitoBean
-    private InviteMemberUseCase inviteMemberUseCase;
-
-    @MockitoBean
     private GetGroupMembersUseCase getGroupMembersUseCase;
 
     @MockitoBean
@@ -96,50 +93,6 @@ class GroupControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("New Group"));
-    }
-
-    @Test
-    @DisplayName("Invite Member Success")
-    @WithMockUser
-    void inviteMemberSuccess() throws Exception {
-        // given
-        Long groupId = 1L;
-        String userTag = "invitee#1234";
-        GroupDto.InviteMemberRequest request = GroupDto.InviteMemberRequest.builder()
-                .userTag(userTag)
-                .build();
-
-        User invitee = User.builder()
-                .id(2L)
-                .nickname("invitee")
-                .discriminator("1234")
-                .build();
-
-        GroupDto.MemberResponse memberResponse = GroupDto.MemberResponse.builder()
-                .id(2L)
-                .nickname("invitee")
-                .discriminator("1234")
-                .userTag(userTag)
-                .build();
-
-        // Mock inviteMember void/return
-        // Service signature: GroupMember inviteMember(Long groupId, String userTag)
-        // But Controller ignores return value and calls getGroupMembers
-
-        // Mock getGroupMembers to return list containing the invited user
-        given(getGroupMembersUseCase.getGroupMembers(groupId)).willReturn(List.of(invitee));
-
-        // Mock mapper
-        given(mapper.toMemberResponse(any(User.class))).willReturn(memberResponse);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/groups/{id}/members", groupId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(request)))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userTag").value(userTag));
     }
 
     @Test

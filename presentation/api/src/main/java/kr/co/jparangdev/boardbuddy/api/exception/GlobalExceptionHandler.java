@@ -1,16 +1,18 @@
 package kr.co.jparangdev.boardbuddy.api.exception;
 
-import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
-import kr.co.jparangdev.boardbuddy.application.group.exception.*;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -48,13 +50,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(new ErrorResponse("GROUP_NOT_FOUND", e.getMessage()));
-    }
-
-    @ExceptionHandler(GroupMemberAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleGroupMemberAlreadyExists(GroupMemberAlreadyExistsException e) {
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(new ErrorResponse("GROUP_MEMBER_ALREADY_EXISTS", e.getMessage()));
     }
 
     @ExceptionHandler(NotGroupOwnerException.class)

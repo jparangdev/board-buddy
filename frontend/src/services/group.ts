@@ -20,10 +20,6 @@ export const groupService = {
     return response.members;
   },
 
-  async inviteMember(groupId: number, userTag: string): Promise<GroupMember> {
-    return api.post<GroupMember>(`/groups/${groupId}/members`, { userTag });
-  },
-
   async delete(groupId: number): Promise<void> {
     return api.delete(`/groups/${groupId}`);
   },

@@ -3,7 +3,6 @@ import {Link, useNavigate, useParams} from 'react-router-dom';
 import type {Group, GroupMember} from '@/types';
 import {groupService} from '@/services';
 import {useAuth} from '@/hooks/useAuth';
-import {InviteMemberModal} from '@/components/InviteMemberModal';
 import styles from './GroupDetailPage.module.css';
 
 export function GroupDetailPage() {
@@ -11,7 +10,6 @@ export function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -37,14 +35,9 @@ export function GroupDetailPage() {
     fetchData();
   }, [id]);
 
-  const handleMemberInvited = (newMember: GroupMember) => {
-    setMembers([...members, newMember]);
-    setShowInviteModal(false);
-  };
-
   const handleDeleteGroup = async () => {
     if (!group) return;
-    if (!window.confirm(`Are you sure you want to delete "${group.name}"? This cannot be undone.`)) return;
+    if (!globalThis.confirm(`Are you sure you want to delete "${group.name}"? This cannot be undone.`)) return;
     setIsDeleting(true);
     try {
       await groupService.delete(group.id);
@@ -95,18 +88,13 @@ export function GroupDetailPage() {
           </p>
         </div>
         {isOwner && (
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-            <button className="btn btn-primary" onClick={() => setShowInviteModal(true)}>
-              + Invite Member
-            </button>
-            <button
-              className="btn btn-danger"
-              onClick={handleDeleteGroup}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete Group'}
-            </button>
-          </div>
+          <button
+            className="btn btn-danger"
+            onClick={handleDeleteGroup}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Group'}
+          </button>
         )}
       </div>
 
@@ -130,14 +118,6 @@ export function GroupDetailPage() {
         </div>
       </div>
 
-      {showInviteModal && (
-        <InviteMemberModal
-          groupId={group.id}
-          existingMemberIds={members.map((m) => m.id)}
-          onClose={() => setShowInviteModal(false)}
-          onInvited={handleMemberInvited}
-        />
-      )}
     </div>
   );
 }

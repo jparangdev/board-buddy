@@ -26,6 +26,3 @@ export interface CreateGroupRequest {
   memberIds: number[];
 }
 
-export interface InviteMemberRequest {
-  userTag: string;
-}

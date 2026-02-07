@@ -6,7 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.jparangdev.boardbuddy.application.group.exception.*;
+import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GroupManagementService implements CreateGroupUseCase, InviteMemberUseCase, GetGroupMembersUseCase,
+public class GroupManagementService implements CreateGroupUseCase, GetGroupMembersUseCase,
         GetGroupDetailUseCase, GetMyGroupsUseCase, DeleteGroupUseCase {
 
     private final GroupRepository groupRepository;
@@ -47,41 +48,6 @@ public class GroupManagementService implements CreateGroupUseCase, InviteMemberU
         }
 
         return savedGroup;
-    }
-
-    @Override
-    @Transactional
-    public GroupMember inviteMember(Long groupId, String userTag) {
-        Long currentUserId = getCurrentUserId();
-
-        // 1. 모임 존재 확인
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException(groupId));
-
-        // 2. 현재 사용자가 owner인지 확인
-        if (!group.isOwner(currentUserId)) {
-            throw new NotGroupOwnerException(groupId, currentUserId);
-        }
-
-        // 3. userTag(닉네임#discriminator)로 User 검색
-        String[] parts = userTag.split("#");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid userTag format. Expected: nickname#discriminator");
-        }
-        String nickname = parts[0];
-        String discriminator = parts[1];
-
-        User invitee = userRepository.findByNicknameAndDiscriminator(nickname, discriminator)
-                .orElseThrow(() -> new UserNotFoundException(userTag));
-
-        // 4. 이미 멤버인지 확인
-        if (groupMemberRepository.existsByGroupIdAndUserId(groupId, invitee.getId())) {
-            throw new GroupMemberAlreadyExistsException(userTag);
-        }
-
-        // 5. GroupMember 저장
-        GroupMember groupMember = GroupMember.create(groupId, invitee.getId());
-        return groupMemberRepository.save(groupMember);
     }
 
     @Override

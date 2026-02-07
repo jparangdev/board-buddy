@@ -24,15 +24,6 @@ public class GroupDto {
 
     @Getter
     @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class InviteMemberRequest {
-        @NotBlank(message = "User tag is required")
-        private String userTag;  // 닉네임#discriminator
-    }
-
-    @Getter
-    @Builder
     public static class Response {
         private Long id;
         private String name;
