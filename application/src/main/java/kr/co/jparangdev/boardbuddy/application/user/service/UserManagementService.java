@@ -29,8 +29,11 @@ public class UserManagementService implements GetUserByIdUseCase, SearchUsersUse
 
     @Override
     public User getCurrentUser() {
-        Long userId = (Long) SecurityContextHolder.getContext()
-            .getAuthentication().getPrincipal();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new IllegalStateException("Authentication is missing");
+        }
+        Long userId = (Long) authentication.getPrincipal();
         return userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
     }

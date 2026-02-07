@@ -41,7 +41,7 @@ public class GroupController {
     @PostMapping("/{id}/members")
     @Operation(summary = "멤버 초대", description = "모임에 새로운 멤버를 초대합니다. Owner만 초대할 수 있습니다.")
     public ResponseEntity<GroupDto.MemberResponse> inviteMember(
-            @PathVariable("id") Long id,
+            @PathVariable Long id,
             @Valid @RequestBody GroupDto.InviteMemberRequest request) {
         inviteMemberUseCase.inviteMember(id, request.getUserTag());
         List<User> members = getGroupMembersUseCase.getGroupMembers(id);
@@ -54,21 +54,19 @@ public class GroupController {
 
     @GetMapping("/{id}/members")
     @Operation(summary = "멤버 조회", description = "모임의 멤버 목록을 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable("id") Long id) {
-        List<User> members = getGroupMembersUseCase.getGroupMembers(id);
-        return ResponseEntity.ok(mapper.toMemberListResponse(members));
+    public ResponseEntity<GroupDto.MemberListResponse> getGroupMembers(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toMemberListResponse(getGroupMembersUseCase.getGroupMembers(id)));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "모임 상세 조회", description = "모임의 상세 정보를 조회합니다. 모임 멤버만 조회할 수 있습니다.")
-    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable("id") Long id) {
-        Group group = getGroupDetailUseCase.getGroupDetail(id);
-        return ResponseEntity.ok(mapper.toResponse(group));
+    public ResponseEntity<GroupDto.Response> getGroupDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(mapper.toResponse(getGroupDetailUseCase.getGroupDetail(id)));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "모임 삭제", description = "모임을 삭제합니다. Owner만 삭제할 수 있습니다.")
-    public ResponseEntity<Void> deleteGroup(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
         deleteGroupUseCase.deleteGroup(id);
         return ResponseEntity.noContent().build();
     }
@@ -76,7 +74,6 @@ public class GroupController {
     @GetMapping
     @Operation(summary = "내 모임 목록 조회", description = "현재 로그인한 사용자가 속한 모임 목록을 조회합니다.")
     public ResponseEntity<GroupDto.GroupListResponse> getMyGroups() {
-        List<Group> groups = getMyGroupsUseCase.getMyGroups();
-        return ResponseEntity.ok(mapper.toGroupListResponse(groups));
+        return ResponseEntity.ok(mapper.toGroupListResponse(getMyGroupsUseCase.getMyGroups()));
     }
 }

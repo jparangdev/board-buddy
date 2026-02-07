@@ -1,7 +1,5 @@
 package kr.co.jparangdev.boardbuddy.api.user;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,15 +32,14 @@ public class UserController {
      */
     @GetMapping("/search")
     public ResponseEntity<UserDto.SearchResponse> searchUsers(@RequestParam("keyword") String keyword) {
-        List<User> users = searchUsersUseCase.searchUsers(keyword);
-        return ResponseEntity.ok(mapper.toSearchResponse(users));
+        return ResponseEntity.ok(mapper.toSearchResponse(searchUsersUseCase.searchUsers(keyword)));
     }
 
     /**
      * Get user by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto.Response> getUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<UserDto.Response> getUserById(@PathVariable Long id) {
         return getUserByIdUseCase.getUserById(id)
             .map(mapper::toResponse)
             .map(ResponseEntity::ok)

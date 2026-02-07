@@ -21,11 +21,10 @@ public class UserDtoMapper {
     }
 
     public UserDto.SearchResponse toSearchResponse(List<User> users) {
-        List<UserDto.Response> responses = users.stream()
-            .map(this::toResponse)
-            .toList();
         return UserDto.SearchResponse.builder()
-            .users(responses)
+            .users(users.stream()
+                .map(this::toResponse)
+                .toList())
             .build();
     }
 }

@@ -159,7 +159,10 @@ public class GroupManagementService implements CreateGroupUseCase, InviteMemberU
     }
 
     private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new IllegalStateException("Authentication is missing");
+        }
+        return (Long) authentication.getPrincipal();
     }
 }
