@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
-import kr.co.jparangdev.boardbuddy.application.user.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import lombok.RequiredArgsConstructor;
 
@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final GetUserByIdUseCase getUserByIdUseCase;
-    private final SearchUsersUseCase searchUsersUseCase;
-    private final GetCurrentUserUseCase getCurrentUserUseCase;
+    private final UserQueryUseCase userQueryUseCase;
     private final UserDtoMapper mapper;
 
     /**
@@ -23,7 +21,7 @@ public class UserController {
      */
     @GetMapping("/me")
     public ResponseEntity<UserDto.Response> getCurrentUser() {
-        User user = getCurrentUserUseCase.getCurrentUser();
+        User user = userQueryUseCase.getCurrentUser();
         return ResponseEntity.ok(mapper.toResponse(user));
     }
 
@@ -32,7 +30,7 @@ public class UserController {
      */
     @GetMapping("/search")
     public ResponseEntity<UserDto.SearchResponse> searchUsers(@RequestParam("keyword") String keyword) {
-        return ResponseEntity.ok(mapper.toSearchResponse(searchUsersUseCase.searchUsers(keyword)));
+        return ResponseEntity.ok(mapper.toSearchResponse(userQueryUseCase.searchUsers(keyword)));
     }
 
     /**
@@ -40,7 +38,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserDto.Response> getUserById(@PathVariable("id") Long id) {
-        return getUserByIdUseCase.getUserById(id)
+        return userQueryUseCase.getUserById(id)
             .map(mapper::toResponse)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());

@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
-import kr.co.jparangdev.boardbuddy.application.user.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 
 @WebMvcTest(UserController.class)
@@ -32,13 +32,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private GetUserByIdUseCase getUserByIdUseCase;
-
-    @MockitoBean
-    private SearchUsersUseCase searchUsersUseCase;
-
-    @MockitoBean
-    private GetCurrentUserUseCase getCurrentUserUseCase;
+    private UserQueryUseCase userQueryUseCase;
 
     @MockitoBean
     private UserDtoMapper userDtoMapper;
@@ -62,7 +56,7 @@ class UserControllerTest {
                 .userTag("tester#1234")
                 .build();
 
-        given(getCurrentUserUseCase.getCurrentUser()).willReturn(user);
+        given(userQueryUseCase.getCurrentUser()).willReturn(user);
         given(userDtoMapper.toResponse(any(User.class))).willReturn(response);
 
         // when & then
@@ -92,7 +86,7 @@ class UserControllerTest {
                 .userTag("tester#1234")
                 .build();
 
-        given(getUserByIdUseCase.getUserById(1L)).willReturn(Optional.of(user));
+        given(userQueryUseCase.getUserById(1L)).willReturn(Optional.of(user));
         given(userDtoMapper.toResponse(any(User.class))).willReturn(response);
 
         // when & then
@@ -107,7 +101,7 @@ class UserControllerTest {
     @WithMockUser
     void getUserByIdNotFound() throws Exception {
         // given
-        given(getUserByIdUseCase.getUserById(999L)).willReturn(Optional.empty());
+        given(userQueryUseCase.getUserById(999L)).willReturn(Optional.empty());
 
         // when & then
         mockMvc.perform(get("/api/v1/users/999"))
@@ -137,7 +131,7 @@ class UserControllerTest {
                 .users(List.of(response))
                 .build();
 
-        given(searchUsersUseCase.searchUsers("test")).willReturn(List.of(user));
+        given(userQueryUseCase.searchUsers("test")).willReturn(List.of(user));
         given(userDtoMapper.toSearchResponse(anyList())).willReturn(searchResponse);
 
         // when & then
@@ -157,7 +151,7 @@ class UserControllerTest {
                 .users(List.of())
                 .build();
 
-        given(searchUsersUseCase.searchUsers("")).willReturn(List.of());
+        given(userQueryUseCase.searchUsers("")).willReturn(List.of());
         given(userDtoMapper.toSearchResponse(anyList())).willReturn(searchResponse);
 
         // when & then

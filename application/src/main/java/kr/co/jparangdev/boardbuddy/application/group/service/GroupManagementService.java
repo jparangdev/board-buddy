@@ -8,7 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
@@ -22,8 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GroupManagementService implements CreateGroupUseCase, GetGroupMembersUseCase,
-        GetGroupDetailUseCase, GetMyGroupsUseCase, DeleteGroupUseCase {
+public class GroupManagementService implements GroupCommandUseCase, GroupQueryUseCase {
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;

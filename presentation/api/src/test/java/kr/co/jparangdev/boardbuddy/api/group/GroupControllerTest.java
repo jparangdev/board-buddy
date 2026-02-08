@@ -24,7 +24,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import tools.jackson.databind.json.JsonMapper;
@@ -40,19 +41,10 @@ class GroupControllerTest {
     private JsonMapper jsonMapper;
 
     @MockitoBean
-    private CreateGroupUseCase createGroupUseCase;
+    private GroupCommandUseCase groupCommandUseCase;
 
     @MockitoBean
-    private GetGroupMembersUseCase getGroupMembersUseCase;
-
-    @MockitoBean
-    private GetGroupDetailUseCase getGroupDetailUseCase;
-
-    @MockitoBean
-    private GetMyGroupsUseCase getMyGroupsUseCase;
-
-    @MockitoBean
-    private DeleteGroupUseCase deleteGroupUseCase;
+    private GroupQueryUseCase groupQueryUseCase;
 
     @MockitoBean
     private GroupDtoMapper mapper;
@@ -82,7 +74,7 @@ class GroupControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(createGroupUseCase.createGroup(any(String.class), anyList())).willReturn(group);
+        given(groupCommandUseCase.createGroup(any(String.class), anyList())).willReturn(group);
         given(mapper.toResponse(any(Group.class))).willReturn(response);
 
         // when & then
@@ -111,7 +103,7 @@ class GroupControllerTest {
                 .members(List.of(memberResponse))
                 .build();
 
-        given(getGroupMembersUseCase.getGroupMembers(groupId)).willReturn(members);
+        given(groupQueryUseCase.getGroupMembers(groupId)).willReturn(members);
         given(mapper.toMemberListResponse(members)).willReturn(response);
 
         // when & then
@@ -130,7 +122,7 @@ class GroupControllerTest {
         Group group = Group.builder().id(groupId).name("My Group").build();
         GroupDto.Response response = GroupDto.Response.builder().id(groupId).name("My Group").build();
 
-        given(getGroupDetailUseCase.getGroupDetail(groupId)).willReturn(group);
+        given(groupQueryUseCase.getGroupDetail(groupId)).willReturn(group);
         given(mapper.toResponse(group)).willReturn(response);
 
         // when & then
@@ -153,7 +145,7 @@ class GroupControllerTest {
                 .groups(List.of(groupResponse))
                 .build();
 
-        given(getMyGroupsUseCase.getMyGroups()).willReturn(groups);
+        given(groupQueryUseCase.getMyGroups()).willReturn(groups);
         given(mapper.toGroupListResponse(groups)).willReturn(response);
 
         // when & then
@@ -169,7 +161,7 @@ class GroupControllerTest {
     void deleteGroupSuccess() throws Exception {
         // given
         Long groupId = 1L;
-        doNothing().when(deleteGroupUseCase).deleteGroup(groupId);
+        doNothing().when(groupCommandUseCase).deleteGroup(groupId);
 
         // when & then
         mockMvc.perform(delete("/api/v1/groups/{id}", groupId)

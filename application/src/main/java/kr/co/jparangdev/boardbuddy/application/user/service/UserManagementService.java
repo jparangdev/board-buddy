@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.usecase.*;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserManagementService implements GetUserByIdUseCase, SearchUsersUseCase, GetCurrentUserUseCase {
+public class UserManagementService implements UserQueryUseCase {
 
     private static final int SEARCH_RESULT_LIMIT = 10;
 

@@ -4,6 +4,8 @@ import java.util.List;
 
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 
-public interface CreateGroupUseCase {
+public interface GroupCommandUseCase {
     Group createGroup(String name, List<Long> memberIds);
+
+    void deleteGroup(Long groupId);
 }
