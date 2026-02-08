@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import type {Group, GroupMember} from '@/types';
-import {groupService} from '@/services';
+import type {GameSession, Group, GroupMember} from '@/types';
+import {gameSessionService, groupService} from '@/services';
 import {useAuth} from '@/hooks/useAuth';
 import styles from './GroupDetailPage.module.css';
 
@@ -9,6 +9,7 @@ export function GroupDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
+  const [sessions, setSessions] = useState<GameSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
@@ -20,12 +21,14 @@ export function GroupDetailPage() {
     const fetchData = async () => {
       if (!id) return;
       try {
-        const [groupData, membersData] = await Promise.all([
+        const [groupData, membersData, sessionsData] = await Promise.all([
           groupService.getById(Number(id)),
           groupService.getMembers(Number(id)),
+          gameSessionService.getSessionsByGroup(Number(id)),
         ]);
         setGroup(groupData);
         setMembers(membersData);
+        setSessions(sessionsData);
       } catch (error) {
         console.error('Failed to fetch group:', error);
       } finally {
@@ -116,6 +119,35 @@ export function GroupDetailPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className={styles.section} style={{marginTop: 'var(--spacing-lg)'}}>
+        <div className={styles.sectionHeader}>
+          <h2>Game Sessions ({sessions.length})</h2>
+          <Link to={`/groups/${group.id}/sessions/new`} className="btn btn-primary">
+            + Record Game
+          </Link>
+        </div>
+        {sessions.length === 0 ? (
+          <p className="text-muted">No game sessions recorded yet.</p>
+        ) : (
+          <div className={styles.sessionList}>
+            {sessions.map((session) => (
+              <Link
+                key={session.id}
+                to={`/groups/${group.id}/sessions/${session.id}`}
+                className={styles.sessionCard}
+              >
+                <div className={styles.sessionInfo}>
+                  <span className={styles.sessionGame}>{session.gameName}</span>
+                  <span className={styles.sessionDate}>
+                    {new Date(session.playedAt).toLocaleString()}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

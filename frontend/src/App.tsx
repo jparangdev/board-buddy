@@ -1,7 +1,7 @@
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {AuthProvider} from '@/hooks';
 import {Layout, ProtectedRoute} from '@/components';
-import {GroupDetailPage, GroupListPage, LoginPage} from '@/pages';
+import {CreateSessionPage, GameListPage, GroupDetailPage, GroupListPage, LoginPage, SessionDetailPage} from '@/pages';
 
 function App() {
   return (
@@ -14,6 +14,9 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/groups" element={<GroupListPage />} />
               <Route path="/groups/:id" element={<GroupDetailPage />} />
+              <Route path="/groups/:groupId/sessions/new" element={<CreateSessionPage />} />
+              <Route path="/groups/:groupId/sessions/:sessionId" element={<SessionDetailPage />} />
+              <Route path="/games" element={<GameListPage />} />
               <Route path="/" element={<Navigate to="/groups" replace />} />
             </Route>
           </Route>

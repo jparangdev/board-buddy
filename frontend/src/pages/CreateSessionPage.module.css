@@ -1,0 +1,185 @@
+.backLink {
+  display: inline-block;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-light);
+}
+
+.backLink:hover {
+  color: var(--color-text);
+}
+
+.header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.steps {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.step {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: var(--color-cream);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-light);
+}
+
+.stepActive {
+  background: var(--color-green-felt);
+  border-color: var(--color-green-felt);
+  color: white;
+}
+
+.stepDone {
+  background: #e8f5e9;
+  border-color: #4caf50;
+  color: #2e7d32;
+}
+
+.section {
+  background: var(--color-cream);
+  border: 2px solid var(--color-wood-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.section h2 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.gameCard {
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: white;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.gameCard:hover {
+  border-color: var(--color-gold);
+}
+
+.gameCardSelected {
+  border-color: var(--color-green-felt);
+  background: #e8f5e9;
+}
+
+.gameCard h4 {
+  margin-bottom: var(--spacing-xs);
+}
+
+.gameCardMeta {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.memberRowSelected {
+  border-color: var(--color-green-felt);
+  background: #e8f5e9;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+.memberAvatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--color-green-felt) 0%, var(--color-green-dark) 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.memberName {
+  flex: 1;
+}
+
+.scoreInputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.scoreRow label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.scoreInput {
+  width: 100px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-lg);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--color-text-light);
+}
+
+.loadingIcon {
+  font-size: 3rem;
+  animation: roll 1s ease-in-out infinite;
+}
+
+@keyframes roll {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  50% { transform: rotate(180deg); }
+  75% { transform: rotate(270deg); }
+}

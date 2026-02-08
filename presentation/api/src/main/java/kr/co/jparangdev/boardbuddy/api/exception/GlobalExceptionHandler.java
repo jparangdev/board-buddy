@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
 import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
+import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateGameNameException;
+import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.game.exception.GameSessionNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
@@ -64,6 +67,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(new ErrorResponse("USER_NOT_GROUP_MEMBER", e.getMessage()));
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGameNotFound(GameNotFoundException e) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("GAME_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(GameSessionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleGameSessionNotFound(GameSessionNotFoundException e) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("GAME_SESSION_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateGameNameException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateGameName(DuplicateGameNameException e) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("DUPLICATE_GAME_NAME", e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
