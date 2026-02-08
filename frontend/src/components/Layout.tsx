@@ -24,6 +24,9 @@ export function Layout() {
               <Link to="/groups" className={styles.navLink}>
                 My Groups
               </Link>
+              <Link to="/games" className={styles.navLink}>
+                Games
+              </Link>
               <div className={styles.userSection}>
                 <span className={styles.userTag}>{user.userTag}</span>
                 <button onClick={handleLogout} className="btn btn-secondary">
