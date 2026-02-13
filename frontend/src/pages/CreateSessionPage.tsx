@@ -91,7 +91,7 @@ export function CreateSessionPage() {
   const canProceed = () => {
     switch (step) {
       case 'game': return selectedGame !== null;
-      case 'members': return selectedMemberIds.size >= 2;
+      case 'members': return selectedMemberIds.size >= 1;
       case 'scores': return true;
       case 'confirm': return true;
     }
@@ -176,7 +176,10 @@ export function CreateSessionPage() {
                   type="checkbox"
                   className={styles.checkbox}
                   checked={selectedMemberIds.has(member.id)}
-                  onChange={() => toggleMember(member.id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    toggleMember(member.id);
+                  }}
                 />
                 <div className={styles.memberAvatar}>
                   {member.nickname.charAt(0).toUpperCase()}
