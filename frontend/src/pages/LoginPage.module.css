@@ -67,3 +67,18 @@
   color: var(--color-text-light);
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-sm);
+  }
+
+  .card {
+    max-width: 100%;
+    padding: var(--spacing-md);
+  }
+
+  .icon {
+    font-size: 3rem;
+  }
+}

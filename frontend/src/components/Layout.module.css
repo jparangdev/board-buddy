@@ -84,3 +84,44 @@
   padding: var(--spacing-md);
   font-size: 0.875rem;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: var(--spacing-sm);
+  }
+
+  .headerContent {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .logoIcon {
+    font-size: 1.4rem;
+  }
+
+  .nav {
+    gap: var(--spacing-sm);
+  }
+
+  .navLink {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.85rem;
+  }
+
+  .userSection {
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+  }
+
+  .main {
+    padding: var(--spacing-sm);
+  }
+
+  .footer {
+    font-size: 0.75rem;
+  }
+}

@@ -125,3 +125,24 @@
   gap: var(--spacing-sm);
   margin-top: var(--spacing-lg);
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .modalContent {
+    max-width: 100%;
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm);
+  }
+}

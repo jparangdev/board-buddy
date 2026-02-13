@@ -184,3 +184,38 @@
   50% { transform: rotate(180deg); }
   75% { transform: rotate(270deg); }
 }
+
+@media (max-width: 768px) {
+  .steps {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .step {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .section {
+    padding: var(--spacing-md);
+  }
+
+  .gameGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scoreRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .scoreInput {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}
