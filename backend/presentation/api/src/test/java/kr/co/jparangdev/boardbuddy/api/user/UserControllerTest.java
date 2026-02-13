@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
+import kr.co.jparangdev.boardbuddy.application.user.usecase.UserCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 
@@ -33,6 +34,9 @@ class UserControllerTest {
 
     @MockitoBean
     private UserQueryUseCase userQueryUseCase;
+
+    @MockitoBean
+    private UserCommandUseCase userCommandUseCase;
 
     @MockitoBean
     private UserDtoMapper userDtoMapper;
