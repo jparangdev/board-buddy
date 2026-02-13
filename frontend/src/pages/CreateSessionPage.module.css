@@ -25,26 +25,26 @@
   text-align: center;
   font-size: 0.85rem;
   font-weight: 500;
-  background: var(--color-cream);
+  background: var(--color-bg-secondary);
   border: 2px solid var(--color-border);
   color: var(--color-text-light);
 }
 
 .stepActive {
-  background: var(--color-green-felt);
-  border-color: var(--color-green-felt);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: white;
 }
 
 .stepDone {
-  background: #e8f5e9;
-  border-color: #4caf50;
-  color: #2e7d32;
+  background: rgba(35, 165, 89, 0.15);
+  border-color: var(--color-green);
+  color: #57f287;
 }
 
 .section {
-  background: var(--color-cream);
-  border: 2px solid var(--color-wood-light);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
@@ -62,21 +62,22 @@
 
 .gameCard {
   padding: var(--spacing-md);
-  border: 2px solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  background: white;
+  background: var(--color-bg-tertiary);
   text-align: left;
   transition: all 0.15s ease;
+  color: var(--color-text);
 }
 
 .gameCard:hover {
-  border-color: var(--color-gold);
+  border-color: var(--color-accent);
 }
 
 .gameCardSelected {
-  border-color: var(--color-green-felt);
-  background: #e8f5e9;
+  border-color: var(--color-green);
+  background: rgba(35, 165, 89, 0.1);
 }
 
 .gameCard h4 {
@@ -99,15 +100,15 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: white;
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 .memberRowSelected {
-  border-color: var(--color-green-felt);
-  background: #e8f5e9;
+  border-color: var(--color-green);
+  background: rgba(35, 165, 89, 0.1);
 }
 
 .checkbox {
@@ -118,7 +119,7 @@
 .memberAvatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--color-green-felt) 0%, var(--color-green-dark) 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -143,7 +144,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: white;
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }

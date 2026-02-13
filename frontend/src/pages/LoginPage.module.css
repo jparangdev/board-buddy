@@ -7,8 +7,8 @@
 }
 
 .card {
-  background: var(--color-cream);
-  border: 3px solid var(--color-wood);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 8px 32px var(--color-shadow);
   padding: var(--spacing-xl);
@@ -49,8 +49,8 @@
 }
 
 .error {
-  color: var(--color-red-dice);
-  background: rgba(198, 40, 40, 0.1);
+  color: var(--color-red);
+  background: rgba(218, 55, 60, 0.15);
   padding: var(--spacing-sm);
   border-radius: var(--radius-sm);
   font-size: 0.875rem;

@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(62, 39, 35, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,10 +13,10 @@
 }
 
 .modal {
-  background: var(--color-cream);
-  border: 3px solid var(--color-wood);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
   width: 100%;
   max-width: 450px;
   padding: var(--spacing-lg);
@@ -28,7 +28,7 @@
   align-items: center;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header h2 {
@@ -57,8 +57,8 @@
 }
 
 .error {
-  color: var(--color-red-dice);
-  background: rgba(198, 40, 40, 0.1);
+  color: var(--color-red);
+  background: rgba(218, 55, 60, 0.15);
   padding: var(--spacing-sm);
   border-radius: var(--radius-sm);
   font-size: 0.875rem;
@@ -83,20 +83,20 @@
 }
 
 .userCard:hover {
-  background: rgba(139, 90, 43, 0.08);
+  background: var(--color-bg-hover);
 }
 
 .userCard.selected {
-  background: rgba(139, 90, 43, 0.15);
-  border-left: 3px solid var(--color-wood);
+  background: var(--color-bg-active);
+  border-left: 3px solid var(--color-accent);
 }
 
 .userCardAvatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--color-wood);
-  color: var(--color-cream);
+  background: var(--color-accent);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,8 +146,8 @@
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: rgba(139, 90, 43, 0.12);
-  border: 1px solid var(--color-wood-light);
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -164,5 +164,5 @@
 }
 
 .chipRemove:hover {
-  color: var(--color-red-dice);
+  color: var(--color-red);
 }

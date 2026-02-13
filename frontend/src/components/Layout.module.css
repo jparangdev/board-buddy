@@ -5,10 +5,10 @@
 }
 
 .header {
-  background: linear-gradient(180deg, var(--color-wood-dark) 0%, var(--color-wood) 100%);
-  color: var(--color-cream);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text);
   padding: var(--spacing-md) var(--spacing-lg);
-  box-shadow: 0 4px 12px var(--color-shadow);
+  box-shadow: 0 1px 0 var(--color-border);
 }
 
 .headerContent {
@@ -22,7 +22,7 @@
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-gold);
+  color: var(--color-accent);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -31,7 +31,7 @@
 
 .logo:hover {
   text-decoration: none;
-  color: var(--color-gold);
+  color: var(--color-accent);
 }
 
 .logoIcon {
@@ -45,15 +45,16 @@
 }
 
 .navLink {
-  color: var(--color-cream);
+  color: var(--color-text-light);
   font-weight: 500;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--color-bg-hover);
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -65,8 +66,8 @@
 
 .userTag {
   font-size: 0.875rem;
-  color: var(--color-gold);
-  background: rgba(0, 0, 0, 0.2);
+  color: var(--color-text);
+  background: var(--color-bg-hover);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
 }
@@ -77,8 +78,8 @@
 }
 
 .footer {
-  background: var(--color-wood-dark);
-  color: var(--color-wood-light);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-light);
   text-align: center;
   padding: var(--spacing-md);
   font-size: 0.875rem;

@@ -14,7 +14,7 @@
   align-items: flex-start;
   margin-bottom: var(--spacing-xl);
   padding-bottom: var(--spacing-lg);
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .headerInfo {
@@ -33,8 +33,8 @@
 }
 
 .section {
-  background: var(--color-cream);
-  border: 2px solid var(--color-wood-light);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
 }
@@ -42,7 +42,7 @@
 .section h2 {
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .memberList {
@@ -56,7 +56,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: white;
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
@@ -64,7 +64,7 @@
 .avatar {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, var(--color-green-felt) 0%, var(--color-green-dark) 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -117,7 +117,7 @@
   align-items: center;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .sectionHeader h2 {
@@ -136,7 +136,7 @@
   display: flex;
   align-items: center;
   padding: var(--spacing-md);
-  background: white;
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   text-decoration: none;
@@ -145,7 +145,7 @@
 }
 
 .sessionCard:hover {
-  border-color: var(--color-gold);
+  border-color: var(--color-accent);
   text-decoration: none;
 }
 
