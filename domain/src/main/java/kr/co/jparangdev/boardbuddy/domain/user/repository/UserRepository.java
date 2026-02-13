@@ -13,4 +13,6 @@ public interface UserRepository {
     Optional<User> findByNicknameAndDiscriminator(String nickname, String discriminator);
     String generateUniqueDiscriminator(String nickname);
     List<User> searchByNicknameContaining(String keyword, int limit);
+    boolean existsById(Long id);
+    void deleteById(Long id);
 }

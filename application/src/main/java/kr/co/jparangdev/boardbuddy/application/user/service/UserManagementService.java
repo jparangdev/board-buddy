@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserManagementService implements UserQueryUseCase {
+public class UserManagementService implements UserQueryUseCase, kr.co.jparangdev.boardbuddy.application.user.usecase.UserCommandUseCase {
 
     private static final int SEARCH_RESULT_LIMIT = 10;
 
@@ -44,5 +44,13 @@ public class UserManagementService implements UserQueryUseCase {
             return List.of();
         }
         return userRepository.searchByNicknameContaining(keyword.trim(), SEARCH_RESULT_LIMIT);
+    }
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+        userRepository.deleteById(userId);
     }
 }

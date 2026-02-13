@@ -7,16 +7,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
 import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateGameNameException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameSessionNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.game.exception.*;
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -99,6 +99,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericError(Exception e) {
+        log.error("Unexpected error occurred", e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"));

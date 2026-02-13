@@ -1,3 +1,11 @@
+-- Drop tables in reverse dependency order
+DROP TABLE IF EXISTS game_results;
+DROP TABLE IF EXISTS game_sessions;
+DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS group_members;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS users;
+
 -- Users table
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,

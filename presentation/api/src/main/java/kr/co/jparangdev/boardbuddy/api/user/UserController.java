@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserQueryUseCase userQueryUseCase;
+    private final kr.co.jparangdev.boardbuddy.application.user.usecase.UserCommandUseCase userCommandUseCase;
     private final UserDtoMapper mapper;
 
     /**
@@ -42,5 +43,14 @@ public class UserController {
             .map(mapper::toResponse)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
+    }
+    /**
+     * Delete current user account
+     */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentUser() {
+        User user = userQueryUseCase.getCurrentUser();
+        userCommandUseCase.deleteUser(user.getId());
+        return ResponseEntity.noContent().build();
     }
 }

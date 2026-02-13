@@ -56,6 +56,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return jpaRepository.existsById(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepository.deleteById(id);
+    }
+
+    @Override
     public String generateUniqueDiscriminator(String nickname) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 

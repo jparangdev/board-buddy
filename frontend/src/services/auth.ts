@@ -18,6 +18,10 @@ export const authService = {
     return response;
   },
 
+  async deleteAccount(): Promise<void> {
+    await api.delete('/users/me');
+  },
+
   async logout(): Promise<void> {
     const refreshToken = getRefreshToken();
     if (refreshToken) {
