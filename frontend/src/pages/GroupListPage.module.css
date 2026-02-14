@@ -52,7 +52,7 @@
 
 .emptyState {
   text-align: center;
-  padding: var(--spacing-xl) * 2;
+  padding: calc(var(--spacing-xl) * 2);
   background: var(--color-bg-secondary);
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-lg);

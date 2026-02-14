@@ -1,6 +1,7 @@
 -- Drop tables in reverse dependency order
 DROP TABLE IF EXISTS game_results;
 DROP TABLE IF EXISTS game_sessions;
+DROP TABLE IF EXISTS custom_games;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS group_members;
 DROP TABLE IF EXISTS groups;
@@ -52,15 +53,34 @@ CREATE TABLE games (
     created_at TIMESTAMP NOT NULL
 );
 
+-- Custom Games table (per-group custom game types)
+CREATE TABLE custom_games (
+    id BIGSERIAL PRIMARY KEY,
+    group_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    min_players INT NOT NULL DEFAULT 1,
+    max_players INT NOT NULL DEFAULT 10,
+    score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    UNIQUE (group_id, name)
+);
+
 -- Game Sessions table (a single play session within a group)
 CREATE TABLE game_sessions (
     id BIGSERIAL PRIMARY KEY,
     group_id BIGINT NOT NULL,
-    game_id BIGINT NOT NULL,
+    game_id BIGINT,
+    custom_game_id BIGINT,
     played_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
-    FOREIGN KEY (game_id) REFERENCES games(id)
+    FOREIGN KEY (game_id) REFERENCES games(id),
+    FOREIGN KEY (custom_game_id) REFERENCES custom_games(id),
+    CONSTRAINT chk_game_ref CHECK (
+        (game_id IS NOT NULL AND custom_game_id IS NULL) OR
+        (game_id IS NULL AND custom_game_id IS NOT NULL)
+    )
 );
 
 CREATE INDEX idx_game_sessions_group_id ON game_sessions(group_id);

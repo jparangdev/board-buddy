@@ -90,6 +90,20 @@ public class GlobalExceptionHandler {
             .body(new ErrorResponse("DUPLICATE_GAME_NAME", e.getMessage()));
     }
 
+    @ExceptionHandler(CustomGameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCustomGameNotFound(CustomGameNotFoundException e) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ErrorResponse("CUSTOM_GAME_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateCustomGameNameException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCustomGameName(DuplicateCustomGameNameException e) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("DUPLICATE_CUSTOM_GAME_NAME", e.getMessage()));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity

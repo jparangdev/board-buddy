@@ -4,6 +4,8 @@ import type {GameSessionDetail} from '@/types';
 import {gameSessionService} from '@/services';
 import styles from './SessionDetailPage.module.css';
 
+const BINARY_STRATEGIES = ['WIN_LOSE', 'COOPERATIVE'];
+
 export function SessionDetailPage() {
   const { groupId, sessionId } = useParams<{ groupId: string; sessionId: string }>();
   const [session, setSession] = useState<GameSessionDetail | null>(null);
@@ -46,6 +48,8 @@ export function SessionDetailPage() {
     );
   }
 
+  const isBinaryStrategy = BINARY_STRATEGIES.includes(session.scoreStrategy);
+  const isRankOnly = session.scoreStrategy === 'RANK_ONLY';
   const sortedResults = [...session.results].sort((a, b) => a.rank - b.rank);
 
   const rankClass = (rank: number) => {
@@ -53,6 +57,13 @@ export function SessionDetailPage() {
     if (rank === 2) return styles.rank2;
     if (rank === 3) return styles.rank3;
     return '';
+  };
+
+  const getResultLabel = (rank: number) => {
+    if (isBinaryStrategy) {
+      return rank === 1 ? 'Won' : 'Lost';
+    }
+    return null;
   };
 
   return (
@@ -77,19 +88,24 @@ export function SessionDetailPage() {
         <table className={styles.resultTable}>
           <thead>
             <tr>
-              <th>Rank</th>
+              <th>{isBinaryStrategy ? 'Result' : 'Rank'}</th>
               <th>Player</th>
-              <th>Score</th>
+              {!isBinaryStrategy && !isRankOnly && <th>Score</th>}
             </tr>
           </thead>
           <tbody>
             {sortedResults.map((result) => (
               <tr key={result.userId}>
                 <td className={`${styles.rankCell} ${rankClass(result.rank)}`}>
-                  #{result.rank}
+                  {isBinaryStrategy
+                    ? getResultLabel(result.rank)
+                    : `#${result.rank}`
+                  }
                 </td>
                 <td>{result.nickname ?? `User #${result.userId}`}</td>
-                <td>{result.score ?? '-'}</td>
+                {!isBinaryStrategy && !isRankOnly && (
+                  <td>{result.score ?? '-'}</td>
+                )}
               </tr>
             ))}
           </tbody>

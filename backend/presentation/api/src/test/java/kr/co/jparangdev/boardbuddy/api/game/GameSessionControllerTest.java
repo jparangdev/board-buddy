@@ -24,6 +24,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.game.dto.GameSessionDto;
+import kr.co.jparangdev.boardbuddy.application.game.usecase.CustomGameQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
@@ -54,6 +55,9 @@ class GameSessionControllerTest {
 
     @MockitoBean
     private GameQueryUseCase gameQueryUseCase;
+
+    @MockitoBean
+    private CustomGameQueryUseCase customGameQueryUseCase;
 
     @MockitoBean
     private GameCommandUseCase gameCommandUseCase;
@@ -123,7 +127,7 @@ class GameSessionControllerTest {
 
         given(gameSessionQueryUseCase.getSessionsByGroup(1L)).willReturn(List.of(session));
         given(gameQueryUseCase.getGameDetail(1L)).willReturn(game);
-        given(mapper.toSessionListResponse(anyList(), anyMap()))
+        given(mapper.toSessionListResponse(anyList(), anyMap(), anyMap()))
                 .willReturn(GameSessionDto.SessionListResponse.builder()
                         .sessions(List.of(sessionResponse)).build());
 
@@ -163,7 +167,7 @@ class GameSessionControllerTest {
         given(gameSessionQueryUseCase.getSessionResults(1L)).willReturn(List.of(result));
         given(gameQueryUseCase.getGameDetail(1L)).willReturn(game);
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
-        given(mapper.toSessionDetailResponse(any(), anyString(), anyList(), anyList()))
+        given(mapper.toSessionDetailResponse(any(), anyString(), anyString(), anyList(), anyList()))
                 .willReturn(detailResponse);
 
         // when & then

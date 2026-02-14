@@ -1,11 +1,14 @@
 package kr.co.jparangdev.boardbuddy.api.game;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import kr.co.jparangdev.boardbuddy.api.game.dto.CustomGameDto;
 import kr.co.jparangdev.boardbuddy.api.game.dto.GameDto;
 import kr.co.jparangdev.boardbuddy.api.game.dto.GameSessionDto;
+import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
 import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
@@ -39,6 +42,7 @@ public class GameDtoMapper {
             .id(session.getId())
             .groupId(session.getGroupId())
             .gameId(session.getGameId())
+            .customGameId(session.getCustomGameId())
             .gameName(gameName)
             .playedAt(session.getPlayedAt())
             .createdAt(session.getCreatedAt())
@@ -46,6 +50,7 @@ public class GameDtoMapper {
     }
 
     public GameSessionDto.DetailResponse toSessionDetailResponse(GameSession session, String gameName,
+                                                                  String scoreStrategy,
                                                                   List<GameResult> results, List<User> users) {
         List<GameSessionDto.ResultResponse> resultResponses = results.stream()
             .map(result -> {
@@ -67,7 +72,9 @@ public class GameDtoMapper {
             .id(session.getId())
             .groupId(session.getGroupId())
             .gameId(session.getGameId())
+            .customGameId(session.getCustomGameId())
             .gameName(gameName)
+            .scoreStrategy(scoreStrategy)
             .playedAt(session.getPlayedAt())
             .createdAt(session.getCreatedAt())
             .results(resultResponses)
@@ -75,12 +82,42 @@ public class GameDtoMapper {
     }
 
     public GameSessionDto.SessionListResponse toSessionListResponse(List<GameSession> sessions,
-                                                                     java.util.Map<Long, String> gameNames) {
+                                                                     Map<Long, String> gameNames,
+                                                                     Map<Long, String> customGameNames) {
         List<GameSessionDto.Response> responses = sessions.stream()
-            .map(s -> toSessionResponse(s, gameNames.getOrDefault(s.getGameId(), "")))
+            .map(s -> {
+                String name;
+                if (s.getCustomGameId() != null) {
+                    name = customGameNames.getOrDefault(s.getCustomGameId(), "");
+                } else {
+                    name = gameNames.getOrDefault(s.getGameId(), "");
+                }
+                return toSessionResponse(s, name);
+            })
             .toList();
         return GameSessionDto.SessionListResponse.builder()
             .sessions(responses)
+            .build();
+    }
+
+    public CustomGameDto.Response toCustomGameResponse(CustomGame customGame) {
+        return CustomGameDto.Response.builder()
+            .id(customGame.getId())
+            .groupId(customGame.getGroupId())
+            .name(customGame.getName())
+            .minPlayers(customGame.getMinPlayers())
+            .maxPlayers(customGame.getMaxPlayers())
+            .scoreStrategy(customGame.getScoreStrategy().name())
+            .createdAt(customGame.getCreatedAt())
+            .build();
+    }
+
+    public CustomGameDto.ListResponse toCustomGameListResponse(List<CustomGame> customGames) {
+        List<CustomGameDto.Response> responses = customGames.stream()
+            .map(this::toCustomGameResponse)
+            .toList();
+        return CustomGameDto.ListResponse.builder()
+            .customGames(responses)
             .build();
     }
 }

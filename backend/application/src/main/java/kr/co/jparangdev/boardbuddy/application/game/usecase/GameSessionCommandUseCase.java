@@ -7,7 +7,9 @@ import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
 
 public interface GameSessionCommandUseCase {
 
-    record ResultInput(Long userId, Integer score) {}
+    record ResultInput(Long userId, Integer score, Boolean won) {}
 
     GameSession createSession(Long groupId, Long gameId, LocalDateTime playedAt, List<ResultInput> results);
+
+    GameSession createSessionWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, List<ResultInput> results);
 }

@@ -4,3 +4,4 @@ export { userService } from './user';
 export { groupService } from './group';
 export { gameService } from './game';
 export { gameSessionService } from './gameSession';
+export { customGameService } from './customGame';

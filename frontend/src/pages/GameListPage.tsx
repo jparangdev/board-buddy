@@ -3,6 +3,22 @@ import type {Game} from '@/types';
 import {gameService} from '@/services';
 import styles from './GameListPage.module.css';
 
+const STRATEGY_LABELS: Record<string, string> = {
+  HIGH_WIN: 'High Wins',
+  LOW_WIN: 'Low Wins',
+  RANK_ONLY: 'Rank Only',
+  WIN_LOSE: 'Win/Lose',
+  COOPERATIVE: 'Co-op',
+};
+
+const STRATEGY_STYLES: Record<string, string> = {
+  HIGH_WIN: styles.highWin,
+  LOW_WIN: styles.lowWin,
+  RANK_ONLY: styles.rankOnly,
+  WIN_LOSE: styles.winLose,
+  COOPERATIVE: styles.cooperative,
+};
+
 export function GameListPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,8 +103,8 @@ export function GameListPage() {
               <h3>{game.name}</h3>
               <div className={styles.cardMeta}>
                 <span>{game.minPlayers}-{game.maxPlayers} players</span>
-                <span className={`${styles.strategyBadge} ${game.scoreStrategy === 'HIGH_WIN' ? styles.highWin : styles.lowWin}`}>
-                  {game.scoreStrategy === 'HIGH_WIN' ? 'High Wins' : 'Low Wins'}
+                <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? styles.highWin}`}>
+                  {STRATEGY_LABELS[game.scoreStrategy] ?? game.scoreStrategy}
                 </span>
               </div>
             </div>
@@ -150,6 +166,9 @@ export function GameListPage() {
                 >
                   <option value="HIGH_WIN">High Score Wins</option>
                   <option value="LOW_WIN">Low Score Wins</option>
+                  <option value="RANK_ONLY">Rank Only</option>
+                  <option value="WIN_LOSE">Win / Lose</option>
+                  <option value="COOPERATIVE">Cooperative</option>
                 </select>
               </div>
               <div className={styles.modalActions}>

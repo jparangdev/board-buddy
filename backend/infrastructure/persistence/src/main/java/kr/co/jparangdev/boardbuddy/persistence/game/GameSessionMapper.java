@@ -12,6 +12,7 @@ public class GameSessionMapper {
             session.getId(),
             session.getGroupId(),
             session.getGameId(),
+            session.getCustomGameId(),
             session.getPlayedAt(),
             session.getCreatedAt()
         );
@@ -22,6 +23,7 @@ public class GameSessionMapper {
             .id(entity.getId())
             .groupId(entity.getGroupId())
             .gameId(entity.getGameId())
+            .customGameId(entity.getCustomGameId())
             .playedAt(entity.getPlayedAt())
             .createdAt(entity.getCreatedAt())
             .build();

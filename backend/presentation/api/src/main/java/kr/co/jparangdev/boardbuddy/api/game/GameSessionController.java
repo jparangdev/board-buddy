@@ -12,10 +12,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.game.dto.GameSessionDto;
-import kr.co.jparangdev.boardbuddy.application.game.usecase.GameCommandUseCase;
+import kr.co.jparangdev.boardbuddy.application.game.usecase.CustomGameQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionQueryUseCase;
+import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
 import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
@@ -32,6 +33,7 @@ public class GameSessionController {
     private final GameSessionQueryUseCase gameSessionQueryUseCase;
     private final GameSessionCommandUseCase gameSessionCommandUseCase;
     private final GameQueryUseCase gameQueryUseCase;
+    private final CustomGameQueryUseCase customGameQueryUseCase;
     private final UserRepository userRepository;
     private final GameDtoMapper mapper;
 
@@ -42,15 +44,26 @@ public class GameSessionController {
             @Valid @RequestBody GameSessionDto.CreateRequest request) {
 
         List<GameSessionCommandUseCase.ResultInput> results = request.getResults().stream()
-                .map(r -> new GameSessionCommandUseCase.ResultInput(r.getUserId(), r.getScore()))
+                .map(r -> new GameSessionCommandUseCase.ResultInput(r.getUserId(), r.getScore(), r.getWon()))
                 .toList();
 
-        GameSession session = gameSessionCommandUseCase.createSession(
-                groupId, request.getGameId(), request.getPlayedAt(), results);
+        GameSession session;
+        String gameName;
 
-        Game game = gameQueryUseCase.getGameDetail(request.getGameId());
+        if (request.getCustomGameId() != null) {
+            session = gameSessionCommandUseCase.createSessionWithCustomGame(
+                    groupId, request.getCustomGameId(), request.getPlayedAt(), results);
+            CustomGame customGame = customGameQueryUseCase.getCustomGameDetail(request.getCustomGameId());
+            gameName = customGame.getName();
+        } else {
+            session = gameSessionCommandUseCase.createSession(
+                    groupId, request.getGameId(), request.getPlayedAt(), results);
+            Game game = gameQueryUseCase.getGameDetail(request.getGameId());
+            gameName = game.getName();
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(mapper.toSessionResponse(session, game.getName()));
+                .body(mapper.toSessionResponse(session, gameName));
     }
 
     @GetMapping
@@ -61,6 +74,7 @@ public class GameSessionController {
         List<GameSession> sessions = gameSessionQueryUseCase.getSessionsByGroup(groupId);
 
         Map<Long, String> gameNames = sessions.stream()
+                .filter(s -> s.getGameId() != null)
                 .map(GameSession::getGameId)
                 .distinct()
                 .collect(Collectors.toMap(
@@ -68,7 +82,16 @@ public class GameSessionController {
                         gameId -> gameQueryUseCase.getGameDetail(gameId).getName()
                 ));
 
-        return ResponseEntity.ok(mapper.toSessionListResponse(sessions, gameNames));
+        Map<Long, String> customGameNames = sessions.stream()
+                .filter(s -> s.getCustomGameId() != null)
+                .map(GameSession::getCustomGameId)
+                .distinct()
+                .collect(Collectors.toMap(
+                        customGameId -> customGameId,
+                        customGameId -> customGameQueryUseCase.getCustomGameDetail(customGameId).getName()
+                ));
+
+        return ResponseEntity.ok(mapper.toSessionListResponse(sessions, gameNames, customGameNames));
     }
 
     @GetMapping("/{sessionId}")
@@ -79,7 +102,18 @@ public class GameSessionController {
 
         GameSession session = gameSessionQueryUseCase.getSessionDetail(sessionId);
         List<GameResult> results = gameSessionQueryUseCase.getSessionResults(sessionId);
-        Game game = gameQueryUseCase.getGameDetail(session.getGameId());
+
+        String gameName;
+        String scoreStrategy;
+        if (session.getCustomGameId() != null) {
+            CustomGame customGame = customGameQueryUseCase.getCustomGameDetail(session.getCustomGameId());
+            gameName = customGame.getName();
+            scoreStrategy = customGame.getScoreStrategy().name();
+        } else {
+            Game game = gameQueryUseCase.getGameDetail(session.getGameId());
+            gameName = game.getName();
+            scoreStrategy = game.getScoreStrategy().name();
+        }
 
         List<Long> userIds = results.stream().map(GameResult::getUserId).toList();
         List<User> users = userIds.stream()
@@ -87,6 +121,6 @@ public class GameSessionController {
                 .filter(u -> u != null)
                 .toList();
 
-        return ResponseEntity.ok(mapper.toSessionDetailResponse(session, game.getName(), results, users));
+        return ResponseEntity.ok(mapper.toSessionDetailResponse(session, gameName, scoreStrategy, results, users));
     }
 }

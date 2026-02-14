@@ -18,10 +18,32 @@ export interface CreateGameRequest {
   scoreStrategy: string;
 }
 
+export interface CustomGame {
+  id: number;
+  groupId: number;
+  name: string;
+  minPlayers: number;
+  maxPlayers: number;
+  scoreStrategy: string;
+  createdAt: string;
+}
+
+export interface CustomGameListResponse {
+  customGames: CustomGame[];
+}
+
+export interface CreateCustomGameRequest {
+  name: string;
+  minPlayers: number;
+  maxPlayers: number;
+  scoreStrategy: string;
+}
+
 export interface GameSession {
   id: number;
   groupId: number;
-  gameId: number;
+  gameId: number | null;
+  customGameId: number | null;
   gameName: string;
   playedAt: string;
   createdAt: string;
@@ -38,8 +60,10 @@ export interface GameResult {
 export interface GameSessionDetail {
   id: number;
   groupId: number;
-  gameId: number;
+  gameId: number | null;
+  customGameId: number | null;
   gameName: string;
+  scoreStrategy: string;
   playedAt: string;
   createdAt: string;
   results: GameResult[];
@@ -50,7 +74,8 @@ export interface SessionListResponse {
 }
 
 export interface CreateSessionRequest {
-  gameId: number;
+  gameId?: number;
+  customGameId?: number;
   playedAt: string;
   results: ResultInput[];
 }
@@ -58,4 +83,5 @@ export interface CreateSessionRequest {
 export interface ResultInput {
   userId: number;
   score: number | null;
+  won?: boolean;
 }

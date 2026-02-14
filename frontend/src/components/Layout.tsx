@@ -1,5 +1,5 @@
 import {Link, Outlet, useNavigate} from 'react-router-dom';
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useAuth} from '@/hooks/useAuth';
 import {authService} from '@/services';
 import styles from './Layout.module.css';
@@ -8,15 +8,18 @@ export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
+    setShowMenu(false);
     await logout();
     navigate('/login');
   };
 
   const handleDeleteAccount = async () => {
     if (!globalThis.confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
-    
+
     setIsDeleting(true);
     try {
       await authService.deleteAccount();
@@ -27,8 +30,21 @@ export function Layout() {
       alert('Failed to delete account. Please try again.');
     } finally {
       setIsDeleting(false);
+      setShowMenu(false);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
 
   return (
     <div className={styles.layout}>
@@ -46,19 +62,35 @@ export function Layout() {
               <Link to="/games" className={styles.navLink}>
                 Games
               </Link>
-              <div className={styles.userSection}>
-                <span className={styles.userTag}>{user.userTag}</span>
-                <button 
-                  onClick={handleDeleteAccount} 
-                  className="btn btn-danger btn-sm"
-                  style={{marginRight: '8px'}}
-                  disabled={isDeleting}
+              <div className={styles.userSection} ref={menuRef}>
+                <button
+                  className={styles.userButton}
+                  onClick={() => setShowMenu(!showMenu)}
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete Account'}
+                  <span className={styles.userAvatar}>
+                    {user.nickname.charAt(0).toUpperCase()}
+                  </span>
+                  <span className={styles.userTag}>{user.userTag}</span>
                 </button>
-                <button onClick={handleLogout} className="btn btn-secondary">
-                  Logout
-                </button>
+                {showMenu && (
+                  <div className={styles.dropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <span className={styles.dropdownNickname}>{user.nickname}</span>
+                      <span className={styles.dropdownTag}>{user.userTag}</span>
+                    </div>
+                    <div className={styles.dropdownDivider} />
+                    <button className={styles.dropdownItem} onClick={handleLogout}>
+                      Logout
+                    </button>
+                    <button
+                      className={`${styles.dropdownItem} ${styles.dropdownDanger}`}
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? 'Deleting...' : 'Delete Account'}
+                    </button>
+                  </div>
+                )}
               </div>
             </nav>
           )}

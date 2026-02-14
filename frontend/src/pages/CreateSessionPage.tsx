@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import type {Game, GroupMember} from '@/types';
-import {gameService, gameSessionService, groupService} from '@/services';
+import type {CustomGame, Game, GroupMember} from '@/types';
+import {customGameService, gameService, gameSessionService, groupService} from '@/services';
 import styles from './CreateSessionPage.module.css';
 
 type Step = 'game' | 'members' | 'scores' | 'confirm';
@@ -13,30 +13,39 @@ const STEP_LABELS: Record<Step, string> = {
   confirm: 'Confirm',
 };
 
+type SelectedGame = (Game | CustomGame) & { isCustom: boolean };
+
 export function CreateSessionPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('game');
 
   const [games, setGames] = useState<Game[]>([]);
+  const [customGames, setCustomGames] = useState<CustomGame[]>([]);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
   const [scores, setScores] = useState<Map<number, string>>(new Map());
+  const [wonStatus, setWonStatus] = useState<Map<number, boolean>>(new Map());
+  const [teamWon, setTeamWon] = useState(true);
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().slice(0, 16));
+
+  const strategy = selectedGame?.scoreStrategy ?? 'HIGH_WIN';
 
   useEffect(() => {
     const fetchData = async () => {
       if (!groupId) return;
       try {
-        const [gamesData, membersData] = await Promise.all([
+        const [gamesData, customGamesData, membersData] = await Promise.all([
           gameService.getGames(),
+          customGameService.getCustomGames(Number(groupId)),
           groupService.getMembers(Number(groupId)),
         ]);
         setGames(gamesData);
+        setCustomGames(customGamesData);
         setMembers(membersData);
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -63,21 +72,38 @@ export function CreateSessionPage() {
     setScores(next);
   };
 
+  const toggleWon = (userId: number) => {
+    const next = new Map(wonStatus);
+    next.set(userId, !next.get(userId));
+    setWonStatus(next);
+  };
+
   const handleSubmit = async () => {
     if (!groupId || !selectedGame) return;
     setIsSubmitting(true);
     try {
-      const results = Array.from(selectedMemberIds).map((userId) => ({
-        userId,
-        score: scores.get(userId) ? Number(scores.get(userId)) : null,
-      }));
-
-      await gameSessionService.createSession(Number(groupId), {
-        gameId: selectedGame.id,
-        playedAt: new Date(playedAt).toISOString(),
-        results,
+      const memberIds = Array.from(selectedMemberIds);
+      const results = memberIds.map((userId) => {
+        switch (strategy) {
+          case 'RANK_ONLY':
+            return { userId, score: null };
+          case 'WIN_LOSE':
+            return { userId, score: null, won: wonStatus.get(userId) ?? false };
+          case 'COOPERATIVE':
+            return { userId, score: null, won: teamWon };
+          default:
+            return {
+              userId,
+              score: scores.get(userId) ? Number(scores.get(userId)) : null,
+            };
+        }
       });
 
+      const request = selectedGame.isCustom
+        ? { customGameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results }
+        : { gameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results };
+
+      await gameSessionService.createSession(Number(groupId), request);
       navigate(`/groups/${groupId}`);
     } catch (error) {
       console.error('Failed to create session:', error);
@@ -109,6 +135,10 @@ export function CreateSessionPage() {
 
   const selectedMembers = members.filter((m) => selectedMemberIds.has(m.id));
 
+  const selectGame = (game: Game | CustomGame, isCustom: boolean) => {
+    setSelectedGame({ ...game, isCustom });
+  };
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -117,6 +147,32 @@ export function CreateSessionPage() {
       </div>
     );
   }
+
+  const getScoreHint = () => {
+    switch (strategy) {
+      case 'HIGH_WIN': return 'Highest score wins.';
+      case 'LOW_WIN': return 'Lowest score wins.';
+      case 'RANK_ONLY': return 'Players are ranked by the order listed below. Drag or reorder to set placement.';
+      case 'WIN_LOSE': return 'Toggle each player as winner or loser.';
+      case 'COOPERATIVE': return 'The entire team wins or loses together.';
+      default: return '';
+    }
+  };
+
+  const getResultSummary = (memberId: number) => {
+    switch (strategy) {
+      case 'WIN_LOSE':
+        return wonStatus.get(memberId) ? 'Won' : 'Lost';
+      case 'COOPERATIVE':
+        return teamWon ? 'Won' : 'Lost';
+      case 'RANK_ONLY':
+        return `#${selectedMembers.findIndex(m => m.id === memberId) + 1}`;
+      default: {
+        const score = scores.get(memberId);
+        return score ? `(${score})` : '';
+      }
+    }
+  };
 
   return (
     <div className="container">
@@ -142,21 +198,48 @@ export function CreateSessionPage() {
       {step === 'game' && (
         <div className={styles.section}>
           <h2>Select a Game</h2>
-          <div className={styles.gameGrid}>
-            {games.map((game) => (
-              <button
-                key={game.id}
-                className={`${styles.gameCard} ${selectedGame?.id === game.id ? styles.gameCardSelected : ''}`}
-                onClick={() => setSelectedGame(game)}
-              >
-                <h4>{game.name}</h4>
-                <div className={styles.gameCardMeta}>
-                  {game.minPlayers}-{game.maxPlayers} players
-                </div>
-              </button>
-            ))}
-          </div>
-          {games.length === 0 && (
+
+          {games.length > 0 && (
+            <>
+              <h3 className={styles.gameSectionTitle}>Official Games</h3>
+              <div className={styles.gameGrid}>
+                {games.map((game) => (
+                  <button
+                    key={`game-${game.id}`}
+                    className={`${styles.gameCard} ${selectedGame?.id === game.id && !selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
+                    onClick={() => selectGame(game, false)}
+                  >
+                    <h4>{game.name}</h4>
+                    <div className={styles.gameCardMeta}>
+                      {game.minPlayers}-{game.maxPlayers} players
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {customGames.length > 0 && (
+            <>
+              <h3 className={styles.gameSectionTitle}>Custom Games</h3>
+              <div className={styles.gameGrid}>
+                {customGames.map((game) => (
+                  <button
+                    key={`custom-${game.id}`}
+                    className={`${styles.gameCard} ${selectedGame?.id === game.id && selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
+                    onClick={() => selectGame(game, true)}
+                  >
+                    <h4>{game.name}</h4>
+                    <div className={styles.gameCardMeta}>
+                      {game.minPlayers}-{game.maxPlayers} players
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {games.length === 0 && customGames.length === 0 && (
             <p className="text-muted">No games registered yet. <Link to="/games">Add a game first.</Link></p>
           )}
         </div>
@@ -193,10 +276,9 @@ export function CreateSessionPage() {
 
       {step === 'scores' && (
         <div className={styles.section}>
-          <h2>Enter Scores</h2>
+          <h2>Enter Results</h2>
           <p className="text-muted" style={{marginBottom: 'var(--spacing-md)'}}>
-            {selectedGame?.scoreStrategy === 'HIGH_WIN' ? 'Highest score wins.' : 'Lowest score wins.'}
-            {' '}Leave blank for rank-only recording.
+            {getScoreHint()}
           </p>
           <div className="form-group" style={{marginBottom: 'var(--spacing-lg)'}}>
             <label htmlFor="playedAt">Played At</label>
@@ -208,20 +290,74 @@ export function CreateSessionPage() {
               onChange={(e) => setPlayedAt(e.target.value)}
             />
           </div>
-          <div className={styles.scoreInputs}>
-            {selectedMembers.map((member) => (
-              <div key={member.id} className={styles.scoreRow}>
-                <label>{member.nickname}</label>
-                <input
-                  className={`input ${styles.scoreInput}`}
-                  type="number"
-                  placeholder="Score"
-                  value={scores.get(member.id) ?? ''}
-                  onChange={(e) => updateScore(member.id, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
+
+          {strategy === 'COOPERATIVE' && (
+            <div className={styles.cooperativeToggle}>
+              <span className={styles.toggleLabel}>Team Result:</span>
+              <button
+                type="button"
+                className={`${styles.toggleBtn} ${teamWon ? styles.toggleWon : ''}`}
+                onClick={() => setTeamWon(true)}
+              >
+                Won
+              </button>
+              <button
+                type="button"
+                className={`${styles.toggleBtn} ${!teamWon ? styles.toggleLost : ''}`}
+                onClick={() => setTeamWon(false)}
+              >
+                Lost
+              </button>
+            </div>
+          )}
+
+          {(strategy === 'HIGH_WIN' || strategy === 'LOW_WIN') && (
+            <div className={styles.scoreInputs}>
+              {selectedMembers.map((member) => (
+                <div key={member.id} className={styles.scoreRow}>
+                  <label>{member.nickname}</label>
+                  <input
+                    className={`input ${styles.scoreInput}`}
+                    type="number"
+                    placeholder="Score"
+                    value={scores.get(member.id) ?? ''}
+                    onChange={(e) => updateScore(member.id, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {strategy === 'RANK_ONLY' && (
+            <div className={styles.scoreInputs}>
+              {selectedMembers.map((member, index) => (
+                <div key={member.id} className={styles.scoreRow}>
+                  <span className={styles.rankNumber}>#{index + 1}</span>
+                  <label>{member.nickname}</label>
+                </div>
+              ))}
+              <p className="text-muted" style={{marginTop: 'var(--spacing-sm)', fontSize: '0.85rem'}}>
+                Players are ranked in the order selected.
+              </p>
+            </div>
+          )}
+
+          {strategy === 'WIN_LOSE' && (
+            <div className={styles.scoreInputs}>
+              {selectedMembers.map((member) => (
+                <div key={member.id} className={styles.scoreRow}>
+                  <label>{member.nickname}</label>
+                  <button
+                    type="button"
+                    className={`${styles.toggleBtn} ${wonStatus.get(member.id) ? styles.toggleWon : styles.toggleLost}`}
+                    onClick={() => toggleWon(member.id)}
+                  >
+                    {wonStatus.get(member.id) ? 'Won' : 'Lost'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -232,7 +368,10 @@ export function CreateSessionPage() {
             <tbody>
               <tr>
                 <td style={{padding: '8px', fontWeight: 500}}>Game</td>
-                <td style={{padding: '8px'}}>{selectedGame?.name}</td>
+                <td style={{padding: '8px'}}>
+                  {selectedGame?.name}
+                  {selectedGame?.isCustom && <span className={styles.customBadge}>Custom</span>}
+                </td>
               </tr>
               <tr>
                 <td style={{padding: '8px', fontWeight: 500}}>Played At</td>
@@ -242,8 +381,8 @@ export function CreateSessionPage() {
                 <td style={{padding: '8px', fontWeight: 500}}>Players</td>
                 <td style={{padding: '8px'}}>
                   {selectedMembers.map((m) => {
-                    const score = scores.get(m.id);
-                    return `${m.nickname}${score ? ` (${score})` : ''}`;
+                    const summary = getResultSummary(m.id);
+                    return `${m.nickname}${summary ? ` ${summary}` : ''}`;
                   }).join(', ')}
                 </td>
               </tr>

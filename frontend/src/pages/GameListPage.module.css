@@ -51,6 +51,21 @@
   color: #8b9bf7;
 }
 
+.rankOnly {
+  background: rgba(250, 168, 26, 0.15);
+  color: #faa81a;
+}
+
+.winLose {
+  background: rgba(237, 66, 69, 0.15);
+  color: #ed4245;
+}
+
+.cooperative {
+  background: rgba(45, 186, 230, 0.15);
+  color: #2dbae6;
+}
+
 .emptyState {
   text-align: center;
   padding: 3rem;

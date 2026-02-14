@@ -16,8 +16,9 @@ public class GameSessionDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CreateRequest {
-        @NotNull(message = "Game ID is required")
         private Long gameId;
+
+        private Long customGameId;
 
         @NotNull(message = "Played at is required")
         private LocalDateTime playedAt;
@@ -36,6 +37,8 @@ public class GameSessionDto {
         private Long userId;
 
         private Integer score;
+
+        private Boolean won;
     }
 
     @Getter
@@ -44,6 +47,7 @@ public class GameSessionDto {
         private Long id;
         private Long groupId;
         private Long gameId;
+        private Long customGameId;
         private String gameName;
         private LocalDateTime playedAt;
         private LocalDateTime createdAt;
@@ -55,7 +59,9 @@ public class GameSessionDto {
         private Long id;
         private Long groupId;
         private Long gameId;
+        private Long customGameId;
         private String gameName;
+        private String scoreStrategy;
         private LocalDateTime playedAt;
         private LocalDateTime createdAt;
         private List<ResultResponse> results;

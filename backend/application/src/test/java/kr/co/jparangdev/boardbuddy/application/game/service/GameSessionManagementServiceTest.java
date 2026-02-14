@@ -33,6 +33,7 @@ import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
 import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameResultRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameSessionRepository;
@@ -52,6 +53,8 @@ class GameSessionManagementServiceTest {
     @Mock
     private GameRepository gameRepository;
     @Mock
+    private CustomGameRepository customGameRepository;
+    @Mock
     private GroupRepository groupRepository;
     @Mock
     private GroupMemberRepository groupMemberRepository;
@@ -59,7 +62,7 @@ class GameSessionManagementServiceTest {
     @BeforeEach
     void setUp() {
         gameSessionManagementService = new GameSessionManagementService(
-            gameSessionRepository, gameResultRepository, gameRepository, groupRepository, groupMemberRepository
+            gameSessionRepository, gameResultRepository, gameRepository, customGameRepository, groupRepository, groupMemberRepository
         );
     }
 
@@ -82,8 +85,8 @@ class GameSessionManagementServiceTest {
             Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.HIGH_WIN).build();
             given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
 
-            ResultInput user1 = new ResultInput(2L, 100);
-            ResultInput user2 = new ResultInput(3L, 200);
+            ResultInput user1 = new ResultInput(2L, 100, null);
+            ResultInput user2 = new ResultInput(3L, 200, null);
             List<ResultInput> results = List.of(user1, user2);
 
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
@@ -131,8 +134,8 @@ class GameSessionManagementServiceTest {
             Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.LOW_WIN).build();
             given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
 
-            ResultInput user1 = new ResultInput(2L, 10);
-            ResultInput user2 = new ResultInput(3L, 20);
+            ResultInput user1 = new ResultInput(2L, 10, null);
+            ResultInput user2 = new ResultInput(3L, 20, null);
             List<ResultInput> results = List.of(user1, user2);
 
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);

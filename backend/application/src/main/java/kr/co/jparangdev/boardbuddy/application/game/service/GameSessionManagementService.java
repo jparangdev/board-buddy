@@ -9,16 +9,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.co.jparangdev.boardbuddy.application.game.exception.CustomGameNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.game.exception.GameSessionNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
+import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
 import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameResultRepository;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameSessionRepository;
@@ -34,6 +37,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
     private final GameRepository gameRepository;
+    private final CustomGameRepository customGameRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
 
@@ -68,40 +72,67 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
     @Transactional
     public GameSession createSession(Long groupId, Long gameId, LocalDateTime playedAt, List<ResultInput> results) {
         Long currentUserId = getCurrentUserId();
+        validateGroupMembership(groupId, currentUserId);
+        validateParticipants(groupId, results);
 
-        // Validate group exists
-        groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException(groupId));
-
-        // Validate current user is a group member
-        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, currentUserId)) {
-            throw new UserNotGroupMemberException(groupId, currentUserId);
-        }
-
-        // Validate game exists and get score strategy
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
 
-        // Validate all participants are group members
-        for (ResultInput result : results) {
-            if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, result.userId())) {
-                throw new UserNotGroupMemberException(groupId, result.userId());
-            }
-        }
-
-        // Save session
         GameSession session = GameSession.create(groupId, gameId, playedAt);
         GameSession savedSession = gameSessionRepository.save(session);
 
-        // Calculate ranks and save results
         List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, game.getScoreStrategy());
         gameResultRepository.saveAll(gameResults);
 
         return savedSession;
     }
 
+    @Override
+    @Transactional
+    public GameSession createSessionWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, List<ResultInput> results) {
+        Long currentUserId = getCurrentUserId();
+        validateGroupMembership(groupId, currentUserId);
+        validateParticipants(groupId, results);
+
+        CustomGame customGame = customGameRepository.findById(customGameId)
+                .orElseThrow(() -> new CustomGameNotFoundException(customGameId));
+
+        GameSession session = GameSession.createWithCustomGame(groupId, customGameId, playedAt);
+        GameSession savedSession = gameSessionRepository.save(session);
+
+        List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, customGame.getScoreStrategy());
+        gameResultRepository.saveAll(gameResults);
+
+        return savedSession;
+    }
+
+    private void validateGroupMembership(Long groupId, Long userId) {
+        groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException(groupId));
+
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
+            throw new UserNotGroupMemberException(groupId, userId);
+        }
+    }
+
+    private void validateParticipants(Long groupId, List<ResultInput> results) {
+        for (ResultInput result : results) {
+            if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, result.userId())) {
+                throw new UserNotGroupMemberException(groupId, result.userId());
+            }
+        }
+    }
+
     private List<GameResult> calculateRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy) {
-        // If no scores provided, use input order as rank
+        return switch (strategy) {
+            case HIGH_WIN, LOW_WIN -> calculateScoreBasedRanks(sessionId, results, strategy);
+            case RANK_ONLY -> calculateRankOnly(sessionId, results);
+            case WIN_LOSE -> calculateWinLoseRanks(sessionId, results);
+            case COOPERATIVE -> calculateCooperativeRanks(sessionId, results);
+        };
+    }
+
+    private List<GameResult> calculateScoreBasedRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy) {
         boolean hasScores = results.stream().anyMatch(r -> r.score() != null);
 
         if (!hasScores) {
@@ -113,7 +144,6 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             return gameResults;
         }
 
-        // Sort by score based on strategy
         List<ResultInput> sorted = new ArrayList<>(results);
         Comparator<ResultInput> comparator = Comparator.comparingInt(r -> r.score() != null ? r.score() : 0);
         if (strategy == ScoreStrategy.HIGH_WIN) {
@@ -121,7 +151,6 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
         }
         sorted.sort(comparator);
 
-        // Assign ranks with ties (same score = same rank, next rank skips)
         List<GameResult> gameResults = new ArrayList<>();
         int currentRank = 1;
         for (int i = 0; i < sorted.size(); i++) {
@@ -130,6 +159,38 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             }
             ResultInput input = sorted.get(i);
             gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), currentRank));
+        }
+        return gameResults;
+    }
+
+    private List<GameResult> calculateRankOnly(Long sessionId, List<ResultInput> results) {
+        List<GameResult> gameResults = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            ResultInput input = results.get(i);
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, i + 1));
+        }
+        return gameResults;
+    }
+
+    private List<GameResult> calculateWinLoseRanks(Long sessionId, List<ResultInput> results) {
+        List<GameResult> gameResults = new ArrayList<>();
+        for (ResultInput input : results) {
+            int rank = Boolean.TRUE.equals(input.won()) ? 1 : 2;
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, rank));
+        }
+        return gameResults;
+    }
+
+    private List<GameResult> calculateCooperativeRanks(Long sessionId, List<ResultInput> results) {
+        boolean teamWon = results.stream()
+                .findFirst()
+                .map(r -> Boolean.TRUE.equals(r.won()))
+                .orElse(false);
+        int rank = teamWon ? 1 : 2;
+
+        List<GameResult> gameResults = new ArrayList<>();
+        for (ResultInput input : results) {
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, rank));
         }
         return gameResults;
     }

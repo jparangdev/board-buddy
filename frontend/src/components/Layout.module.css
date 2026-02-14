@@ -59,17 +59,103 @@
 }
 
 .userSection {
+  position: relative;
+}
+
+.userButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--color-text);
+}
+
+.userButton:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .userTag {
   font-size: 0.875rem;
   color: var(--color-text);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + var(--spacing-xs));
+  right: 0;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.dropdownHeader {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdownNickname {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.dropdownTag {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.dropdownDivider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.dropdownItem:hover {
   background: var(--color-bg-hover);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
+}
+
+.dropdownDanger {
+  color: #ed4245;
+}
+
+.dropdownDanger:hover {
+  background: rgba(237, 66, 69, 0.1);
 }
 
 .main {
@@ -112,9 +198,8 @@
     font-size: 0.85rem;
   }
 
-  .userSection {
-    gap: var(--spacing-sm);
-    flex-wrap: wrap;
+  .userTag {
+    display: none;
   }
 
   .main {

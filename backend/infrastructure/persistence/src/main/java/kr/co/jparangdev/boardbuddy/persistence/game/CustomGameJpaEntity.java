@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "game_sessions")
+@Table(name = "custom_games",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"group_id", "name"}))
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GameSessionJpaEntity {
+public class CustomGameJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,14 +22,17 @@ public class GameSessionJpaEntity {
     @Column(name = "group_id", nullable = false)
     private Long groupId;
 
-    @Column(name = "game_id")
-    private Long gameId;
+    @Column(nullable = false, length = 100)
+    private String name;
 
-    @Column(name = "custom_game_id")
-    private Long customGameId;
+    @Column(name = "min_players", nullable = false)
+    private int minPlayers;
 
-    @Column(name = "played_at", nullable = false)
-    private LocalDateTime playedAt;
+    @Column(name = "max_players", nullable = false)
+    private int maxPlayers;
+
+    @Column(name = "score_strategy", nullable = false, length = 20)
+    private String scoreStrategy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -40,13 +44,14 @@ public class GameSessionJpaEntity {
         }
     }
 
-    public GameSessionJpaEntity(Long id, Long groupId, Long gameId, Long customGameId,
-                                LocalDateTime playedAt, LocalDateTime createdAt) {
+    public CustomGameJpaEntity(Long id, Long groupId, String name, int minPlayers, int maxPlayers,
+                                String scoreStrategy, LocalDateTime createdAt) {
         this.id = id;
         this.groupId = groupId;
-        this.gameId = gameId;
-        this.customGameId = customGameId;
-        this.playedAt = playedAt;
+        this.name = name;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
+        this.scoreStrategy = scoreStrategy;
         this.createdAt = createdAt;
     }
 }
