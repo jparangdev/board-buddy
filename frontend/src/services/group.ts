@@ -23,4 +23,8 @@ export const groupService = {
   async delete(groupId: number): Promise<void> {
     return api.delete(`/groups/${groupId}`);
   },
+
+  async updateOrder(ids: number[]): Promise<void> {
+    return api.put('/groups/order', ids);
+  },
 };

@@ -10,8 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +22,7 @@ public class GroupController {
 
     private final GroupCommandUseCase groupCommandUseCase;
     private final GroupQueryUseCase groupQueryUseCase;
+    private final UpdateGroupOrderUseCase updateGroupOrderUseCase;
     private final GroupDtoMapper mapper;
 
     @PostMapping
@@ -57,5 +57,12 @@ public class GroupController {
     @Operation(summary = "내 모임 목록 조회", description = "현재 로그인한 사용자가 속한 모임 목록을 조회합니다.")
     public ResponseEntity<GroupDto.GroupListResponse> getMyGroups() {
         return ResponseEntity.ok(mapper.toGroupListResponse(groupQueryUseCase.getMyGroups()));
+    }
+
+    @PutMapping("/order")
+    @Operation(summary = "모임 순서 변경", description = "모임의 표시 순서를 변경합니다.")
+    public ResponseEntity<Void> reorderGroups(@RequestBody List<Long> groupIds) {
+        updateGroupOrderUseCase.updateGroupOrder(groupIds);
+        return ResponseEntity.ok().build();
     }
 }

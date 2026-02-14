@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import type {Group} from '@/types';
 import {groupService} from '@/services';
@@ -11,6 +11,11 @@ export function GroupListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { user } = useAuth();
+
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
 
   const fetchGroups = async () => {
     try {
@@ -31,6 +36,46 @@ export function GroupListPage() {
     setGroups([...groups, newGroup]);
     setShowCreateModal(false);
   };
+
+  const handleDragStart = useCallback((index: number) => {
+    dragItem.current = index;
+    setDragIdx(index);
+  }, []);
+
+  const handleDragEnter = useCallback((index: number) => {
+    dragOverItem.current = index;
+    setOverIdx(index);
+  }, []);
+
+  const handleDragEnd = useCallback(async () => {
+    if (dragItem.current === null || dragOverItem.current === null || dragItem.current === dragOverItem.current) {
+      setDragIdx(null);
+      setOverIdx(null);
+      dragItem.current = null;
+      dragOverItem.current = null;
+      return;
+    }
+
+    const updated = [...groups];
+    const [removed] = updated.splice(dragItem.current!, 1);
+    updated.splice(dragOverItem.current!, 0, removed);
+    
+    // Optimistic UI update
+    setGroups(updated);
+
+    try {
+      await groupService.updateOrder(updated.map(g => g.id));
+    } catch (error) {
+      console.error('Failed to update group order:', error);
+      // Rollback on failure
+      fetchGroups();
+    } finally {
+      setDragIdx(null);
+      setOverIdx(null);
+      dragItem.current = null;
+      dragOverItem.current = null;
+    }
+  }, [groups]);
 
   if (isLoading) {
     return (
@@ -64,19 +109,30 @@ export function GroupListPage() {
         </div>
       ) : (
         <div className={styles.grid}>
-          {groups.map((group) => (
-            <Link to={`/groups/${group.id}`} key={group.id} className={styles.card}>
-              <div className={styles.cardIcon}>&#x265F;</div>
-              <h3>{group.name}</h3>
-              <div className={styles.cardMeta}>
-                {group.ownerId === user?.id && (
-                  <span className="badge badge-gold">Owner</span>
-                )}
-                <span className={styles.date}>
-                  Created {new Date(group.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-            </Link>
+          {groups.map((group, index) => (
+            <div
+              key={group.id}
+              className={`${styles.cardWrapper} ${dragIdx === index ? styles.dragging : ''} ${overIdx === index && dragIdx !== index ? styles.dragOver : ''}`}
+              draggable
+              onDragStart={() => handleDragStart(index)}
+              onDragEnter={() => handleDragEnter(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={handleDragEnd}
+            >
+              <div className={styles.dragHandle}>&#x2630;</div>
+              <Link to={`/groups/${group.id}`} className={styles.card}>
+                <div className={styles.cardIcon}>&#x265F;</div>
+                <h3>{group.name}</h3>
+                <div className={styles.cardMeta}>
+                  {group.ownerId === user?.id && (
+                    <span className="badge badge-gold">Owner</span>
+                  )}
+                  <span className={styles.date}>
+                    Created {new Date(group.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}

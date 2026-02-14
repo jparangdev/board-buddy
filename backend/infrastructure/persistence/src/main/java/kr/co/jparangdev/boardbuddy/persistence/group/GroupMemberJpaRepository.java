@@ -9,6 +9,7 @@ public interface GroupMemberJpaRepository extends JpaRepository<GroupMemberJpaEn
     Optional<GroupMemberJpaEntity> findByGroupIdAndUserId(Long groupId, Long userId);
     List<GroupMemberJpaEntity> findAllByGroupId(Long groupId);
     List<GroupMemberJpaEntity> findAllByUserId(Long userId);
+    List<GroupMemberJpaEntity> findAllByUserIdOrderByDisplayOrderAsc(Long userId);
     boolean existsByGroupIdAndUserId(Long groupId, Long userId);
     void deleteAllByGroupId(Long groupId);
 }

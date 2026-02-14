@@ -1,12 +1,9 @@
 package kr.co.jparangdev.boardbuddy.persistence.group;
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "group_members",
@@ -30,6 +27,9 @@ public class GroupMemberJpaEntity {
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
 
+    @Column(name = "display_order", nullable = false)
+    private int displayOrder;
+
     @PrePersist
     protected void onCreate() {
         if (joinedAt == null) {
@@ -37,10 +37,11 @@ public class GroupMemberJpaEntity {
         }
     }
 
-    public GroupMemberJpaEntity(Long id, Long groupId, Long userId, LocalDateTime joinedAt) {
+    public GroupMemberJpaEntity(Long id, Long groupId, Long userId, LocalDateTime joinedAt, int displayOrder) {
         this.id = id;
         this.groupId = groupId;
         this.userId = userId;
         this.joinedAt = joinedAt;
+        this.displayOrder = displayOrder;
     }
 }

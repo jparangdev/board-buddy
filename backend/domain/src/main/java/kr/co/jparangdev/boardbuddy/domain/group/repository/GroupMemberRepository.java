@@ -10,6 +10,7 @@ public interface GroupMemberRepository {
     Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId);
     List<GroupMember> findAllByGroupId(Long groupId);
     List<GroupMember> findAllByUserId(Long userId);
+    List<GroupMember> findAllByUserIdOrderByDisplayOrderAsc(Long userId);
     boolean existsByGroupIdAndUserId(Long groupId, Long userId);
     void deleteAllByGroupId(Long groupId);
 }

@@ -1,30 +1,19 @@
 package kr.co.jparangdev.boardbuddy.application.game.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.CustomGameNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameSessionNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.game.exception.*;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
-import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
-import kr.co.jparangdev.boardbuddy.domain.game.Game;
-import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
-import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
-import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameResultRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameSessionRepository;
+import kr.co.jparangdev.boardbuddy.domain.game.*;
+import kr.co.jparangdev.boardbuddy.domain.game.repository.*;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -139,7 +128,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             List<GameResult> gameResults = new ArrayList<>();
             for (int i = 0; i < results.size(); i++) {
                 ResultInput input = results.get(i);
-                gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), i + 1));
+                gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), Boolean.TRUE.equals(input.won()), i + 1));
             }
             return gameResults;
         }
@@ -158,7 +147,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
                 currentRank = i + 1;
             }
             ResultInput input = sorted.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), currentRank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), Boolean.TRUE.equals(input.won()), currentRank));
         }
         return gameResults;
     }
@@ -167,7 +156,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
         List<GameResult> gameResults = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             ResultInput input = results.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, i + 1));
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, Boolean.TRUE.equals(input.won()), i + 1));
         }
         return gameResults;
     }
@@ -176,7 +165,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
         List<GameResult> gameResults = new ArrayList<>();
         for (ResultInput input : results) {
             int rank = Boolean.TRUE.equals(input.won()) ? 1 : 2;
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, Boolean.TRUE.equals(input.won()), rank));
         }
         return gameResults;
     }
@@ -190,7 +179,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
         List<GameResult> gameResults = new ArrayList<>();
         for (ResultInput input : results) {
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), null, teamWon, rank));
         }
         return gameResults;
     }

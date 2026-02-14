@@ -43,6 +43,13 @@ public class GroupMemberRepositoryImpl implements GroupMemberRepository {
     }
 
     @Override
+    public List<GroupMember> findAllByUserIdOrderByDisplayOrderAsc(Long userId) {
+        return jpaRepository.findAllByUserIdOrderByDisplayOrderAsc(userId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsByGroupIdAndUserId(Long groupId, Long userId) {
         return jpaRepository.existsByGroupIdAndUserId(groupId, userId);
     }

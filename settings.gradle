@@ -1,3 +1,16 @@
-rootProject.name = 'board-buddy-workspace'
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 
-includeBuild 'backend'
+rootProject.name = 'board-buddy'
+
+// Backend modules
+include 'backend:domain'
+include 'backend:application'
+include 'backend:presentation:api'
+include 'backend:presentation:batch'
+include 'backend:infrastructure:persistence'
+include 'backend:infrastructure:transients'
+include 'backend:infrastructure:client'
+include 'backend:boot:api-server'
+include 'backend:boot:batch-server'

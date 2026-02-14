@@ -1,7 +1,8 @@
 package kr.co.jparangdev.boardbuddy.persistence.group;
 
-import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
 import org.springframework.stereotype.Component;
+
+import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
 
 @Component
 public class GroupMemberMapper {
@@ -11,7 +12,8 @@ public class GroupMemberMapper {
             groupMember.getId(),
             groupMember.getGroupId(),
             groupMember.getUserId(),
-            groupMember.getJoinedAt()
+            groupMember.getJoinedAt(),
+            groupMember.getDisplayOrder()
         );
     }
 
@@ -21,6 +23,7 @@ public class GroupMemberMapper {
             .groupId(entity.getGroupId())
             .userId(entity.getUserId())
             .joinedAt(entity.getJoinedAt())
+            .displayOrder(entity.getDisplayOrder())
             .build();
     }
 }

@@ -13,6 +13,7 @@ public class GameResultMapper {
             result.getSessionId(),
             result.getUserId(),
             result.getScore(),
+            result.isWon(),
             result.getRank()
         );
     }
@@ -23,6 +24,7 @@ public class GameResultMapper {
             .sessionId(entity.getSessionId())
             .userId(entity.getUserId())
             .score(entity.getScore())
+            .won(entity.isWon())
             .rank(entity.getRank())
             .build();
     }

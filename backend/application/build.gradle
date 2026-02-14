@@ -1,6 +1,6 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation project(':domain')
+    implementation project(':backend:domain')
 
     // JWT - application 레이어에서 직접 구현
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'

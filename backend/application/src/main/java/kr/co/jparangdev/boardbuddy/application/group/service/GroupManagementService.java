@@ -8,8 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.group.exception.NotGroupOwnerException;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
@@ -23,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GroupManagementService implements GroupCommandUseCase, GroupQueryUseCase {
+public class GroupManagementService implements GroupCommandUseCase, GroupQueryUseCase, UpdateGroupOrderUseCase {
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
@@ -96,16 +95,45 @@ public class GroupManagementService implements GroupCommandUseCase, GroupQueryUs
     public List<Group> getMyGroups() {
         Long currentUserId = getCurrentUserId();
 
-        // 1. 사용자가 속한 모든 GroupMember 조회
-        List<GroupMember> memberships = groupMemberRepository.findAllByUserId(currentUserId);
+        // 1. 사용자가 속한 모든 GroupMember 조회 (순서대로)
+        List<GroupMember> memberships = groupMemberRepository.findAllByUserIdOrderByDisplayOrderAsc(currentUserId);
 
-        // 2. 그룹 ID 목록 추출
+        // 2. 그룹 ID 목록 추출 (순서 유지)
         List<Long> groupIds = memberships.stream()
                 .map(GroupMember::getGroupId)
                 .toList();
 
-        // 3. 그룹 정보 조회
-        return groupRepository.findAllByIds(groupIds);
+        // 3. 그룹 정보 조회 후 순서에 맞게 정렬
+        List<Group> groups = groupRepository.findAllByIds(groupIds);
+        Map<Long, Group> groupMap = new HashMap<>();
+        groups.forEach(g -> groupMap.put(g.getId(), g));
+
+        return groupIds.stream()
+                .map(groupMap::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateGroupOrder(List<Long> groupIds) {
+        Long currentUserId = getCurrentUserId();
+
+        for (int i = 0; i < groupIds.size(); i++) {
+            Long groupId = groupIds.get(i);
+            GroupMember member = groupMemberRepository.findByGroupIdAndUserId(groupId, currentUserId)
+                    .orElseThrow(() -> new UserNotGroupMemberException(groupId, currentUserId));
+
+            GroupMember updatedMember = GroupMember.builder()
+                    .id(member.getId())
+                    .groupId(member.getGroupId())
+                    .userId(member.getUserId())
+                    .joinedAt(member.getJoinedAt())
+                    .displayOrder(i)
+                    .build();
+
+            groupMemberRepository.save(updatedMember);
+        }
     }
 
     @Override

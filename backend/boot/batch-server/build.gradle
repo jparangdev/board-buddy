@@ -4,8 +4,8 @@ plugins {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation project(':application')
-    implementation project(':presentation:batch')
-    implementation project(':infrastructure:persistence')
-    implementation project(':infrastructure:transients')
+    implementation project(':backend:application')
+    implementation project(':backend:presentation:batch')
+    implementation project(':backend:infrastructure:persistence')
+    implementation project(':backend:infrastructure:transients')
 }

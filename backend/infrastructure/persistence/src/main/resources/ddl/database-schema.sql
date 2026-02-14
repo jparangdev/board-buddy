@@ -38,6 +38,7 @@ CREATE TABLE group_members (
     group_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     joined_at TIMESTAMP NOT NULL,
+    display_order INT NOT NULL DEFAULT 0,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE (group_id, user_id)
@@ -91,6 +92,7 @@ CREATE TABLE game_results (
     session_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     score INT,
+    won BOOLEAN NOT NULL DEFAULT FALSE,
     rank INT NOT NULL,
     FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id),

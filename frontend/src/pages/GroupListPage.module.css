@@ -11,6 +11,44 @@
   gap: var(--spacing-lg);
 }
 
+.cardWrapper {
+  position: relative;
+  border-radius: var(--radius-lg);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.cardWrapper:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.dragOver {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 2px var(--color-accent);
+  border-radius: var(--radius-lg);
+}
+
+.dragHandle {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  opacity: 0;
+  cursor: grab;
+  font-size: 1rem;
+  color: var(--color-text-light);
+  padding: var(--spacing-xs);
+  z-index: 2;
+  transition: opacity 0.15s ease;
+  user-select: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
 .card {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
@@ -107,5 +145,9 @@
 
   .card {
     padding: var(--spacing-md);
+  }
+
+  .dragHandle {
+    opacity: 0.6;
   }
 }

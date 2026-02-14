@@ -73,3 +73,36 @@
     5.  **Step 4: Confirm**: Review details. Click "Save Session".
     6.  Verify redirection to Group Detail page.
     7.  Verify the new session appears in the "Game Sessions" list.
+76: 
+77: ## 6. Group Reordering (Drag and Drop)
+78: *   **Goal**: Change the display order of groups and verify it persists after refresh.
+79: *   **Steps**:
+80:     1.  Navigate to the Groups page (`/groups`).
+81:     2.  Ensure at least two groups exist (e.g., "Board Game Crew" and another).
+82:     3.  *Action*: Drag the second group to the top position.
+83:     4.  Verify the order visually on the screen.
+84:     5.  *Action*: Refresh the page (F5 or browser refresh).
+85:     6.  Verify the same order is maintained after the page reloads.
+86: 
+87: ## 7. Enhanced Game Session Strategies
+88: *   **Goal**: Record sessions using Cooperative and Win/Lose strategies.
+89: *   **Steps (Cooperative)**:
+90:     1.  In Group Detail, click "Record Game".
+91:     2.  Select a cooperative game (e.g., `Pandemic`). Click "Next".
+92:     3.  Select players. Click "Next".
+93:     4.  **Step 3: Scores**:
+94:         *   Observe the "Team Result" toggle.
+95:         *   Toggle to "Won".
+96:         *   Input scores for players.
+97:         *   Click "Next" then "Save Session".
+98:     2.  Verify the session appears in the group's history with the result.
+99: *   **Steps (Win/Lose)**:
+100:     1.  Click "Record Game".
+101:     2.  Select a win/lose game (e.g., `Codenames`). Click "Next".
+102:     3.  Select players. Click "Next".
+103:     4.  **Step 3: Scores**:
+104:         *   Observe "Won/Lost" toggles for each player.
+105:         *   Set PlayerOne to "Won" and PlayerTwo to "Lost".
+106:         *   Input scores.
+107:         *   Click "Next" then "Save Session".
+108:     2.  Verify the session result reflects who won or lost in the UI.

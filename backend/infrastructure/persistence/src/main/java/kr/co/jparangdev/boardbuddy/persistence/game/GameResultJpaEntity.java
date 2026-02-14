@@ -1,10 +1,7 @@
 package kr.co.jparangdev.boardbuddy.persistence.game;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "game_results",
@@ -27,13 +24,17 @@ public class GameResultJpaEntity {
     private Integer score;
 
     @Column(nullable = false)
+    private boolean won;
+
+    @Column(nullable = false)
     private int rank;
 
-    public GameResultJpaEntity(Long id, Long sessionId, Long userId, Integer score, int rank) {
+    public GameResultJpaEntity(Long id, Long sessionId, Long userId, Integer score, boolean won, int rank) {
         this.id = id;
         this.sessionId = sessionId;
         this.userId = userId;
         this.score = score;
+        this.won = won;
         this.rank = rank;
     }
 }

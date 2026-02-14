@@ -4,15 +4,18 @@ plugins {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation project(':domain')
-    implementation project(':application')
-    implementation project(':presentation:api')
-    implementation project(':infrastructure:persistence')
-    implementation project(':infrastructure:transients')
-    implementation project(':infrastructure:client')
+    implementation project(':backend:domain')
+    implementation project(':backend:application')
+    implementation project(':backend:presentation:api')
+    implementation project(':backend:infrastructure:persistence')
+    implementation project(':backend:infrastructure:transients')
+    implementation project(':backend:infrastructure:client')
 
     // Spring Web (for servlet APIs)
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring JDBC (for manual schema migration)
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'

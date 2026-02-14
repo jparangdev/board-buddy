@@ -18,9 +18,33 @@ public class DataInitializer implements ApplicationRunner {
 
     private final GameQueryUseCase gameQueryUseCase;
     private final GameCommandUseCase gameCommandUseCase;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(ApplicationArguments args) {
+        log.info("Checking final schema state...");
+        try {
+            boolean wonExists = jdbcTemplate.queryForObject(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='game_results' AND column_name='won')",
+                Boolean.class
+            );
+            log.info("Column 'won' in 'game_results' exists: {}", wonExists);
+
+            boolean customGamesExists = jdbcTemplate.queryForObject(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='custom_games')",
+                Boolean.class
+            );
+            log.info("Table 'custom_games' exists: {}", customGamesExists);
+
+            boolean displayOrderExists = jdbcTemplate.queryForObject(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='group_members' AND column_name='display_order')",
+                Boolean.class
+            );
+            log.info("Column 'display_order' in 'group_members' exists: {}", displayOrderExists);
+        } catch (Exception e) {
+            log.error("Failed to check final schema state: {}", e.getMessage());
+        }
+
         var existingGames = gameQueryUseCase.getGameList();
         var existingNames = existingGames.stream()
                 .map(g -> g.getName())
