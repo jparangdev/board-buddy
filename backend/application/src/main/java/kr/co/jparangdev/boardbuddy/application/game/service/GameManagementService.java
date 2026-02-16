@@ -47,4 +47,13 @@ public class GameManagementService implements GameQueryUseCase, GameCommandUseCa
         Game game = Game.create(name, nameKo, nameEn, minPlayers, maxPlayers, scoreStrategy);
         return gameRepository.save(game);
     }
+
+    @Override
+    @Transactional
+    public Game updateGame(Long id, String nameKo, String nameEn) {
+        Game game = gameRepository.findById(id)
+                .orElseThrow(() -> new GameNotFoundException(id));
+        game.update(nameKo, nameEn);
+        return gameRepository.save(game);
+    }
 }

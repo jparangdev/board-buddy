@@ -40,4 +40,9 @@ public class Game {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+    public void update(String nameKo, String nameEn) {
+        this.nameKo = nameKo;
+        this.nameEn = nameEn;
+    }
 }

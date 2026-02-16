@@ -46,9 +46,7 @@ public class DataInitializer implements ApplicationRunner {
         }
 
         var existingGames = gameQueryUseCase.getGameList();
-        var existingNames = existingGames.stream()
-                .map(g -> g.getName())
-                .collect(java.util.stream.Collectors.toSet());
+
 
         List<SeedGame> seedGames = List.of(
             new SeedGame("Catan", "카탄", "Catan", 3, 4, "HIGH_WIN"),
@@ -70,8 +68,25 @@ public class DataInitializer implements ApplicationRunner {
         );
 
         int inserted = 0;
+        int updated = 0;
         for (SeedGame seed : seedGames) {
-            if (!existingNames.contains(seed.name())) {
+            String gameName = seed.name();
+            // Check if game exists by name
+            java.util.Optional<kr.co.jparangdev.boardbuddy.domain.game.Game> existingGameOpt = existingGames.stream()
+                    .filter(g -> g.getName().equals(gameName))
+                    .findFirst();
+
+            if (existingGameOpt.isPresent()) {
+                // Update if nameKo or nameEn are missing or different
+                kr.co.jparangdev.boardbuddy.domain.game.Game existing = existingGameOpt.get();
+                boolean needsUpdate = (existing.getNameKo() == null || !existing.getNameKo().equals(seed.nameKo())) ||
+                                      (existing.getNameEn() == null || !existing.getNameEn().equals(seed.nameEn()));
+                
+                if (needsUpdate) {
+                    gameCommandUseCase.updateGame(existing.getId(), seed.nameKo(), seed.nameEn());
+                    updated++;
+                }
+            } else {
                 gameCommandUseCase.createGame(
                     seed.name(),
                     seed.nameKo(),
@@ -82,6 +97,10 @@ public class DataInitializer implements ApplicationRunner {
                 );
                 inserted++;
             }
+        }
+        
+        if (updated > 0) {
+            log.info("Updated {} official board games with localized names", updated);
         }
 
         if (inserted > 0) {
