@@ -65,7 +65,7 @@ public class CustomGameManagementService implements CustomGameQueryUseCase, Cust
             throw new DuplicateCustomGameNameException(groupId, name);
         }
 
-        CustomGame customGame = CustomGame.create(groupId, name, minPlayers, maxPlayers, scoreStrategy);
+        CustomGame customGame = CustomGame.create(groupId, name, null, null, minPlayers, maxPlayers, scoreStrategy);
         return customGameRepository.save(customGame);
     }
 
