@@ -5,13 +5,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import kr.co.jparangdev.boardbuddy.api.game.dto.CustomGameDto;
-import kr.co.jparangdev.boardbuddy.api.game.dto.GameDto;
-import kr.co.jparangdev.boardbuddy.api.game.dto.GameSessionDto;
-import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
-import kr.co.jparangdev.boardbuddy.domain.game.Game;
-import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
-import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
+import kr.co.jparangdev.boardbuddy.api.game.dto.*;
+import kr.co.jparangdev.boardbuddy.domain.game.*;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 
 @Component
@@ -21,6 +16,8 @@ public class GameDtoMapper {
         return GameDto.Response.builder()
             .id(game.getId())
             .name(game.getName())
+            .nameKo(game.getNameKo())
+            .nameEn(game.getNameEn())
             .minPlayers(game.getMinPlayers())
             .maxPlayers(game.getMaxPlayers())
             .scoreStrategy(game.getScoreStrategy().name())
@@ -105,6 +102,8 @@ public class GameDtoMapper {
             .id(customGame.getId())
             .groupId(customGame.getGroupId())
             .name(customGame.getName())
+            .nameKo(customGame.getNameKo())
+            .nameEn(customGame.getNameEn())
             .minPlayers(customGame.getMinPlayers())
             .maxPlayers(customGame.getMaxPlayers())
             .scoreStrategy(customGame.getScoreStrategy().name())

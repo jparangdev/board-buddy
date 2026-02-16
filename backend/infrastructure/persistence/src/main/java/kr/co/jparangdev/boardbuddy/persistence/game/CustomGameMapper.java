@@ -13,6 +13,8 @@ public class CustomGameMapper {
             customGame.getId(),
             customGame.getGroupId(),
             customGame.getName(),
+            customGame.getNameKo(),
+            customGame.getNameEn(),
             customGame.getMinPlayers(),
             customGame.getMaxPlayers(),
             customGame.getScoreStrategy().name(),
@@ -25,6 +27,8 @@ public class CustomGameMapper {
             .id(entity.getId())
             .groupId(entity.getGroupId())
             .name(entity.getName())
+            .nameKo(entity.getNameKo())
+            .nameEn(entity.getNameEn())
             .minPlayers(entity.getMinPlayers())
             .maxPlayers(entity.getMaxPlayers())
             .scoreStrategy(ScoreStrategy.valueOf(entity.getScoreStrategy()))

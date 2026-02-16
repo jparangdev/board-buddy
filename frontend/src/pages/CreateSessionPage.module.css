@@ -54,6 +54,48 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.searchBox {
+  position: relative;
+  margin-bottom: var(--spacing-lg);
+}
+
+.searchBox input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.clearButton {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--color-text-light);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.clearButton:hover {
+  color: var(--color-text);
+}
+
+.noResults {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-light);
+}
+
+.addCustomGameSection {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
 .gameGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -256,6 +298,36 @@
   75% { transform: rotate(270deg); }
 }
 
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  width: 100%;
+  max-width: 480px;
+  margin: var(--spacing-md);
+}
+
+.modalContent h2 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
 @media (max-width: 768px) {
   .steps {
     flex-direction: column;
@@ -288,5 +360,11 @@
   .actions {
     flex-direction: column;
     gap: var(--spacing-sm);
+  }
+
+  .modalContent {
+    max-width: 100%;
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm);
   }
 }

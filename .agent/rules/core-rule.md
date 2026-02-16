@@ -7,6 +7,12 @@ trigger: always_on
 ## Language
 - All comments, docs, commit messages, test description: **English only**
 
+## Working Principles
+- **Explicit assumptions**: State assumptions clearly; ask questions when uncertain; stop if confused
+- **Simplicity first**: Don't add unrequested features, abstractions, or error handling; try simple solutions first
+- **Surgical precision**: Change only what was requested; leave everything else untouched
+- **Goal-oriented execution**: Convert user requests into clear, focused objectives
+
 ## Architecture
 - **Clean Architecture + DDD**
 - Dependency flows inward: `infrastructure, presentation → application → domain`

@@ -1,6 +1,8 @@
 export interface Game {
   id: number;
   name: string;
+  nameKo?: string;
+  nameEn?: string;
   minPlayers: number;
   maxPlayers: number;
   scoreStrategy: string;
@@ -22,6 +24,8 @@ export interface CustomGame {
   id: number;
   groupId: number;
   name: string;
+  nameKo?: string;
+  nameEn?: string;
   minPlayers: number;
   maxPlayers: number;
   scoreStrategy: string;

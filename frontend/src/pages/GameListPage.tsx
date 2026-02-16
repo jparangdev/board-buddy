@@ -1,15 +1,10 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import type {Game} from '@/types';
 import {gameService} from '@/services';
+import {matchesSearch, sortAlphabetically} from '@/utils/korean';
+import {getAllGameNames, getGameName} from '@/utils/game';
 import styles from './GameListPage.module.css';
-
-const STRATEGY_LABELS: Record<string, string> = {
-  HIGH_WIN: 'High Wins',
-  LOW_WIN: 'Low Wins',
-  RANK_ONLY: 'Rank Only',
-  WIN_LOSE: 'Win/Lose',
-  COOPERATIVE: 'Co-op',
-};
 
 const STRATEGY_STYLES: Record<string, string> = {
   HIGH_WIN: styles.highWin,
@@ -20,9 +15,11 @@ const STRATEGY_STYLES: Record<string, string> = {
 };
 
 export function GameListPage() {
+  const {t, i18n} = useTranslation();
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formName, setFormName] = useState('');
   const [formMinPlayers, setFormMinPlayers] = useState(2);
   const [formMaxPlayers, setFormMaxPlayers] = useState(4);
@@ -42,6 +39,20 @@ export function GameListPage() {
     };
     fetchGames();
   }, []);
+
+  const filteredAndSortedGames = useMemo(() => {
+    let result = games;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      result = result.filter((game) =>
+        getAllGameNames(game).some(name => matchesSearch(name, searchQuery))
+      );
+    }
+
+    // Sort alphabetically
+    return sortAlphabetically(result, (game) => getGameName(game, i18n.language));
+  }, [games, searchQuery, i18n.language]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,19 +108,46 @@ export function GameListPage() {
           </button>
         </div>
       ) : (
-        <div className={styles.grid}>
-          {games.map((game) => (
-            <div key={game.id} className={styles.card}>
-              <h3>{game.name}</h3>
-              <div className={styles.cardMeta}>
-                <span>{game.minPlayers}-{game.maxPlayers} players</span>
-                <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? styles.highWin}`}>
-                  {STRATEGY_LABELS[game.scoreStrategy] ?? game.scoreStrategy}
-                </span>
-              </div>
+        <>
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              className="input"
+              placeholder="Search games... (supports Korean chosung)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {filteredAndSortedGames.length === 0 ? (
+            <div className={styles.noResults}>
+              <p>No games found matching "{searchQuery}"</p>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className={styles.grid}>
+              {filteredAndSortedGames.map((game) => (
+                <div key={game.id} className={styles.card}>
+                  <h3>{getGameName(game, i18n.language)}</h3>
+                  <div className={styles.cardMeta}>
+                    <span>{game.minPlayers}-{game.maxPlayers} {t('game.players')}</span>
+                    <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? styles.highWin}`}>
+                      {t(`scoreStrategy.${game.scoreStrategy}`)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {showCreateModal && (

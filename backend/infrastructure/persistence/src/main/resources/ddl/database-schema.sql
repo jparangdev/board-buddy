@@ -48,6 +48,8 @@ CREATE TABLE group_members (
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
+    name_ko VARCHAR(100),
+    name_en VARCHAR(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
     score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
@@ -59,6 +61,8 @@ CREATE TABLE custom_games (
     id BIGSERIAL PRIMARY KEY,
     group_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
+    name_ko VARCHAR(100),
+    name_en VARCHAR(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
     score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',

@@ -3,10 +3,7 @@ package kr.co.jparangdev.boardbuddy.persistence.game;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "games")
@@ -20,6 +17,12 @@ public class GameJpaEntity {
 
     @Column(nullable = false, unique = true, length = 100)
     private String name;
+
+    @Column(name = "name_ko", length = 100)
+    private String nameKo;
+
+    @Column(name = "name_en", length = 100)
+    private String nameEn;
 
     @Column(name = "min_players", nullable = false)
     private int minPlayers;
@@ -40,10 +43,12 @@ public class GameJpaEntity {
         }
     }
 
-    public GameJpaEntity(Long id, String name, int minPlayers, int maxPlayers,
+    public GameJpaEntity(Long id, String name, String nameKo, String nameEn, int minPlayers, int maxPlayers,
                          String scoreStrategy, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
+        this.nameKo = nameKo;
+        this.nameEn = nameEn;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
         this.scoreStrategy = scoreStrategy;

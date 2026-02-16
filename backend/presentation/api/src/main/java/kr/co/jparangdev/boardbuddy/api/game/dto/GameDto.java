@@ -3,10 +3,7 @@ package kr.co.jparangdev.boardbuddy.api.game.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -36,6 +33,8 @@ public class GameDto {
     public static class Response {
         private Long id;
         private String name;
+        private String nameKo;
+        private String nameEn;
         private int minPlayers;
         private int maxPlayers;
         private String scoreStrategy;

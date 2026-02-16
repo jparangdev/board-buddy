@@ -1,30 +1,43 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 import type {CustomGame, Game, GroupMember} from '@/types';
 import {customGameService, gameService, gameSessionService, groupService} from '@/services';
+import {matchesSearch, sortAlphabetically} from '@/utils/korean';
+import {getAllGameNames, getGameName} from '@/utils/game';
 import styles from './CreateSessionPage.module.css';
 
 type Step = 'game' | 'members' | 'scores' | 'confirm';
-const STEPS: Step[] = ['game', 'members', 'scores', 'confirm'];
-const STEP_LABELS: Record<Step, string> = {
-  game: 'Game',
-  members: 'Players',
-  scores: 'Scores',
-  confirm: 'Confirm',
-};
 
 type SelectedGame = (Game | CustomGame) & { isCustom: boolean };
+
+const STEPS: Step[] = ['game', 'members', 'scores', 'confirm'];
 
 export function CreateSessionPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const {t, i18n} = useTranslation();
   const [step, setStep] = useState<Step>('game');
+
+  const STEP_LABELS: Record<Step, string> = {
+    game: t('session.selectGame'),
+    members: t('session.selectPlayers'),
+    scores: t('session.enterResults'),
+    confirm: t('session.confirmSession'),
+  };
 
   const [games, setGames] = useState<Game[]>([]);
   const [customGames, setCustomGames] = useState<CustomGame[]>([]);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAddCustomGame, setShowAddCustomGame] = useState(false);
+  const [customGameName, setCustomGameName] = useState('');
+  const [customGameMinPlayers, setCustomGameMinPlayers] = useState(2);
+  const [customGameMaxPlayers, setCustomGameMaxPlayers] = useState(4);
+  const [customGameStrategy, setCustomGameStrategy] = useState('HIGH_WIN');
+  const [isCreatingCustomGame, setIsCreatingCustomGame] = useState(false);
 
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
@@ -55,6 +68,30 @@ export function CreateSessionPage() {
     };
     fetchData();
   }, [groupId]);
+
+  const filteredAndSortedGames = useMemo(() => {
+    let result = games;
+
+    if (searchQuery.trim()) {
+      result = result.filter((game) =>
+        getAllGameNames(game).some(name => matchesSearch(name, searchQuery))
+      );
+    }
+
+    return sortAlphabetically(result, (game) => getGameName(game, i18n.language));
+  }, [games, searchQuery, i18n.language]);
+
+  const filteredAndSortedCustomGames = useMemo(() => {
+    let result = customGames;
+
+    if (searchQuery.trim()) {
+      result = result.filter((game) =>
+        getAllGameNames(game).some(name => matchesSearch(name, searchQuery))
+      );
+    }
+
+    return sortAlphabetically(result, (game) => getGameName(game, i18n.language));
+  }, [customGames, searchQuery, i18n.language]);
 
   const toggleMember = (id: number) => {
     const next = new Set(selectedMemberIds);
@@ -139,22 +176,46 @@ export function CreateSessionPage() {
     setSelectedGame({ ...game, isCustom });
   };
 
+  const handleCreateCustomGame = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!groupId) return;
+    setIsCreatingCustomGame(true);
+    try {
+      const newGame = await customGameService.createCustomGame(Number(groupId), {
+        name: customGameName,
+        minPlayers: customGameMinPlayers,
+        maxPlayers: customGameMaxPlayers,
+        scoreStrategy: customGameStrategy,
+      });
+      setCustomGames([...customGames, newGame]);
+      setShowAddCustomGame(false);
+      setCustomGameName('');
+      setCustomGameMinPlayers(2);
+      setCustomGameMaxPlayers(4);
+      setCustomGameStrategy('HIGH_WIN');
+    } catch (error) {
+      console.error('Failed to create custom game:', error);
+    } finally {
+      setIsCreatingCustomGame(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
         <span className={styles.loadingIcon}>&#x1F3B2;</span>
-        <p>Loading...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
 
   const getScoreHint = () => {
     switch (strategy) {
-      case 'HIGH_WIN': return 'Highest score wins.';
-      case 'LOW_WIN': return 'Lowest score wins.';
-      case 'RANK_ONLY': return 'Players are ranked by the order listed below. Drag or reorder to set placement.';
-      case 'WIN_LOSE': return 'Toggle each player as winner or loser.';
-      case 'COOPERATIVE': return 'The entire team wins or loses together.';
+      case 'HIGH_WIN': return t('scoreStrategy.highWinHint');
+      case 'LOW_WIN': return t('scoreStrategy.lowWinHint');
+      case 'RANK_ONLY': return t('scoreStrategy.rankOnlyHint');
+      case 'WIN_LOSE': return t('scoreStrategy.winLoseHint');
+      case 'COOPERATIVE': return t('scoreStrategy.cooperativeHint');
       default: return '';
     }
   };
@@ -162,9 +223,9 @@ export function CreateSessionPage() {
   const getResultSummary = (memberId: number) => {
     switch (strategy) {
       case 'WIN_LOSE':
-        return wonStatus.get(memberId) ? 'Won' : 'Lost';
+        return wonStatus.get(memberId) ? t('scoreStrategy.won') : t('scoreStrategy.lost');
       case 'COOPERATIVE':
-        return teamWon ? 'Won' : 'Lost';
+        return teamWon ? t('scoreStrategy.won') : t('scoreStrategy.lost');
       case 'RANK_ONLY':
         return `#${selectedMembers.findIndex(m => m.id === memberId) + 1}`;
       default: {
@@ -177,11 +238,11 @@ export function CreateSessionPage() {
   return (
     <div className="container">
       <Link to={`/groups/${groupId}`} className={styles.backLink}>
-        &larr; Back to Group
+        &larr; {t('session.backToGroup')}
       </Link>
 
       <div className={styles.header}>
-        <h1>Record Game Session</h1>
+        <h1>{t('session.recordGameSession')}</h1>
       </div>
 
       <div className={styles.steps}>
@@ -197,21 +258,40 @@ export function CreateSessionPage() {
 
       {step === 'game' && (
         <div className={styles.section}>
-          <h2>Select a Game</h2>
+          <h2>{t('session.selectGame')}</h2>
 
-          {games.length > 0 && (
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              className="input"
+              placeholder={t('game.searchGames')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchQuery('')}
+                aria-label={t('common.clear')}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {filteredAndSortedGames.length > 0 && (
             <>
-              <h3 className={styles.gameSectionTitle}>Official Games</h3>
+              <h3 className={styles.gameSectionTitle}>{t('game.officialGames')}</h3>
               <div className={styles.gameGrid}>
-                {games.map((game) => (
+                {filteredAndSortedGames.map((game) => (
                   <button
                     key={`game-${game.id}`}
                     className={`${styles.gameCard} ${selectedGame?.id === game.id && !selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
                     onClick={() => selectGame(game, false)}
                   >
-                    <h4>{game.name}</h4>
+                    <h4>{getGameName(game, i18n.language)}</h4>
                     <div className={styles.gameCardMeta}>
-                      {game.minPlayers}-{game.maxPlayers} players
+                      {game.minPlayers}-{game.maxPlayers} {t('game.players')}
                     </div>
                   </button>
                 ))}
@@ -219,19 +299,19 @@ export function CreateSessionPage() {
             </>
           )}
 
-          {customGames.length > 0 && (
+          {filteredAndSortedCustomGames.length > 0 && (
             <>
-              <h3 className={styles.gameSectionTitle}>Custom Games</h3>
+              <h3 className={styles.gameSectionTitle}>{t('game.customGames')}</h3>
               <div className={styles.gameGrid}>
-                {customGames.map((game) => (
+                {filteredAndSortedCustomGames.map((game) => (
                   <button
                     key={`custom-${game.id}`}
                     className={`${styles.gameCard} ${selectedGame?.id === game.id && selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
                     onClick={() => selectGame(game, true)}
                   >
-                    <h4>{game.name}</h4>
+                    <h4>{getGameName(game, i18n.language)}</h4>
                     <div className={styles.gameCardMeta}>
-                      {game.minPlayers}-{game.maxPlayers} players
+                      {game.minPlayers}-{game.maxPlayers} {t('game.players')}
                     </div>
                   </button>
                 ))}
@@ -239,15 +319,31 @@ export function CreateSessionPage() {
             </>
           )}
 
-          {games.length === 0 && customGames.length === 0 && (
-            <p className="text-muted">No games registered yet. <Link to="/games">Add a game first.</Link></p>
+          {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && !searchQuery && (
+            <p className="text-muted">{t('session.noGamesRegistered')} <Link to="/games">{t('session.addGameFirst')}</Link></p>
           )}
+
+          {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && searchQuery && (
+            <div className={styles.noResults}>
+              <p>{t('game.noResults', { query: searchQuery })}</p>
+            </div>
+          )}
+
+          <div className={styles.addCustomGameSection}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowAddCustomGame(true)}
+            >
+              + {t('game.addCustomGame')}
+            </button>
+          </div>
         </div>
       )}
 
       {step === 'members' && (
         <div className={styles.section}>
-          <h2>Select Players ({selectedMemberIds.size} selected)</h2>
+          <h2>{t('session.selectPlayers')} ({t('session.selected', { count: selectedMemberIds.size })})</h2>
           <div className={styles.memberList}>
             {members.map((member) => (
               <div
@@ -276,12 +372,12 @@ export function CreateSessionPage() {
 
       {step === 'scores' && (
         <div className={styles.section}>
-          <h2>Enter Results</h2>
+          <h2>{t('session.enterResults')}</h2>
           <p className="text-muted" style={{marginBottom: 'var(--spacing-md)'}}>
             {getScoreHint()}
           </p>
           <div className="form-group" style={{marginBottom: 'var(--spacing-lg)'}}>
-            <label htmlFor="playedAt">Played At</label>
+            <label htmlFor="playedAt">{t('session.playedAt')}</label>
             <input
               id="playedAt"
               className="input"
@@ -293,20 +389,20 @@ export function CreateSessionPage() {
 
           {strategy === 'COOPERATIVE' && (
             <div className={styles.cooperativeToggle}>
-              <span className={styles.toggleLabel}>Team Result:</span>
+              <span className={styles.toggleLabel}>{t('scoreStrategy.teamResult')}</span>
               <button
                 type="button"
                 className={`${styles.toggleBtn} ${teamWon ? styles.toggleWon : ''}`}
                 onClick={() => setTeamWon(true)}
               >
-                Won
+                {t('scoreStrategy.won')}
               </button>
               <button
                 type="button"
                 className={`${styles.toggleBtn} ${!teamWon ? styles.toggleLost : ''}`}
                 onClick={() => setTeamWon(false)}
               >
-                Lost
+                {t('scoreStrategy.lost')}
               </button>
             </div>
           )}
@@ -319,7 +415,7 @@ export function CreateSessionPage() {
                   <input
                     className={`input ${styles.scoreInput}`}
                     type="number"
-                    placeholder="Score"
+                    placeholder={t('placeholder.score')}
                     value={scores.get(member.id) ?? ''}
                     onChange={(e) => updateScore(member.id, e.target.value)}
                   />
@@ -337,7 +433,7 @@ export function CreateSessionPage() {
                 </div>
               ))}
               <p className="text-muted" style={{marginTop: 'var(--spacing-sm)', fontSize: '0.85rem'}}>
-                Players are ranked in the order selected.
+                {t('scoreStrategy.rankedInOrder')}
               </p>
             </div>
           )}
@@ -352,7 +448,7 @@ export function CreateSessionPage() {
                     className={`${styles.toggleBtn} ${wonStatus.get(member.id) ? styles.toggleWon : styles.toggleLost}`}
                     onClick={() => toggleWon(member.id)}
                   >
-                    {wonStatus.get(member.id) ? 'Won' : 'Lost'}
+                    {wonStatus.get(member.id) ? t('scoreStrategy.won') : t('scoreStrategy.lost')}
                   </button>
                 </div>
               ))}
@@ -363,22 +459,22 @@ export function CreateSessionPage() {
 
       {step === 'confirm' && (
         <div className={styles.section}>
-          <h2>Confirm Session</h2>
+          <h2>{t('session.confirmSession')}</h2>
           <table style={{width: '100%', borderCollapse: 'collapse'}}>
             <tbody>
               <tr>
-                <td style={{padding: '8px', fontWeight: 500}}>Game</td>
+                <td style={{padding: '8px', fontWeight: 500}}>{t('session.game')}</td>
                 <td style={{padding: '8px'}}>
-                  {selectedGame?.name}
-                  {selectedGame?.isCustom && <span className={styles.customBadge}>Custom</span>}
+                  {selectedGame && getGameName(selectedGame, i18n.language)}
+                  {selectedGame?.isCustom && <span className={styles.customBadge}>{t('game.custom')}</span>}
                 </td>
               </tr>
               <tr>
-                <td style={{padding: '8px', fontWeight: 500}}>Played At</td>
+                <td style={{padding: '8px', fontWeight: 500}}>{t('session.playedAt')}</td>
                 <td style={{padding: '8px'}}>{new Date(playedAt).toLocaleString()}</td>
               </tr>
               <tr>
-                <td style={{padding: '8px', fontWeight: 500}}>Players</td>
+                <td style={{padding: '8px', fontWeight: 500}}>{t('session.players')}</td>
                 <td style={{padding: '8px'}}>
                   {selectedMembers.map((m) => {
                     const summary = getResultSummary(m.id);
@@ -397,7 +493,7 @@ export function CreateSessionPage() {
           onClick={prevStep}
           disabled={currentStepIndex === 0}
         >
-          Previous
+          {t('common.previous')}
         </button>
         {step === 'confirm' ? (
           <button
@@ -405,7 +501,7 @@ export function CreateSessionPage() {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Saving...' : 'Save Session'}
+            {isSubmitting ? t('session.saving') : t('session.saveSession')}
           </button>
         ) : (
           <button
@@ -413,10 +509,82 @@ export function CreateSessionPage() {
             onClick={nextStep}
             disabled={!canProceed()}
           >
-            Next
+            {t('common.next')}
           </button>
         )}
       </div>
+
+      {showAddCustomGame && (
+        <div className={styles.modal} onClick={() => setShowAddCustomGame(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2>{t('game.addCustomGame')}</h2>
+            <form onSubmit={handleCreateCustomGame}>
+              <div className="form-group">
+                <label htmlFor="customGameName">{t('game.gameName')}</label>
+                <input
+                  id="customGameName"
+                  className="input"
+                  type="text"
+                  value={customGameName}
+                  onChange={(e) => setCustomGameName(e.target.value)}
+                  placeholder={t('placeholder.customGameName')}
+                  required
+                  maxLength={100}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="customMinPlayers">{t('game.minPlayers')}</label>
+                <input
+                  id="customMinPlayers"
+                  className="input"
+                  type="number"
+                  value={customGameMinPlayers}
+                  onChange={(e) => setCustomGameMinPlayers(Number(e.target.value))}
+                  min={1}
+                  max={20}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="customMaxPlayers">{t('game.maxPlayers')}</label>
+                <input
+                  id="customMaxPlayers"
+                  className="input"
+                  type="number"
+                  value={customGameMaxPlayers}
+                  onChange={(e) => setCustomGameMaxPlayers(Number(e.target.value))}
+                  min={1}
+                  max={20}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="customScoreStrategy">{t('game.scoreStrategy')}</label>
+                <select
+                  id="customScoreStrategy"
+                  className="input"
+                  value={customGameStrategy}
+                  onChange={(e) => setCustomGameStrategy(e.target.value)}
+                >
+                  <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
+                  <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
+                  <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+                  <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
+                  <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
+                </select>
+              </div>
+              <div className={styles.modalActions}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddCustomGame(false)}>
+                  {t('common.cancel')}
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={isCreatingCustomGame || !customGameName.trim()}>
+                  {isCreatingCustomGame ? t('game.adding') : t('game.addGame')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

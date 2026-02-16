@@ -35,10 +35,16 @@ public class GameManagementService implements GameQueryUseCase, GameCommandUseCa
     @Override
     @Transactional
     public Game createGame(String name, int minPlayers, int maxPlayers, ScoreStrategy scoreStrategy) {
+        return createGame(name, null, null, minPlayers, maxPlayers, scoreStrategy);
+    }
+
+    @Override
+    @Transactional
+    public Game createGame(String name, String nameKo, String nameEn, int minPlayers, int maxPlayers, ScoreStrategy scoreStrategy) {
         if (gameRepository.existsByName(name)) {
             throw new DuplicateGameNameException(name);
         }
-        Game game = Game.create(name, minPlayers, maxPlayers, scoreStrategy);
+        Game game = Game.create(name, nameKo, nameEn, minPlayers, maxPlayers, scoreStrategy);
         return gameRepository.save(game);
     }
 }

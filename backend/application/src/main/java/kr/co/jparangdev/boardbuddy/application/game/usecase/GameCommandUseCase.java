@@ -5,4 +5,5 @@ import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
 
 public interface GameCommandUseCase {
     Game createGame(String name, int minPlayers, int maxPlayers, ScoreStrategy scoreStrategy);
+    Game createGame(String name, String nameKo, String nameEn, int minPlayers, int maxPlayers, ScoreStrategy scoreStrategy);
 }

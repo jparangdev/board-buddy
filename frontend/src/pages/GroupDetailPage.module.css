@@ -239,6 +239,33 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.deleteSection {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: var(--spacing-sm);
+}
+
+.deleteButton:hover {
+  opacity: 0.6;
+  transform: scale(1.1);
+}
+
+.deleteButton:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 768px) {
   .header {
     flex-direction: column;

@@ -51,18 +51,22 @@ public class DataInitializer implements ApplicationRunner {
                 .collect(java.util.stream.Collectors.toSet());
 
         List<SeedGame> seedGames = List.of(
-            new SeedGame("Catan", 3, 4, "HIGH_WIN"),
-            new SeedGame("Splendor", 2, 4, "HIGH_WIN"),
-            new SeedGame("Ticket to Ride", 2, 5, "HIGH_WIN"),
-            new SeedGame("Azul", 2, 4, "HIGH_WIN"),
-            new SeedGame("7 Wonders", 2, 7, "HIGH_WIN"),
-            new SeedGame("Dominion", 2, 4, "HIGH_WIN"),
-            new SeedGame("Codenames", 4, 8, "WIN_LOSE"),
-            new SeedGame("Pandemic", 2, 4, "COOPERATIVE"),
-            new SeedGame("The Resistance", 5, 10, "WIN_LOSE"),
-            new SeedGame("Uno", 2, 10, "LOW_WIN"),
-            new SeedGame("Love Letter", 2, 6, "HIGH_WIN"),
-            new SeedGame("Dixit", 3, 8, "HIGH_WIN")
+            new SeedGame("Catan", "카탄", "Catan", 3, 4, "HIGH_WIN"),
+            new SeedGame("Splendor", "스플렌더", "Splendor", 2, 4, "HIGH_WIN"),
+            new SeedGame("Ticket to Ride", "티켓 투 라이드", "Ticket to Ride", 2, 5, "HIGH_WIN"),
+            new SeedGame("Azul", "아줄", "Azul", 2, 4, "HIGH_WIN"),
+            new SeedGame("7 Wonders", "7 원더스", "7 Wonders", 2, 7, "HIGH_WIN"),
+            new SeedGame("Dominion", "도미니언", "Dominion", 2, 4, "HIGH_WIN"),
+            new SeedGame("Codenames", "코드네임", "Codenames", 4, 8, "WIN_LOSE"),
+            new SeedGame("Pandemic", "팬데믹", "Pandemic", 2, 4, "COOPERATIVE"),
+            new SeedGame("The Resistance", "레지스탕스", "The Resistance", 5, 10, "WIN_LOSE"),
+            new SeedGame("Uno", "우노", "Uno", 2, 10, "LOW_WIN"),
+            new SeedGame("Love Letter", "러브레터", "Love Letter", 2, 6, "HIGH_WIN"),
+            new SeedGame("Dixit", "딕싯", "Dixit", 3, 8, "HIGH_WIN"),
+            new SeedGame("윷놀이", "윷놀이", "Yut Nori", 2, 4, "HIGH_WIN"),
+            new SeedGame("할리갈리", "할리갈리", "Halli Galli", 2, 6, "RANK_ONLY"),
+            new SeedGame("뱅!", "뱅!", "Bang!", 4, 7, "WIN_LOSE"),
+            new SeedGame("루미큐브", "루미큐브", "Rummikub", 2, 4, "HIGH_WIN")
         );
 
         int inserted = 0;
@@ -70,6 +74,8 @@ public class DataInitializer implements ApplicationRunner {
             if (!existingNames.contains(seed.name())) {
                 gameCommandUseCase.createGame(
                     seed.name(),
+                    seed.nameKo(),
+                    seed.nameEn(),
                     seed.minPlayers(),
                     seed.maxPlayers(),
                     kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy.valueOf(seed.scoreStrategy())
@@ -83,5 +89,5 @@ public class DataInitializer implements ApplicationRunner {
         }
     }
 
-    private record SeedGame(String name, int minPlayers, int maxPlayers, String scoreStrategy) {}
+    private record SeedGame(String name, String nameKo, String nameEn, int minPlayers, int maxPlayers, String scoreStrategy) {}
 }

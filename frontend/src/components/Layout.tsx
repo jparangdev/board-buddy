@@ -1,12 +1,15 @@
 import {Link, Outlet, useNavigate} from 'react-router-dom';
 import {useEffect, useRef, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
 import {authService} from '@/services';
+import {LanguageSwitcher} from './LanguageSwitcher';
 import styles from './Layout.module.css';
 
 export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const {t} = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -18,7 +21,7 @@ export function Layout() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!globalThis.confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+    if (!globalThis.confirm(t('auth.deleteAccountConfirm') || 'Are you sure you want to delete your account? This cannot be undone.')) return;
 
     setIsDeleting(true);
     try {
@@ -27,7 +30,7 @@ export function Layout() {
       navigate('/login');
     } catch (error) {
       console.error('Failed to delete account:', error);
-      alert('Failed to delete account. Please try again.');
+      alert(t('auth.deleteFailed') || 'Failed to delete account. Please try again.');
     } finally {
       setIsDeleting(false);
       setShowMenu(false);
@@ -57,11 +60,12 @@ export function Layout() {
           {user && (
             <nav className={styles.nav}>
               <Link to="/groups" className={styles.navLink}>
-                My Groups
+                {t('group.myGroups')}
               </Link>
               <Link to="/games" className={styles.navLink}>
-                Games
+                {t('nav.games')}
               </Link>
+              <LanguageSwitcher />
               <div className={styles.userSection} ref={menuRef}>
                 <button
                   className={styles.userButton}
@@ -80,14 +84,14 @@ export function Layout() {
                     </div>
                     <div className={styles.dropdownDivider} />
                     <button className={styles.dropdownItem} onClick={handleLogout}>
-                      Logout
+                      {t('nav.logout')}
                     </button>
                     <button
                       className={`${styles.dropdownItem} ${styles.dropdownDanger}`}
                       onClick={handleDeleteAccount}
                       disabled={isDeleting}
                     >
-                      {isDeleting ? 'Deleting...' : 'Delete Account'}
+                      {isDeleting ? t('common.deleting') : t('auth.deleteAccount')}
                     </button>
                   </div>
                 )}

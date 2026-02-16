@@ -12,6 +12,8 @@ public class GameMapper {
         return new GameJpaEntity(
             game.getId(),
             game.getName(),
+            game.getNameKo(),
+            game.getNameEn(),
             game.getMinPlayers(),
             game.getMaxPlayers(),
             game.getScoreStrategy().name(),
@@ -23,6 +25,8 @@ public class GameMapper {
         return Game.builder()
             .id(entity.getId())
             .name(entity.getName())
+            .nameKo(entity.getNameKo())
+            .nameEn(entity.getNameEn())
             .minPlayers(entity.getMinPlayers())
             .maxPlayers(entity.getMaxPlayers())
             .scoreStrategy(ScoreStrategy.valueOf(entity.getScoreStrategy()))
