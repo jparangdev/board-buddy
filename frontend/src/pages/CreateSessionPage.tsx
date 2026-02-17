@@ -38,6 +38,7 @@ export function CreateSessionPage() {
   const [customGameMaxPlayers, setCustomGameMaxPlayers] = useState(4);
   const [customGameStrategy, setCustomGameStrategy] = useState('HIGH_WIN');
   const [isCreatingCustomGame, setIsCreatingCustomGame] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
@@ -337,6 +338,18 @@ export function CreateSessionPage() {
             >
               + {t('game.addCustomGame')}
             </button>
+            <div
+              className={styles.tooltipWrapper}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <span className={styles.helpIcon}>?</span>
+              {showTooltip && (
+                <div className={styles.tooltip}>
+                  {t('game.customGameTooltip')}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

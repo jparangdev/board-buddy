@@ -67,7 +67,8 @@
     "addCustomGame": "Add Custom Game",
     "noCustomGames": "No custom games yet. Add your group's favorite games!",
     "adding": "Adding...",
-    "custom": "Custom"
+    "custom": "Custom",
+    "customGameTooltip": "Add your group's own games in addition to the predefined games"
   },
   "session": {
     "title": "Game Sessions",

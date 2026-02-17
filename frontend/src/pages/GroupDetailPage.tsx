@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import type {CustomGame, GameSession, Group, GroupMember} from '@/types';
-import {customGameService, gameSessionService, groupService} from '@/services';
+import type {GameSession, Group, GroupMember} from '@/types';
+import {gameSessionService, groupService} from '@/services';
 import {useAuth} from '@/hooks/useAuth';
 import styles from './GroupDetailPage.module.css';
 
@@ -12,16 +12,9 @@ export function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [sessions, setSessions] = useState<GameSession[]>([]);
-  const [customGames, setCustomGames] = useState<CustomGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showCustomGameModal, setShowCustomGameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [formName, setFormName] = useState('');
-  const [formMinPlayers, setFormMinPlayers] = useState(2);
-  const [formMaxPlayers, setFormMaxPlayers] = useState(4);
-  const [formScoreStrategy, setFormScoreStrategy] = useState('HIGH_WIN');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -31,16 +24,14 @@ export function GroupDetailPage() {
     const fetchData = async () => {
       if (!id) return;
       try {
-        const [groupData, membersData, sessionsData, customGamesData] = await Promise.all([
+        const [groupData, membersData, sessionsData] = await Promise.all([
           groupService.getById(Number(id)),
           groupService.getMembers(Number(id)),
           gameSessionService.getSessionsByGroup(Number(id)),
-          customGameService.getCustomGames(Number(id)),
         ]);
         setGroup(groupData);
         setMembers(membersData);
         setSessions(sessionsData);
-        setCustomGames(customGamesData);
       } catch (error) {
         console.error('Failed to fetch group:', error);
       } finally {
@@ -60,30 +51,6 @@ export function GroupDetailPage() {
       console.error('Failed to delete group:', error);
       setIsDeleting(false);
       setShowDeleteModal(false);
-    }
-  };
-
-  const handleCreateCustomGame = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    setIsSubmitting(true);
-    try {
-      const newGame = await customGameService.createCustomGame(Number(id), {
-        name: formName,
-        minPlayers: formMinPlayers,
-        maxPlayers: formMaxPlayers,
-        scoreStrategy: formScoreStrategy,
-      });
-      setCustomGames([...customGames, newGame]);
-      setShowCustomGameModal(false);
-      setFormName('');
-      setFormMinPlayers(2);
-      setFormMaxPlayers(4);
-      setFormScoreStrategy('HIGH_WIN');
-    } catch (error) {
-      console.error('Failed to create custom game:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -150,32 +117,6 @@ export function GroupDetailPage() {
 
       <div className={styles.section} style={{marginTop: 'var(--spacing-lg)'}}>
         <div className={styles.sectionHeader}>
-          <h2>{t('game.customGames')} ({customGames.length})</h2>
-          <button className="btn btn-primary" onClick={() => setShowCustomGameModal(true)}>
-            + {t('game.addCustomGame')}
-          </button>
-        </div>
-        {customGames.length === 0 ? (
-          <p className="text-muted">{t('game.noCustomGames')}</p>
-        ) : (
-          <div className={styles.customGameList}>
-            {customGames.map((game) => (
-              <div key={game.id} className={styles.customGameCard}>
-                <span className={styles.customGameName}>{game.name}</span>
-                <span className={styles.customGameMeta}>
-                  {game.minPlayers}-{game.maxPlayers} {t('game.players')}
-                </span>
-                <span className={styles.customGameStrategy}>
-                  {t(`scoreStrategy.${game.scoreStrategy}`)}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className={styles.section} style={{marginTop: 'var(--spacing-lg)'}}>
-        <div className={styles.sectionHeader}>
           <h2>{t('session.gameSessions')} ({sessions.length})</h2>
           <Link to={`/groups/${group.id}/sessions/new`} className="btn btn-primary">
             + {t('session.recordGame')}
@@ -212,78 +153,6 @@ export function GroupDetailPage() {
           >
             🗑️
           </button>
-        </div>
-      )}
-
-      {showCustomGameModal && (
-        <div className={styles.modal} onClick={() => setShowCustomGameModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2>{t('game.addCustomGame')}</h2>
-            <form onSubmit={handleCreateCustomGame}>
-              <div className="form-group">
-                <label htmlFor="customGameName">{t('game.gameName')}</label>
-                <input
-                  id="customGameName"
-                  className="input"
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  placeholder={t('placeholder.customGameName')}
-                  required
-                  maxLength={100}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="customMinPlayers">{t('game.minPlayers')}</label>
-                <input
-                  id="customMinPlayers"
-                  className="input"
-                  type="number"
-                  value={formMinPlayers}
-                  onChange={(e) => setFormMinPlayers(Number(e.target.value))}
-                  min={1}
-                  max={20}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="customMaxPlayers">{t('game.maxPlayers')}</label>
-                <input
-                  id="customMaxPlayers"
-                  className="input"
-                  type="number"
-                  value={formMaxPlayers}
-                  onChange={(e) => setFormMaxPlayers(Number(e.target.value))}
-                  min={1}
-                  max={20}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="customScoreStrategy">{t('game.scoreStrategy')}</label>
-                <select
-                  id="customScoreStrategy"
-                  className="input"
-                  value={formScoreStrategy}
-                  onChange={(e) => setFormScoreStrategy(e.target.value)}
-                >
-                  <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
-                  <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
-                  <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
-                  <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
-                  <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
-                </select>
-              </div>
-              <div className={styles.modalActions}>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowCustomGameModal(false)}>
-                  {t('common.cancel')}
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting || !formName.trim()}>
-                  {isSubmitting ? t('game.adding') : t('game.addGame')}
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
 
