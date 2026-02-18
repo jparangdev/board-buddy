@@ -93,8 +93,9 @@
   font-weight: 600;
 }
 
-.userTag {
+.userNickname {
   font-size: 0.875rem;
+  font-weight: 500;
   color: var(--color-text);
 }
 
@@ -198,7 +199,7 @@
     font-size: 0.85rem;
   }
 
-  .userTag {
+  .userNickname {
     display: none;
   }
 

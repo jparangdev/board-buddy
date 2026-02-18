@@ -34,7 +34,7 @@ npm run dev
 **Verification**: Ensure the site is reachable at `http://localhost:3000` (or the port shown in terminal).
 
 ## 4. Execute Test Scenarios
-Refer to [regression_test.md](file:///Users/jparangdev/Workspace/board-buddy/testcases/regression_test.md) and perform each step sequentially.
+Refer to [regression_testcase.md](file:///Users/jparangdev/Workspace/board-buddy/testcases/regression_testcase.md) and perform each step sequentially.
 
 > [!CAUTION]
 > If a scenario step fails, **STOP THE TEST**. Do not continue with further test cases as they may depend on the state created in previous steps.

@@ -261,95 +261,99 @@ export function CreateSessionPage() {
         <div className={styles.section}>
           <h2>{t('session.selectGame')}</h2>
 
-          <div className={styles.searchBox}>
-            <input
-              type="text"
-              className="input"
-              placeholder={t('game.searchGames')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button
-                className={styles.clearButton}
-                onClick={() => setSearchQuery('')}
-                aria-label={t('common.clear')}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {filteredAndSortedGames.length > 0 && (
-            <>
-              <h3 className={styles.gameSectionTitle}>{t('game.officialGames')}</h3>
-              <div className={styles.gameGrid}>
-                {filteredAndSortedGames.map((game) => (
-                  <button
-                    key={`game-${game.id}`}
-                    className={`${styles.gameCard} ${selectedGame?.id === game.id && !selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
-                    onClick={() => selectGame(game, false)}
-                  >
-                    <h4>{getGameName(game, i18n.language)}</h4>
-                    <div className={styles.gameCardMeta}>
-                      {game.minPlayers}-{game.maxPlayers} {t('game.players')}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {filteredAndSortedCustomGames.length > 0 && (
-            <>
-              <h3 className={styles.gameSectionTitle}>{t('game.customGames')}</h3>
-              <div className={styles.gameGrid}>
-                {filteredAndSortedCustomGames.map((game) => (
-                  <button
-                    key={`custom-${game.id}`}
-                    className={`${styles.gameCard} ${selectedGame?.id === game.id && selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
-                    onClick={() => selectGame(game, true)}
-                  >
-                    <h4>{getGameName(game, i18n.language)}</h4>
-                    <div className={styles.gameCardMeta}>
-                      {game.minPlayers}-{game.maxPlayers} {t('game.players')}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && !searchQuery && (
-            <p className="text-muted">{t('session.noGamesRegistered')} <Link to="/games">{t('session.addGameFirst')}</Link></p>
-          )}
-
-          {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && searchQuery && (
-            <div className={styles.noResults}>
-              <p>{t('game.noResults', { query: searchQuery })}</p>
-            </div>
-          )}
-
-          <div className={styles.addCustomGameSection}>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setShowAddCustomGame(true)}
-            >
-              + {t('game.addCustomGame')}
-            </button>
-            <div
-              className={styles.tooltipWrapper}
-              onMouseEnter={() => setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
-            >
-              <span className={styles.helpIcon}>?</span>
-              {showTooltip && (
-                <div className={styles.tooltip}>
-                  {t('game.customGameTooltip')}
-                </div>
+          <div className={styles.stickyHeader}>
+            <div className={styles.searchBox}>
+              <input
+                type="text"
+                className="input"
+                placeholder={t('game.searchGames')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  className={styles.clearButton}
+                  onClick={() => setSearchQuery('')}
+                  aria-label={t('common.clear')}
+                >
+                  ✕
+                </button>
               )}
             </div>
+
+            <div className={styles.addCustomGameSection}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowAddCustomGame(true)}
+              >
+                + {t('game.addCustomGame')}
+              </button>
+              <div
+                className={styles.tooltipWrapper}
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <span className={styles.helpIcon}>?</span>
+                {showTooltip && (
+                  <div className={styles.tooltip}>
+                    {t('game.customGameTooltip')}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.gameListContainer}>
+            {filteredAndSortedGames.length > 0 && (
+              <>
+                <h3 className={styles.gameSectionTitle}>{t('game.officialGames')}</h3>
+                <div className={styles.gameGrid}>
+                  {filteredAndSortedGames.map((game) => (
+                    <button
+                      key={`game-${game.id}`}
+                      className={`${styles.gameCard} ${selectedGame?.id === game.id && !selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
+                      onClick={() => selectGame(game, false)}
+                    >
+                      <h4>{getGameName(game, i18n.language)}</h4>
+                      <div className={styles.gameCardMeta}>
+                        {game.minPlayers}-{game.maxPlayers} {t('game.players')}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {filteredAndSortedCustomGames.length > 0 && (
+              <>
+                <h3 className={styles.gameSectionTitle}>{t('game.customGames')}</h3>
+                <div className={styles.gameGrid}>
+                  {filteredAndSortedCustomGames.map((game) => (
+                    <button
+                      key={`custom-${game.id}`}
+                      className={`${styles.gameCard} ${selectedGame?.id === game.id && selectedGame?.isCustom ? styles.gameCardSelected : ''}`}
+                      onClick={() => selectGame(game, true)}
+                    >
+                      <h4>{getGameName(game, i18n.language)}</h4>
+                      <div className={styles.gameCardMeta}>
+                        {game.minPlayers}-{game.maxPlayers} {t('game.players')}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && !searchQuery && (
+              <p className="text-muted">{t('session.noGamesRegistered')} <Link to="/games">{t('session.addGameFirst')}</Link></p>
+            )}
+
+            {filteredAndSortedGames.length === 0 && filteredAndSortedCustomGames.length === 0 && searchQuery && (
+              <div className={styles.noResults}>
+                <p>{t('game.noResults', { query: searchQuery })}</p>
+              </div>
+            )}
           </div>
         </div>
       )}

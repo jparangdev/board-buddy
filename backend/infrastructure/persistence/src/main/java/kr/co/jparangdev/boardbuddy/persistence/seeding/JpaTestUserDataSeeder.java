@@ -30,6 +30,7 @@ public class JpaTestUserDataSeeder implements UserDataSeeder {
     @Transactional
     public void seed() {
         List<TestUser> testUsers = List.of(
+            new TestUser("test@test.com", "Tester"),
             new TestUser("player1@test.com", "PlayerOne"),
             new TestUser("player2@test.com", "PlayerTwo")
         );

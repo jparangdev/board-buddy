@@ -3,13 +3,18 @@ import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
 import {authService} from '@/services';
-import {LanguageSwitcher} from './LanguageSwitcher';
 import styles from './Layout.module.css';
 
 export function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ko' ? 'en' : 'ko';
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('language', newLang);
+  };
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -65,7 +70,6 @@ export function Layout() {
               <Link to="/games" className={styles.navLink}>
                 {t('nav.games')}
               </Link>
-              <LanguageSwitcher />
               <div className={styles.userSection} ref={menuRef}>
                 <button
                   className={styles.userButton}
@@ -74,7 +78,7 @@ export function Layout() {
                   <span className={styles.userAvatar}>
                     {user.nickname.charAt(0).toUpperCase()}
                   </span>
-                  <span className={styles.userTag}>{user.userTag}</span>
+                  <span className={styles.userNickname}>{user.nickname}</span>
                 </button>
                 {showMenu && (
                   <div className={styles.dropdown}>
@@ -82,6 +86,10 @@ export function Layout() {
                       <span className={styles.dropdownNickname}>{user.nickname}</span>
                       <span className={styles.dropdownTag}>{user.userTag}</span>
                     </div>
+                    <div className={styles.dropdownDivider} />
+                    <button className={styles.dropdownItem} onClick={() => { toggleLanguage(); setShowMenu(false); }}>
+                      {i18n.language === 'ko' ? '🌐 English' : '🌐 한국어'}
+                    </button>
                     <div className={styles.dropdownDivider} />
                     <button className={styles.dropdownItem} onClick={handleLogout}>
                       {t('nav.logout')}
