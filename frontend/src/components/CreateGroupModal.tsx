@@ -1,4 +1,5 @@
 import {type FormEvent, useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import type {ApiError, Group, User} from '@/types';
 import {groupService, userService} from '@/services';
 import {useAuth, useDebounce} from '@/hooks';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function CreateGroupModal({ onClose, onCreated }: Props) {
+  const {t} = useTranslation();
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -78,7 +80,7 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2>&#x1F3B2; Create New Group</h2>
+          <h2>&#x1F3B2; {t('group.createNewGroup')}</h2>
           <button className={styles.closeBtn} onClick={onClose}>
             &times;
           </button>
@@ -86,40 +88,40 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="groupName">Group Name</label>
+            <label htmlFor="groupName">{t('group.groupName')}</label>
             <input
               id="groupName"
               type="text"
               className="input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Friday Night Gamers"
+              placeholder={t('placeholder.groupName')}
               maxLength={100}
               required
             />
           </div>
 
           <div className="form-group" style={{ marginTop: 'var(--spacing-md)' }}>
-            <label htmlFor="memberSearch">Add Members</label>
+            <label htmlFor="memberSearch">{t('group.addMembers')}</label>
             <input
               id="memberSearch"
               type="text"
               className="input"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Search by nickname..."
+              placeholder={t('placeholder.userTag')}
             />
             <p className={styles.searchHint}>
-              You are automatically added as the owner
+              {t('group.autoAddedAsOwner')}
             </p>
           </div>
 
           {isSearching && (
-            <p className={styles.noResults}>Searching...</p>
+            <p className={styles.noResults}>{t('common.searching')}</p>
           )}
 
           {!isSearching && debouncedKeyword.trim() && searchResults.length === 0 && (
-            <p className={styles.noResults}>No users found</p>
+            <p className={styles.noResults}>{t('group.noUsersFound')}</p>
           )}
 
           {searchResults.length > 0 && (
@@ -163,10 +165,10 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
 
           <div className={styles.actions}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </button>
             <button type="submit" className="btn btn-primary" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Group'}
+              {isLoading ? t('group.creating') : t('group.createGroup')}
             </button>
           </div>
         </form>

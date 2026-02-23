@@ -30,9 +30,11 @@ public class JpaTestUserDataSeeder implements UserDataSeeder {
     @Transactional
     public void seed() {
         List<TestUser> testUsers = List.of(
-            new TestUser("test@test.com", "Tester"),
-            new TestUser("player1@test.com", "PlayerOne"),
-            new TestUser("player2@test.com", "PlayerTwo")
+            new TestUser("test@test.com",    "Tester",    "TST1"),
+            new TestUser("player1@test.com", "PlayerOne", "PLY1"),
+            new TestUser("player2@test.com", "PlayerTwo", "PLY2"),
+            new TestUser("player3@test.com", "PlayerThree", "PLY3"),
+            new TestUser("player4@test.com", "PlayerFour", "PLY4")
         );
 
         int created = 0;
@@ -40,18 +42,21 @@ public class JpaTestUserDataSeeder implements UserDataSeeder {
 
         for (TestUser testUser : testUsers) {
             // Check if user already exists (idempotent)
-            if (userRepository.findByProviderAndProviderId(providerName, testUser.email()).isEmpty()) {
-                String discriminator = userRepository.generateUniqueDiscriminator(testUser.nickname());
+            // Check both nickname#discriminator AND email to avoid unique constraint violations
+            boolean exists = userRepository.findByNicknameAndDiscriminator(testUser.nickname(), testUser.discriminator()).isPresent()
+                || userRepository.findByEmail(testUser.email()).isPresent();
+
+            if (!exists) {
                 User newUser = User.fromOAuth(
                     testUser.email(),
                     providerName,
                     testUser.email(), // Use email as providerId for test auth
                     testUser.nickname(),
-                    discriminator
+                    testUser.discriminator()
                 );
                 userRepository.save(newUser);
                 created++;
-                log.info("Created test user: {} ({})", testUser.nickname(), testUser.email());
+                log.info("Created test user: {}#{} ({})", testUser.nickname(), testUser.discriminator(), testUser.email());
             }
         }
 
@@ -62,5 +67,5 @@ public class JpaTestUserDataSeeder implements UserDataSeeder {
         }
     }
 
-    private record TestUser(String email, String nickname) {}
+    private record TestUser(String email, String nickname, String discriminator) {}
 }

@@ -12,26 +12,17 @@
     7.  Confirm deletion in prompt.
     8.  Verify redirection to `/login`.
 
-## 2. User Registration (Secondary Users)
-*   **Goal**: Create users to be invited to groups.
-*   **Steps (PlayerTwo)**:
-    1.  Navigate to `http://localhost:3000/login`.
-    2.  Enter Email: `player2@test.com`.
-    3.  Enter Nickname: `PlayerTwo`.
-    4.  Click "Start Testing".
-    5.  *Action*: Logout.
-*   **Steps (PlayerThree)**:
-    1.  Navigate to `http://localhost:3000/login`.
-    2.  Enter Email: `player3@test.com`.
-    3.  Enter Nickname: `PlayerThree`.
-    4.  Click "Start Testing".
-    5.  *Action*: Logout.
-*   **Steps (PlayerFour)**:
-    1.  Navigate to `http://localhost:3000/login`.
-    2.  Enter Email: `player4@test.com`.
-    3.  Enter Nickname: `PlayerFour`.
-    4.  Click "Start Testing".
-    5.  *Action*: Logout.
+## 2. Pre-seeded Test Users
+*   **Goal**: Secondary users are auto-created by the server on startup (local/dev profile). No manual registration needed.
+*   **Test user tags** (used when searching members):
+
+    | UserTag | Email |
+    |---|---|
+    | `Tester#TST1` | test@test.com |
+    | `PlayerOne#PLY1` | player1@test.com |
+    | `PlayerTwo#PLY2` | player2@test.com |
+    | `PlayerThree#PLY3` | player3@test.com |
+    | `PlayerFour#PLY4` | player4@test.com |
 
 ## 3. Main User Login (User A)
 *   **Goal**: Log in as the primary tester.
@@ -64,7 +55,10 @@
     1.  Navigate to `/groups`.
     2.  Click "+ Create Group".
     3.  Name: `Board Game Crew`.
-    4.  Search & Select Members: `PlayerTwo`, `PlayerThree`, `PlayerFour`.
+    4.  Search & Select Members (enter full userTag including discriminator):
+        *   `PlayerTwo#PLY2`
+        *   `PlayerThree#PLY3`
+        *   `PlayerFour#PLY4`
     5.  Click "Create Group".
     6.  Verify redirection to `/groups`.
     7.  Click on `Board Game Crew`.
@@ -133,3 +127,22 @@
     4.  Refresh page.
     5.  Verify order persists.
 
+## 8. Dashboard Verification
+*   **Goal**: Verify logic and display of group statistics.
+*   **Prerequisites**: All previous game sessions must be recorded.
+*   **Steps**:
+    1.  Navigate to "Board Game Crew" Group Detail page.
+    2.  Scroll to Statistics Section (🏆 Stats).
+    3.  **Verify Summary**:
+        *   Total Sessions: `5`.
+        *   Total Participations: `17` (3+2+4+4+4).
+    4.  **Verify Most Active**:
+        *   `PlayerTwo` & `PlayerFour` at top (4 sessions).
+    5.  **Verify Most Wins**:
+        *   `PlayerOne`: 1 Win (Catan)
+        *   `PlayerTwo`: 1 Win (Splendor)
+        *   `PlayerThree`: 1 Win (Terraforming Mars)
+        *   `PlayerFour`: 1 Win (Love Letter)
+        *   *Note*: Hanabi (Co-op) usually counts as win for everyone or separate logic.
+    6.  **Verify Popular Games**:
+        *   All 5 games should appear with `1 play`.

@@ -81,11 +81,13 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        // Fallback: 타임스탬프 기반
-        long timestamp = System.currentTimeMillis() % 1296; // 36^2
-        return String.format("%c%c%02d",
-            chars.charAt((int)(timestamp / 36)),
-            chars.charAt((int)(timestamp % 36)),
-            random.nextInt(100));
+        // Fallback: timestamp-based 4-char discriminator from the same charset
+        long timestamp = System.currentTimeMillis();
+        StringBuilder sb = new StringBuilder(4);
+        for (int i = 0; i < 4; i++) {
+            sb.append(chars.charAt((int)(timestamp % chars.length())));
+            timestamp /= chars.length();
+        }
+        return sb.toString();
     }
 }

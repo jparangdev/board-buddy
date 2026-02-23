@@ -4,10 +4,12 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",
+    "deleting": "Deleting...",
     "save": "Save",
     "add": "Add",
     "edit": "Edit",
     "search": "Search",
+    "searching": "Searching...",
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
@@ -46,7 +48,14 @@
     "backToGroups": "Back to Groups",
     "notFound": "Group not found",
     "noGroups": "No groups yet",
-    "createFirst": "Create your first group to get started!"
+    "createFirst": "Create your first group to get started!",
+    "createNewGroup": "Create New Group",
+    "creating": "Creating...",
+    "manageGroups": "Manage your board game crews",
+    "loadingGroups": "Rolling the dice...",
+    "addMembers": "Add Members",
+    "autoAddedAsOwner": "You are automatically added as the owner. e.g. Nickname#AB12",
+    "noUsersFound": "No users found"
   },
   "game": {
     "title": "Board Games",
@@ -108,11 +117,26 @@
     "rank": "Rank",
     "rankedInOrder": "Players are ranked in the order selected."
   },
+  "stats": {
+    "title": "Group Stats",
+    "totalSessions": "{{count}} sessions",
+    "totalParticipations": "{{count}} plays",
+    "mostActive": "Most Active",
+    "mostWins": "Most Wins",
+    "winRate": "Win Rate",
+    "popularGames": "Popular Games",
+    "sessions": "x",
+    "wins": "W",
+    "playCount": "{{count}}x",
+    "noData": "No data",
+    "winRateMinGames": "Need 3+ games"
+  },
   "placeholder": {
     "gameName": "e.g. Splendor, Catan",
     "customGameName": "e.g. Our House Rules Chess",
     "groupName": "e.g. Friday Board Game Night",
     "search": "Search...",
+    "userTag": "e.g. Nickname#AB12",
     "score": "Score"
   }
 }

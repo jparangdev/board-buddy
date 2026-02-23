@@ -4,10 +4,12 @@
     "cancel": "취소",
     "confirm": "확인",
     "delete": "삭제",
+    "deleting": "삭제 중...",
     "save": "저장",
     "add": "추가",
     "edit": "수정",
     "search": "검색",
+    "searching": "검색 중...",
     "back": "뒤로",
     "next": "다음",
     "previous": "이전",
@@ -46,7 +48,14 @@
     "backToGroups": "그룹 목록으로",
     "notFound": "그룹을 찾을 수 없습니다",
     "noGroups": "아직 그룹이 없습니다",
-    "createFirst": "첫 번째 그룹을 만들어보세요!"
+    "createFirst": "첫 번째 그룹을 만들어보세요!",
+    "createNewGroup": "새 그룹 만들기",
+    "creating": "생성 중...",
+    "manageGroups": "보드게임 모임을 관리하세요",
+    "loadingGroups": "주사위 굴리는 중...",
+    "addMembers": "멤버 추가",
+    "autoAddedAsOwner": "소유자로 자동 추가됩니다. 예: 닉네임#AB12",
+    "noUsersFound": "사용자를 찾을 수 없습니다"
   },
   "game": {
     "title": "보드게임",
@@ -108,11 +117,26 @@
     "rank": "순위",
     "rankedInOrder": "플레이어는 선택된 순서대로 순위가 매겨집니다."
   },
+  "stats": {
+    "title": "그룹 통계",
+    "totalSessions": "세션 {{count}}회",
+    "totalParticipations": "참여 {{count}}회",
+    "mostActive": "참여 랭킹",
+    "mostWins": "승리 랭킹",
+    "winRate": "승률 랭킹",
+    "popularGames": "인기 게임",
+    "sessions": "회",
+    "wins": "승",
+    "playCount": "{{count}}회",
+    "noData": "데이터 없음",
+    "winRateMinGames": "3게임 이상 필요"
+  },
   "placeholder": {
     "gameName": "예: 스플렌더, 카탄",
     "customGameName": "예: 우리집 룰 체스",
     "groupName": "예: 금요일 보드게임 모임",
     "search": "검색...",
+    "userTag": "예: 닉네임#AB12",
     "score": "점수"
   }
 }

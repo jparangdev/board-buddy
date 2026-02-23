@@ -88,7 +88,7 @@ export function Layout() {
                     </div>
                     <div className={styles.dropdownDivider} />
                     <button className={styles.dropdownItem} onClick={() => { toggleLanguage(); setShowMenu(false); }}>
-                      {i18n.language === 'ko' ? '🌐 English' : '🌐 한국어'}
+                      {i18n.language === 'ko' ? '🌐 한국어' : '🌐 English'}
                     </button>
                     <div className={styles.dropdownDivider} />
                     <button className={styles.dropdownItem} onClick={handleLogout}>

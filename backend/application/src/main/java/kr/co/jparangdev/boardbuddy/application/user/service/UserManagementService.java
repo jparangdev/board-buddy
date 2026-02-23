@@ -18,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class UserManagementService implements UserQueryUseCase, kr.co.jparangdev.boardbuddy.application.user.usecase.UserCommandUseCase {
 
-    private static final int SEARCH_RESULT_LIMIT = 10;
-
     private final UserRepository userRepository;
 
     @Override
@@ -40,10 +38,16 @@ public class UserManagementService implements UserQueryUseCase, kr.co.jparangdev
 
     @Override
     public List<User> searchUsers(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
+        if (keyword == null || keyword.isBlank() || !keyword.contains("#")) {
             return List.of();
         }
-        return userRepository.searchByNicknameContaining(keyword.trim(), SEARCH_RESULT_LIMIT);
+        String[] parts = keyword.trim().split("#", 2);
+        if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) {
+            return List.of();
+        }
+        return userRepository.findByNicknameAndDiscriminator(parts[0], parts[1].toUpperCase())
+            .stream()
+            .toList();
     }
     @Override
     @Transactional
