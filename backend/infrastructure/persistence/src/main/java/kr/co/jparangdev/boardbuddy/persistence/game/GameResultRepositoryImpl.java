@@ -1,5 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.game;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,16 @@ public class GameResultRepositoryImpl implements GameResultRepository {
     @Override
     public List<GameResult> findAllByUserId(Long userId) {
         return jpaRepository.findAllByUserId(userId).stream()
+            .map(mapper::toDomain)
+            .toList();
+    }
+
+    @Override
+    public List<GameResult> findAllBySessionIds(List<Long> sessionIds) {
+        if (sessionIds.isEmpty()) {
+            return List.of();
+        }
+        return jpaRepository.findAllBySessionIdIn(sessionIds).stream()
             .map(mapper::toDomain)
             .toList();
     }

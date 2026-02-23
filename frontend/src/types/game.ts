@@ -89,3 +89,23 @@ export interface ResultInput {
   score: number | null;
   won?: boolean;
 }
+
+export interface PlayerStatEntry {
+  userId: number;
+  nickname: string;
+  userTag: string;
+  sessionCount?: number;
+  winCount?: number;
+  winRate?: number;
+  totalGames?: number;
+  wins?: number;
+}
+
+export interface GroupStats {
+  totalSessions: number;
+  totalParticipations: number;
+  mostActivePlayers: PlayerStatEntry[];
+  mostWins: PlayerStatEntry[];
+  winRateRanking: PlayerStatEntry[];
+  mostPlayedGames: { gameName: string; playCount: number }[];
+}

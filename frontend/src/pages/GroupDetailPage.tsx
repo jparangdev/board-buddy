@@ -1,10 +1,12 @@
 import {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import type {GameSession, Group, GroupMember} from '@/types';
+import type {GameSession, Group, GroupMember, GroupStats} from '@/types';
 import {gameSessionService, groupService} from '@/services';
 import {useAuth} from '@/hooks/useAuth';
 import styles from './GroupDetailPage.module.css';
+
+const RANK_MEDALS = ['🥇', '🥈', '🥉'];
 
 export function GroupDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +14,7 @@ export function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [sessions, setSessions] = useState<GameSession[]>([]);
+  const [stats, setStats] = useState<GroupStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -24,14 +27,16 @@ export function GroupDetailPage() {
     const fetchData = async () => {
       if (!id) return;
       try {
-        const [groupData, membersData, sessionsData] = await Promise.all([
+        const [groupData, membersData, sessionsData, statsData] = await Promise.all([
           groupService.getById(Number(id)),
           groupService.getMembers(Number(id)),
           gameSessionService.getSessionsByGroup(Number(id)),
+          gameSessionService.getGroupStats(Number(id)),
         ]);
         setGroup(groupData);
         setMembers(membersData);
         setSessions(sessionsData);
+        setStats(statsData);
       } catch (error) {
         console.error('Failed to fetch group:', error);
       } finally {
@@ -143,6 +148,94 @@ export function GroupDetailPage() {
           </div>
         )}
       </div>
+
+      {stats && stats.totalSessions > 0 && (
+        <div className={styles.section} style={{marginTop: 'var(--spacing-lg)'}}>
+          <div className={styles.dashboardHeader}>
+            <h2>&#x1F3C6; {t('stats.title')}</h2>
+            <div className={styles.summaryBadges}>
+              <span className={styles.summaryBadge}>
+                {t('stats.totalSessions', {count: stats.totalSessions})}
+              </span>
+              <span className={styles.summaryBadge}>
+                {t('stats.totalParticipations', {count: stats.totalParticipations})}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.rankingGrid}>
+            <div className={styles.rankingCard}>
+              <h3 className={styles.rankingTitle}>&#x1F3AE; {t('stats.mostActive')}</h3>
+              {stats.mostActivePlayers.length === 0 ? (
+                <p className={styles.rankingEmpty}>{t('stats.noData')}</p>
+              ) : (
+                <ol className={styles.rankingList}>
+                  {stats.mostActivePlayers.map((p, i) => (
+                    <li key={p.userId} className={styles.rankingItem}>
+                      <span className={styles.rankMedal}>{RANK_MEDALS[i]}</span>
+                      <span className={styles.rankName}>{p.nickname}</span>
+                      <span className={styles.rankValue}>{p.sessionCount}{t('stats.sessions')}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+
+            <div className={styles.rankingCard}>
+              <h3 className={styles.rankingTitle}>&#x1F3C6; {t('stats.mostWins')}</h3>
+              {stats.mostWins.length === 0 ? (
+                <p className={styles.rankingEmpty}>{t('stats.noData')}</p>
+              ) : (
+                <ol className={styles.rankingList}>
+                  {stats.mostWins.map((p, i) => (
+                    <li key={p.userId} className={styles.rankingItem}>
+                      <span className={styles.rankMedal}>{RANK_MEDALS[i]}</span>
+                      <span className={styles.rankName}>{p.nickname}</span>
+                      <span className={styles.rankValue}>{p.winCount}{t('stats.wins')}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+
+            <div className={styles.rankingCard}>
+              <h3 className={styles.rankingTitle}>&#x1F4C8; {t('stats.winRate')}</h3>
+              {stats.winRateRanking.length === 0 ? (
+                <p className={styles.rankingEmpty}>{t('stats.winRateMinGames')}</p>
+              ) : (
+                <ol className={styles.rankingList}>
+                  {stats.winRateRanking.map((p, i) => (
+                    <li key={p.userId} className={styles.rankingItem}>
+                      <span className={styles.rankMedal}>{RANK_MEDALS[i]}</span>
+                      <span className={styles.rankName}>{p.nickname}</span>
+                      <span className={styles.rankValue}>
+                        {Math.round((p.winRate ?? 0) * 100)}%
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
+
+          {stats.mostPlayedGames.length > 0 && (
+            <div className={styles.popularGames}>
+              <h3 className={styles.rankingTitle}>&#x1F3B2; {t('stats.popularGames')}</h3>
+              <div className={styles.gameStatList}>
+                {stats.mostPlayedGames.map((g, i) => (
+                  <div key={g.gameName} className={styles.gameStatItem}>
+                    <span className={styles.gameStatRank}>{i + 1}</span>
+                    <span className={styles.gameStatName}>{g.gameName}</span>
+                    <span className={styles.gameStatCount}>
+                      {t('stats.playCount', {count: g.playCount})}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {isOwner && (
         <div className={styles.deleteSection}>

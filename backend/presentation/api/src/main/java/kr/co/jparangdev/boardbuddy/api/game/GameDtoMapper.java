@@ -119,4 +119,51 @@ public class GameDtoMapper {
             .customGames(responses)
             .build();
     }
+
+    public GroupStatsDto.Response toGroupStatsResponse(GroupStats stats) {
+        List<GroupStatsDto.ActivePlayerEntry> mostActivePlayers = stats.mostActivePlayers().stream()
+            .map(p -> GroupStatsDto.ActivePlayerEntry.builder()
+                .userId(p.userId())
+                .nickname(p.nickname())
+                .userTag(p.userTag())
+                .sessionCount(p.count())
+                .build())
+            .toList();
+
+        List<GroupStatsDto.WinPlayerEntry> mostWins = stats.mostWins().stream()
+            .map(p -> GroupStatsDto.WinPlayerEntry.builder()
+                .userId(p.userId())
+                .nickname(p.nickname())
+                .userTag(p.userTag())
+                .winCount(p.count())
+                .build())
+            .toList();
+
+        List<GroupStatsDto.WinRateEntry> winRateRanking = stats.winRateRanking().stream()
+            .map(p -> GroupStatsDto.WinRateEntry.builder()
+                .userId(p.userId())
+                .nickname(p.nickname())
+                .userTag(p.userTag())
+                .winRate(p.winRate())
+                .totalGames(p.totalGames())
+                .wins(p.wins())
+                .build())
+            .toList();
+
+        List<GroupStatsDto.GameStatEntry> mostPlayedGames = stats.mostPlayedGames().stream()
+            .map(g -> GroupStatsDto.GameStatEntry.builder()
+                .gameName(g.gameName())
+                .playCount(g.playCount())
+                .build())
+            .toList();
+
+        return GroupStatsDto.Response.builder()
+            .totalSessions(stats.totalSessions())
+            .totalParticipations(stats.totalParticipations())
+            .mostActivePlayers(mostActivePlayers)
+            .mostWins(mostWins)
+            .winRateRanking(winRateRanking)
+            .mostPlayedGames(mostPlayedGames)
+            .build();
+    }
 }

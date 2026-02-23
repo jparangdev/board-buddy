@@ -8,4 +8,5 @@ public interface GameResultRepository {
     List<GameResult> saveAll(List<GameResult> results);
     List<GameResult> findAllBySessionId(Long sessionId);
     List<GameResult> findAllByUserId(Long userId);
+    List<GameResult> findAllBySessionIds(List<Long> sessionIds);
 }

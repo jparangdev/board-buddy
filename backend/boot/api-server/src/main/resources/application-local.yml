@@ -3,3 +3,11 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${KV_HOST}
+      port: ${KV_PORT}
