@@ -31,10 +31,10 @@ trigger: always_on
 - **No nulls**: Use Optional or throw domain exceptions
 
 ## Testing
-- **Domain unit tests are mandatory**: Every domain entity, value object, and factory method must have a corresponding unit test in `backend/domain/src/test/`.
-- Domain tests must be pure unit tests — no Spring context, no mocks, no I/O.
-- Use JUnit 5 + AssertJ only in domain tests.
-- When adding or modifying a domain class, add or update its unit test in the same PR.
+- **Domain unit tests are mandatory**: Every domain entity, value object, and factory method must have a corresponding unit test in `backend/domain/src/test/`. Pure unit tests only — no Spring context, no mocks, no I/O. Use JUnit 5 + AssertJ.
+- **Application unit tests are mandatory**: Every use case / service in `backend/application` must have a corresponding unit test. Use Mockito to mock repository dependencies.
+- **Other modules** (presentation, infrastructure, boot): Tests are encouraged but not strictly required.
+- When adding or modifying any class in domain or application, add or update its test in the same PR.
 
 ## Database Schema Management
 - **Sync DDL with Entities**: When adding or modifying domain entities that require persistence, always update `backend/infrastructure/persistence/src/main/resources/ddl/database-schema.sql` to reflect the changes.
