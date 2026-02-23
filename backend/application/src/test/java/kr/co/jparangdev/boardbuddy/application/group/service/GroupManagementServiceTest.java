@@ -172,7 +172,7 @@ class GroupManagementServiceTest {
             securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
 
             GroupMember membership = GroupMember.builder().groupId(1L).build();
-            given(groupMemberRepository.findAllByUserId(1L)).willReturn(List.of(membership));
+            given(groupMemberRepository.findAllByUserIdOrderByDisplayOrderAsc(1L)).willReturn(List.of(membership));
 
             Group group = Group.builder().id(1L).name("Test Group").build();
             given(groupRepository.findAllByIds(List.of(1L))).willReturn(List.of(group));

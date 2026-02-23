@@ -2,8 +2,6 @@ package kr.co.jparangdev.boardbuddy.application.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -117,14 +115,14 @@ class UserManagementServiceTest {
     }
 
     @Test
-    @DisplayName("Search Users Success")
+    @DisplayName("Search Users Success - Exact UserTag Match")
     void searchUsersSuccess() {
         // given
-        User user = User.builder().id(1L).nickname("tester").build();
-        given(userRepository.searchByNicknameContaining(anyString(), anyInt())).willReturn(List.of(user));
+        User user = User.builder().id(1L).nickname("tester").discriminator("AB12").build();
+        given(userRepository.findByNicknameAndDiscriminator("tester", "AB12")).willReturn(Optional.of(user));
 
         // when
-        List<User> result = userManagementService.searchUsers("test");
+        List<User> result = userManagementService.searchUsers("tester#AB12");
 
         // then
         assertThat(result).hasSize(1);
@@ -132,10 +130,33 @@ class UserManagementServiceTest {
     }
 
     @Test
-    @DisplayName("Search Users Empty Keyword")
+    @DisplayName("Search Users - No Hash Returns Empty")
+    void searchUsersNoHash() {
+        // when
+        List<User> result = userManagementService.searchUsers("tester");
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Search Users - Empty Keyword Returns Empty")
     void searchUsersEmpty() {
         // when
         List<User> result = userManagementService.searchUsers("");
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Search Users - User Not Found Returns Empty")
+    void searchUsersNotFound() {
+        // given
+        given(userRepository.findByNicknameAndDiscriminator("ghost", "ZZ99")).willReturn(Optional.empty());
+
+        // when
+        List<User> result = userManagementService.searchUsers("ghost#ZZ99");
 
         // then
         assertThat(result).isEmpty();
