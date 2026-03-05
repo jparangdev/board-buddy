@@ -31,7 +31,22 @@
     "userTag": "User Tag",
     "deleteAccount": "Delete Account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This cannot be undone.",
-    "deleteFailed": "Failed to delete account. Please try again."
+    "deleteFailed": "Failed to delete account. Please try again.",
+    "loginTitle": "Login",
+    "registerTitle": "Create Account",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "nicknamePlaceholder": "Choose a nickname",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "passwordMismatch": "Passwords do not match",
+    "loginButton": "Login",
+    "registerButton": "Create Account",
+    "goToRegister": "Don't have an account? Register",
+    "goToLogin": "Already have an account? Login",
+    "registering": "Creating account...",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed"
   },
   "group": {
     "title": "Groups",

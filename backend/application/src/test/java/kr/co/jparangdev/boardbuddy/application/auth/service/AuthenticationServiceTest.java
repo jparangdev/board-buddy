@@ -52,11 +52,11 @@ class AuthenticationServiceTest {
     void authenticateSuccess() {
         // given
         AuthCredentials credentials = mock(AuthCredentials.class);
-        given(credentials.getProviderType()).willReturn(ProviderType.TEST);
+        given(credentials.getProviderType()).willReturn(ProviderType.LOCAL);
 
         User user = User.builder().id(1L).email("test@example.com").build();
 
-        given(authenticationProvider.supports(ProviderType.TEST)).willReturn(true);
+        given(authenticationProvider.supports(ProviderType.LOCAL)).willReturn(true);
         given(authenticationProvider.authenticate(credentials)).willReturn(user);
         given(jwtTokenProvider.generateAccessToken(1L)).willReturn("access-token");
         given(jwtTokenProvider.generateRefreshToken(1L)).willReturn("refresh-token");

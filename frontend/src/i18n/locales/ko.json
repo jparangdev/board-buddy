@@ -31,7 +31,22 @@
     "userTag": "사용자 태그",
     "deleteAccount": "계정 삭제",
     "deleteAccountConfirm": "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-    "deleteFailed": "계정 삭제에 실패했습니다. 다시 시도해주세요."
+    "deleteFailed": "계정 삭제에 실패했습니다. 다시 시도해주세요.",
+    "loginTitle": "로그인",
+    "registerTitle": "계정 만들기",
+    "emailPlaceholder": "이메일을 입력하세요",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "nicknamePlaceholder": "닉네임을 입력하세요",
+    "confirmPasswordPlaceholder": "비밀번호를 다시 입력하세요",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "loginButton": "로그인",
+    "registerButton": "계정 만들기",
+    "goToRegister": "계정이 없으신가요? 회원가입",
+    "goToLogin": "이미 계정이 있으신가요? 로그인",
+    "registering": "계정 생성 중...",
+    "loggingIn": "로그인 중...",
+    "loginFailed": "로그인에 실패했습니다",
+    "registerFailed": "회원가입에 실패했습니다"
   },
   "group": {
     "title": "그룹",

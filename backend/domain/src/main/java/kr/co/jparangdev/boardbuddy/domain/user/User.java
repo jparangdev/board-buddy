@@ -1,5 +1,6 @@
 package kr.co.jparangdev.boardbuddy.domain.user;
 
+import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
 import lombok.*;
 
 @Getter
@@ -11,16 +12,18 @@ public class User {
     private String discriminator;      // 불변 - 문자포함 4자리 (예: A1B2)
     private String provider;           // "NAVER"
     private String providerId;
+    private String passwordHash;       // nullable - LOCAL provider only
 
     @Builder
     public User(Long id, String email, String nickname, String discriminator,
-                String provider, String providerId) {
+                String provider, String providerId, String passwordHash) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
         this.discriminator = discriminator;
         this.provider = provider;
         this.providerId = providerId;
+        this.passwordHash = passwordHash;
     }
 
     public String getUserTag() {
@@ -35,6 +38,17 @@ public class User {
                 .providerId(providerId)
                 .nickname(initialNickname)
                 .discriminator(discriminator)
+                .build();
+    }
+
+    public static User createLocal(String email, String passwordHash, String nickname, String discriminator) {
+        return User.builder()
+                .email(email)
+                .passwordHash(passwordHash)
+                .nickname(nickname)
+                .discriminator(discriminator)
+                .provider(ProviderType.LOCAL.name())
+                .providerId(email)
                 .build();
     }
 }

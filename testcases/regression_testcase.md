@@ -1,36 +1,49 @@
 # Regression Test Scenario
 
 ## 1. User Account Lifecycle (Create & Delete)
-*   **Goal**: Create a temporary user, log in, and then delete the account. **(Results not recorded)**
+*   **Goal**: Register a temporary user, log in, and then delete the account. **(Results not recorded)**
 *   **Steps**:
-    1.  Navigate to `http://localhost:3000/login`.
+    1.  Navigate to `http://localhost:3000/register`.
     2.  Enter Email: `temp_user@test.com`.
     3.  Enter Nickname: `TempUser`.
-    4.  Click "Start Testing" (Creates account).
-    5.  Verify redirection to `/groups`.
-    6.  Click "Delete Account" (in User Menu or Footer).
-    7.  Confirm deletion in prompt.
-    8.  Verify redirection to `/login`.
+    4.  Enter Password: `TempPass1!`.
+    5.  Enter Confirm Password: `TempPass1!`.
+    6.  Click "Create Account".
+    7.  Verify redirection to `/login`.
+    8.  Enter Email: `temp_user@test.com` and Password: `TempPass1!`.
+    9.  Click "Login".
+    10. Verify redirection to `/groups`.
+    11. Click "Delete Account" (in User Menu or Footer).
+    12. Confirm deletion in prompt.
+    13. Verify redirection to `/login`.
+
+## 1-1. Registration — Duplicate Email
+*   **Goal**: Verify that registering with an already-used email shows an error.
+*   **Steps**:
+    1.  Register successfully with `newuser@test.com` / `ValidPass1` / `NewUser` (follow steps in Section 1).
+    2.  Navigate to `http://localhost:3000/register` and attempt to register again with the same email `newuser@test.com`.
+    3.  Verify an error message is displayed, e.g. "Email already in use: newuser@test.com".
 
 ## 2. Pre-seeded Test Users
 *   **Goal**: Secondary users are auto-created by the server on startup (local/dev profile). No manual registration needed.
+*   **Password for all seeded users**: `Test1234!`
 *   **Test user tags** (used when searching members):
 
-    | UserTag | Email |
-    |---|---|
-    | `Tester#TST1` | test@test.com |
-    | `PlayerOne#PLY1` | player1@test.com |
-    | `PlayerTwo#PLY2` | player2@test.com |
-    | `PlayerThree#PLY3` | player3@test.com |
-    | `PlayerFour#PLY4` | player4@test.com |
+    | UserTag | Email | Password |
+    |---|---|---|
+    | `Tester#TST1` | test@test.com | `Test1234!` |
+    | `PlayerOne#PLY1` | player1@test.com | `Test1234!` |
+    | `PlayerTwo#PLY2` | player2@test.com | `Test1234!` |
+    | `PlayerThree#PLY3` | player3@test.com | `Test1234!` |
+    | `PlayerFour#PLY4` | player4@test.com | `Test1234!` |
 
 ## 3. Main User Login (User A)
 *   **Goal**: Log in as the primary tester.
 *   **Steps**:
     1.  Navigate to `http://localhost:3000/login`.
     2.  Enter Email: `player1@test.com`.
-    3.  Enter Nickname: `PlayerOne`.
-    4.  Click "Start Testing".
+    3.  Enter Password: `Test1234!`.
+    4.  Click "Login".
     5.  Verify redirection to `/groups`.
 
 ## 4. Game Creation

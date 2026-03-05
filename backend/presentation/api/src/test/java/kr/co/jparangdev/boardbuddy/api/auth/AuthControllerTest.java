@@ -1,7 +1,10 @@
 package kr.co.jparangdev.boardbuddy.api.auth;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,18 +19,19 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.DuplicateEmailException;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidCredentialsException;
 import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
+import kr.co.jparangdev.boardbuddy.application.auth.usecase.RegisterUseCase;
 import tools.jackson.databind.json.JsonMapper;
 
-@ActiveProfiles("local")
-@WebMvcTest({AuthController.class, TestAuthController.class})
+@WebMvcTest(AuthController.class)
 @AutoConfigureJson
 class AuthControllerTest {
 
@@ -40,14 +44,14 @@ class AuthControllerTest {
     @MockitoBean
     private AuthenticationUseCase authenticationUseCase;
 
+    @MockitoBean
+    private RegisterUseCase registerUseCase;
+
     @Test
-    @DisplayName("Test Login Success")
+    @DisplayName("Login Success")
     @WithMockUser
-    void testLoginSuccess() throws Exception {
-        // given
-        AuthDto.TestLoginRequest request = new AuthDto.TestLoginRequest();
-        request.setEmail("test@example.com");
-        request.setNickname("tester");
+    void loginSuccess() throws Exception {
+        AuthDto.LoginRequest request = new AuthDto.LoginRequest("test@example.com", "password1");
 
         AuthTokens tokens = AuthTokens.builder()
                 .accessToken("access-token")
@@ -59,8 +63,7 @@ class AuthControllerTest {
         given(authenticationUseCase.authenticate(any(AuthCredentials.class)))
                 .willReturn(tokens);
 
-        // when & then
-        mockMvc.perform(post("/api/v1/auth/test/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(request)))
@@ -71,10 +74,82 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("Register Success")
+    @WithMockUser
+    void registerSuccess() throws Exception {
+        AuthDto.RegisterRequest request = new AuthDto.RegisterRequest("new@example.com", "password1", "NewUser");
+
+        willDoNothing().given(registerUseCase).register(
+                eq("new@example.com"), eq("password1"), eq("NewUser"));
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        verify(registerUseCase).register("new@example.com", "password1", "NewUser");
+    }
+
+    @Test
+    @DisplayName("Register - Validation Error (password too short)")
+    @WithMockUser
+    void registerValidationError() throws Exception {
+        String body = """
+                {"email":"test@example.com","password":"short","nickname":"Tester"}
+                """;
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors.password").exists());
+    }
+
+    @Test
+    @DisplayName("Register - Duplicate Email returns 409")
+    @WithMockUser
+    void registerDuplicateEmail() throws Exception {
+        AuthDto.RegisterRequest request = new AuthDto.RegisterRequest("existing@example.com", "password1", "Tester");
+
+        willThrow(new DuplicateEmailException("existing@example.com"))
+                .given(registerUseCase).register(any(), any(), any());
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("DUPLICATE_EMAIL"));
+    }
+
+    @Test
+    @DisplayName("Login - Invalid Credentials returns 401")
+    @WithMockUser
+    void loginInvalidCredentials() throws Exception {
+        AuthDto.LoginRequest request = new AuthDto.LoginRequest("test@example.com", "wrongpass1");
+
+        given(authenticationUseCase.authenticate(any(AuthCredentials.class)))
+                .willThrow(new InvalidCredentialsException());
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
     @DisplayName("Refresh Token Success")
     @WithMockUser
     void refreshTokenSuccess() throws Exception {
-        // given
         AuthDto.RefreshRequest request = new AuthDto.RefreshRequest();
         request.setRefreshToken("valid-refresh-token");
 
@@ -88,7 +163,6 @@ class AuthControllerTest {
         given(authenticationUseCase.refreshAccessToken("valid-refresh-token"))
                 .willReturn(tokens);
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/refresh")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,11 +176,9 @@ class AuthControllerTest {
     @DisplayName("Logout Success")
     @WithMockUser
     void logoutSuccess() throws Exception {
-        // given
         AuthDto.LogoutRequest request = new AuthDto.LogoutRequest();
         request.setRefreshToken("valid-refresh-token");
 
-        // when & then
         mockMvc.perform(post("/api/v1/auth/logout")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)

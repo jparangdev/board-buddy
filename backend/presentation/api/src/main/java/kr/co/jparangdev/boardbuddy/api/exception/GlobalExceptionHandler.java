@@ -1,10 +1,17 @@
 package kr.co.jparangdev.boardbuddy.api.exception;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import kr.co.jparangdev.boardbuddy.application.auth.exception.DuplicateEmailException;
+import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidCredentialsException;
 import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
 import kr.co.jparangdev.boardbuddy.application.auth.exception.OAuthAuthenticationException;
 import kr.co.jparangdev.boardbuddy.application.game.exception.*;
@@ -21,10 +28,36 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
     @Getter
-    @AllArgsConstructor
     public static class ErrorResponse {
-        private String error;
-        private String message;
+        private final String error;
+        private final String message;
+        private final Map<String, String> fieldErrors;
+
+        public ErrorResponse(String error, String message) {
+            this.error = error;
+            this.message = message;
+            this.fieldErrors = null;
+        }
+
+        public ErrorResponse(String error, String message, Map<String, String> fieldErrors) {
+            this.error = error;
+            this.message = message;
+            this.fieldErrors = fieldErrors;
+        }
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException e) {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(new ErrorResponse("INVALID_CREDENTIALS", e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException e) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("DUPLICATE_EMAIL", e.getMessage()));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -102,6 +135,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(new ErrorResponse("DUPLICATE_CUSTOM_GAME_NAME", e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException e) {
+        Map<String, String> fieldErrors = e.getBindingResult().getFieldErrors().stream()
+            .collect(Collectors.toMap(
+                FieldError::getField,
+                FieldError::getDefaultMessage,
+                (first, second) -> first
+            ));
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse("VALIDATION_ERROR", "Validation failed", fieldErrors));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

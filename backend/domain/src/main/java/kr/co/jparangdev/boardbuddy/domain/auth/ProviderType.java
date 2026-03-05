@@ -5,6 +5,6 @@ package kr.co.jparangdev.boardbuddy.domain.auth;
  * Add new providers here when implementing additional OAuth integrations.
  */
 public enum ProviderType {
-    TEST,   // For development and testing
+    LOCAL,  // Email/password authentication
     KAKAO   // Kakao OAuth (to be implemented)
 }

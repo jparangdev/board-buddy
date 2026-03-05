@@ -5,9 +5,15 @@ export interface TokenResponse {
   tokenType: string;
 }
 
-export interface TestLoginRequest {
+export interface LoginRequest {
   email: string;
-  nickname?: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  nickname: string;
 }
 
 export interface RefreshRequest {

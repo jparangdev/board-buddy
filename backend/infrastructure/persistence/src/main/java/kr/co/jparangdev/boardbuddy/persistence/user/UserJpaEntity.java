@@ -38,6 +38,9 @@ public class UserJpaEntity {
     @Column(name = "provider_id", nullable = false, updatable = false)
     private String providerId;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -56,12 +59,13 @@ public class UserJpaEntity {
     }
 
     public UserJpaEntity(Long id, String email, String nickname, String discriminator,
-                         String provider, String providerId) {
+                         String provider, String providerId, String passwordHash) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
         this.discriminator = discriminator;
         this.provider = provider;
         this.providerId = providerId;
+        this.passwordHash = passwordHash;
     }
 }

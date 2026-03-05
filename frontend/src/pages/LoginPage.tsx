@@ -1,15 +1,17 @@
 import {type FormEvent, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
 import styles from './LoginPage.module.css';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -17,10 +19,11 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(email, nickname || undefined);
+      await login(email, password);
       navigate('/groups');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const msg = err instanceof Error ? err.message : (err as { message?: string })?.message;
+      setError(msg ?? t('auth.loginFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -32,45 +35,46 @@ export function LoginPage() {
         <div className={styles.header}>
           <span className={styles.icon}>&#x1F3B2;</span>
           <h1>Board Buddy</h1>
-          <p className={styles.subtitle}>Find your game night crew</p>
+          <p className={styles.subtitle}>{t('auth.loginTitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.email')}</label>
             <input
               id="email"
               type="email"
               className="input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder={t('auth.emailPlaceholder')}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="nickname">Nickname (optional)</label>
+            <label htmlFor="password">{t('auth.password')}</label>
             <input
-              id="nickname"
-              type="text"
+              id="password"
+              type="password"
               className="input"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Choose a nickname"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t('auth.passwordPlaceholder')}
+              required
             />
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
 
           <button type="submit" className="btn btn-primary" disabled={isLoading}>
-            {isLoading ? 'Entering...' : 'Enter the Game Room'}
+            {isLoading ? t('auth.loggingIn') : t('auth.loginButton')}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p className={styles.hint}>
-            &#x2139; This is a test login for development
+            <Link to="/register">{t('auth.goToRegister')}</Link>
           </p>
         </div>
       </div>

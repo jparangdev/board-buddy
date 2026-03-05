@@ -1,11 +1,15 @@
 import {api, clearTokens, getRefreshToken, setTokens} from './api';
-import type {TestLoginRequest, TokenResponse} from '@/types';
+import type {LoginRequest, RegisterRequest, TokenResponse} from '@/types';
 
 export const authService = {
-  async testLogin(request: TestLoginRequest): Promise<TokenResponse> {
-    const response = await api.post<TokenResponse>('/auth/test/login', request, { skipAuth: true });
+  async login(request: LoginRequest): Promise<TokenResponse> {
+    const response = await api.post<TokenResponse>('/auth/login', request, { skipAuth: true });
     setTokens(response.accessToken, response.refreshToken);
     return response;
+  },
+
+  async register(request: RegisterRequest): Promise<void> {
+    await api.post<void>('/auth/register', request, { skipAuth: true });
   },
 
   async refresh(): Promise<TokenResponse> {

@@ -31,4 +31,24 @@ class UserTest {
 
         assertThat(user.getUserTag()).isEqualTo("Jane#1234");
     }
+
+    @Test
+    void createLocal_sets_all_fields_correctly() {
+        User user = User.createLocal("alice@test.com", "hashed-pw", "Alice", "AB12");
+
+        assertThat(user.getEmail()).isEqualTo("alice@test.com");
+        assertThat(user.getPasswordHash()).isEqualTo("hashed-pw");
+        assertThat(user.getNickname()).isEqualTo("Alice");
+        assertThat(user.getDiscriminator()).isEqualTo("AB12");
+        assertThat(user.getProvider()).isEqualTo("LOCAL");
+        assertThat(user.getProviderId()).isEqualTo("alice@test.com");
+        assertThat(user.getId()).isNull();
+    }
+
+    @Test
+    void createLocal_getUserTag_returns_correct_tag() {
+        User user = User.createLocal("alice@test.com", "hashed-pw", "Alice", "AB12");
+
+        assertThat(user.getUserTag()).isEqualTo("Alice#AB12");
+    }
 }

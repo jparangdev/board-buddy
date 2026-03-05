@@ -13,7 +13,8 @@ public class UserMapper {
             user.getNickname(),
             user.getDiscriminator(),
             user.getProvider(),
-            user.getProviderId()
+            user.getProviderId(),
+            user.getPasswordHash()
         );
     }
 
@@ -25,6 +26,7 @@ public class UserMapper {
             .discriminator(entity.getDiscriminator())
             .provider(entity.getProvider())
             .providerId(entity.getProviderId())
+            .passwordHash(entity.getPasswordHash())
             .build();
     }
 }

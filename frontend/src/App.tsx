@@ -1,7 +1,7 @@
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {AuthProvider} from '@/hooks';
 import {Layout, ProtectedRoute} from '@/components';
-import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, LoginPage, SessionDetailPage} from '@/pages';
+import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, LoginPage, RegisterPage, SessionDetailPage} from '@/pages';
 
 function App() {
   return (
@@ -9,6 +9,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
