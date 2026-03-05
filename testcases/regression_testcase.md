@@ -71,42 +71,42 @@
 *   **Details**: Classic game, P1 wins.
 *   **Steps**:
     1.  Click "Record Game" -> Select `Catan`.
-    2.  Select: `PlayerOne`, `PlayerTwo`, `PlayerThree`.
+    2.  Select: `PlayerOne#PLY1`, `PlayerTwo#PLY2`, `PlayerThree#PLY3`.
     3.  Scores:
-        *   P1: `10` (Won)
-        *   P2: `8`
-        *   P3: `5`
+        *   P1 (`PlayerOne#PLY1`): `10` (Won)
+        *   P2 (`PlayerTwo#PLY2`): `8`
+        *   P3 (`PlayerThree#PLY3`): `5`
     4.  Save Session.
 
 ### Session B: Splendor (2 Players)
 *   **Details**: Duel, P2 wins against P4.
 *   **Steps**:
     1.  Click "Record Game" -> Select `Splendor`.
-    2.  Select: `PlayerTwo`, `PlayerFour`.
+    2.  Select: `PlayerTwo#PLY2`, `PlayerFour#PLY4`.
     3.  Scores:
-        *   P2: `15` (Won)
-        *   P4: `12`
+        *   P2 (`PlayerTwo#PLY2`): `15` (Won)
+        *   P4 (`PlayerFour#PLY4`): `12`
     4.  Save Session.
 
 ### Session C: Terraforming Mars (4 Players)
 *   **Details**: Heavy strategy, P3 wins close game.
 *   **Steps**:
     1.  Click "Record Game" -> Select `Terraforming Mars`.
-    2.  Select: All Players (`P1`, `P2`, `P3`, `P4`).
+    2.  Select: All Players (`PlayerOne#PLY1`, `PlayerTwo#PLY2`, `PlayerThree#PLY3`, `PlayerFour#PLY4`).
     3.  Scores:
-        *   P3: `75` (Won)
-        *   P1: `72`
-        *   P4: `65`
-        *   P2: `50`
+        *   P3 (`PlayerThree#PLY3`): `75` (Won)
+        *   P1 (`PlayerOne#PLY1`): `72`
+        *   P4 (`PlayerFour#PLY4`): `65`
+        *   P2 (`PlayerTwo#PLY2`): `50`
     4.  Save Session.
 
 ### Session D: Love Letter (4 Players)
 *   **Details**: Party game, P4 wins. (Using Win/Lose Strategy if configured, or just points).
 *   **Steps**:
     1.  Click "Record Game" -> Select `Love Letter`.
-    2.  Select: All Players.
+    2.  Select: All Players (`PlayerOne#PLY1`, `PlayerTwo#PLY2`, `PlayerThree#PLY3`, `PlayerFour#PLY4`).
     3.  Outcome (if Win/Lose):
-        *   P4: `Won`
+        *   P4 (`PlayerFour#PLY4`): `Won`
         *   Others: `Lost`
     4.  Save Session.
 
@@ -114,7 +114,7 @@
 *   **Details**: Team play, perfect score.
 *   **Steps**:
     1.  Click "Record Game" -> Select `Hanabi`.
-    2.  Select: All Players.
+    2.  Select: All Players (`PlayerOne#PLY1`, `PlayerTwo#PLY2`, `PlayerThree#PLY3`, `PlayerFour#PLY4`).
     3.  Team Result: `Won` (or Score `25`).
     4.  Save Session.
 
@@ -127,22 +127,58 @@
     4.  Refresh page.
     5.  Verify order persists.
 
-## 8. Dashboard Verification
-*   **Goal**: Verify logic and display of group statistics.
-*   **Prerequisites**: All previous game sessions must be recorded.
+## 8. Dashboard Navigation
+
+*   **Goal**: Verify the "View Stats" button in group header navigates to the dedicated dashboard page.
+*   **Prerequisites**: Logged in as `PlayerOne`. "Board Game Crew" group exists.
 *   **Steps**:
-    1.  Navigate to "Board Game Crew" Group Detail page.
-    2.  Scroll to Statistics Section (🏆 Stats).
-    3.  **Verify Summary**:
-        *   Total Sessions: `5`.
-        *   Total Participations: `17` (3+2+4+4+4).
-    4.  **Verify Most Active**:
-        *   `PlayerTwo` & `PlayerFour` at top (4 sessions).
-    5.  **Verify Most Wins**:
-        *   `PlayerOne`: 1 Win (Catan)
-        *   `PlayerTwo`: 1 Win (Splendor)
-        *   `PlayerThree`: 1 Win (Terraforming Mars)
-        *   `PlayerFour`: 1 Win (Love Letter)
-        *   *Note*: Hanabi (Co-op) usually counts as win for everyone or separate logic.
-    6.  **Verify Popular Games**:
-        *   All 5 games should appear with `1 play`.
+    1.  Navigate to "Board Game Crew" Group Detail page (`/groups/:id`).
+    2.  Verify a "📊 View Stats" (or "📊 통계 보기") button is visible in the group header.
+    3.  Click the button.
+    4.  Verify URL changes to `/groups/:id/dashboard`.
+    5.  Verify page heading shows "📊 Dashboard".
+    6.  Verify group name is displayed as subtitle.
+    7.  Click "← Back to Group" link.
+    8.  Verify navigation returns to `/groups/:id`.
+
+## 9. Dashboard — Empty State
+
+*   **Goal**: Verify dashboard shows a friendly empty state when a group has no sessions.
+*   **Steps**:
+    1.  Navigate to `/groups` and create a new group named `Empty Group` (no additional members needed).
+    2.  Open "Empty Group" detail page.
+    3.  Click "📊 View Stats" button.
+    4.  Verify page does **not** show any ranking sections or summary cards.
+    5.  Verify an empty-state message is displayed (e.g. "No game sessions yet").
+    6.  Verify a "Record Game" button (or equivalent CTA) is present in the empty state.
+    7.  Click the "Record Game" button and verify navigation to the session creation page.
+
+## 10. Dashboard Statistics Verification
+
+*   **Goal**: Verify logic and display of group statistics with progress bar visualizations.
+*   **Prerequisites**: All 5 game sessions from Step 6 must be recorded in "Board Game Crew".
+*   **Steps**:
+    1.  Navigate to "Board Game Crew" Group Detail page and click "📊 View Stats".
+    2.  **Verify Summary Cards**:
+        *   "Total Sessions" card shows `5`.
+        *   "Total Plays" card shows `17` (3+2+4+4+4).
+    3.  **Verify Most Active (🎮) section**:
+        *   Section is visible with horizontal progress bars.
+        *   `PlayerTwo` is ranked 1st (participated in all 5 sessions).
+        *   `PlayerOne`, `PlayerThree`, `PlayerFour` are tied at 4 sessions.
+        *   The 1st-place bar is visually the longest (or equal length if tied).
+    4.  **Verify Most Wins (🏆) section**:
+        *   Section is visible with progress bars.
+        *   All four players (P1–P4) each have `1 W` from their respective session wins.
+        *   Hanabi (Co-op, Session E) winner handling is consistent with expected co-op logic.
+    5.  **Verify Win Rate (📈) section**:
+        *   All players have 4–5 sessions, exceeding the 3-game minimum, so rankings are displayed.
+        *   `PlayerTwo`'s win rate is lower than the others (1 win / 5 sessions ≈ 20%) and ranks last.
+        *   Progress bar widths are proportional to win rate percentages.
+    6.  **Verify Popular Games (🎲) section**:
+        *   All 5 games (`Catan`, `Splendor`, `Terraforming Mars`, `Love Letter`, `Hanabi`) appear.
+        *   Each shows `1x` play count with equal-length bars.
+    7.  **Verify Win Rate minimum threshold**:
+        *   Create a new group "Win Rate Test", invite only one other player.
+        *   Record 2 sessions (below the 3-game minimum for win rate ranking).
+        *   Navigate to its dashboard and verify the Win Rate section shows "Need 3+ games" (instead of rankings).
