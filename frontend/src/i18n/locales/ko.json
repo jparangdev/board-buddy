@@ -119,6 +119,12 @@
   },
   "stats": {
     "title": "그룹 통계",
+    "dashboard": "대시보드",
+    "viewDashboard": "통계 보기",
+    "sessionsLabel": "총 세션",
+    "participationsLabel": "총 참여",
+    "noStatsYet": "아직 게임 기록이 없습니다",
+    "recordFirst": "게임 세션을 기록하면 여기에 통계가 표시됩니다",
     "totalSessions": "세션 {{count}}회",
     "totalParticipations": "참여 {{count}}회",
     "mostActive": "참여 랭킹",

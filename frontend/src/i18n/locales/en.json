@@ -119,6 +119,12 @@
   },
   "stats": {
     "title": "Group Stats",
+    "dashboard": "Dashboard",
+    "viewDashboard": "View Stats",
+    "sessionsLabel": "Total Sessions",
+    "participationsLabel": "Total Plays",
+    "noStatsYet": "No game sessions yet",
+    "recordFirst": "Record game sessions to see statistics here",
     "totalSessions": "{{count}} sessions",
     "totalParticipations": "{{count}} plays",
     "mostActive": "Most Active",
