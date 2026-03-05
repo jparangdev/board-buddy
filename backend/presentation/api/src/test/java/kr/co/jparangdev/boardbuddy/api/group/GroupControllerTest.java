@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.UpdateGroupOrderUseCase;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import tools.jackson.databind.json.JsonMapper;
@@ -45,6 +46,9 @@ class GroupControllerTest {
 
     @MockitoBean
     private GroupQueryUseCase groupQueryUseCase;
+
+    @MockitoBean
+    private UpdateGroupOrderUseCase updateGroupOrderUseCase;
 
     @MockitoBean
     private GroupDtoMapper mapper;
@@ -168,6 +172,23 @@ class GroupControllerTest {
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Reorder Groups Success")
+    @WithMockUser
+    void reorderGroupsSuccess() throws Exception {
+        // given
+        List<Long> groupIds = List.of(3L, 1L, 2L);
+        doNothing().when(updateGroupOrderUseCase).updateGroupOrder(groupIds);
+
+        // when & then
+        mockMvc.perform(put("/api/v1/groups/order")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(groupIds)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 }
