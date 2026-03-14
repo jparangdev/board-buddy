@@ -130,6 +130,8 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
                 <div
                   key={user.id}
                   className={styles.userCard}
+                  data-testid="user-search-result"
+                  data-user-tag={user.userTag}
                   onClick={() => addMember(user)}
                 >
                   <div className={styles.userCardAvatar}>
@@ -147,7 +149,7 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
           {selectedMembers.length > 0 && (
             <div className={styles.chipList}>
               {selectedMembers.map((member) => (
-                <span key={member.id} className={styles.chip}>
+                <span key={member.id} className={styles.chip} data-testid="member-chip">
                   {member.nickname}
                   <button
                     type="button"

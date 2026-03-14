@@ -1,4 +1,5 @@
 # Regression Test Scenario
+report created by korean
 
 ## 1. User Account Lifecycle (Create & Delete)
 *   **Goal**: Register a temporary user, log in, and then delete the account. **(Results not recorded)**
@@ -50,17 +51,11 @@
 *   **Goal**: Register board games to play.
 *   **Steps**:
     1.  Navigate to `/games`.
-    2.  **Add Catan**:
-        *   Name: `Catan`, Min: `3`, Max: `4`, Score: `High Score Wins`
-    3.  **Add Splendor**:
-        *   Name: `Splendor`, Min: `2`, Max: `4`, Score: `High Score Wins`
-    4.  **Add Terraforming Mars**:
+    *   **Note for Automation**: "Catan", "Splendor", "Love Letter", and "Hanabi" are pre-seeded in the database. Verify they appear in the list. DO NOT attempt to create them again as it will cause a Duplicate Error. Only create "Terraforming Mars" which is not seeded.
+    2.  **Add Terraforming Mars**:
+        *   Click "+ Add Game" (or equivalent)
         *   Name: `Terraforming Mars`, Min: `1`, Max: `5`, Score: `High Score Wins`
-    5.  **Add Love Letter**:
-        *   Name: `Love Letter`, Min: `2`, Max: `4`, Score: `Win/Lose Strategy` (or High Score if token count) -> Use `Win/Lose` for variety.
-    6.  **Add Hanabi**:
-        *   Name: `Hanabi`, Min: `2`, Max: `5`, Score: `Cooperative`
-    7.  Verify all games appear in the list.
+    3.  Verify all 5 games appear in the list.
 
 ## 5. Group Creation & Population
 *   **Goal**: Create a group and invite all users.
@@ -69,6 +64,7 @@
     2.  Click "+ Create Group".
     3.  Name: `Board Game Crew`.
     4.  Search & Select Members (enter full userTag including discriminator):
+        *   **Note for Automation**: For each member down below, type their tag into the search box, WAIT for the search results to appear below the input, and explicitly CLICK on the matching user card in the search results list. You must click the result to add them as a member chip. Do this for:
         *   `PlayerTwo#PLY2`
         *   `PlayerThree#PLY3`
         *   `PlayerFour#PLY4`
