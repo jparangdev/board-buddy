@@ -1,7 +1,10 @@
 package kr.co.jparangdev.boardbuddy.domain.game.exception;
 
-public class GameNotFoundException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
+
+public class GameNotFoundException extends NotFoundException {
+
     public GameNotFoundException(Long gameId) {
-        super("Game not found: " + gameId);
+        super(GameErrorCode.GAME_NOT_FOUND, "Game not found: " + gameId);
     }
 }

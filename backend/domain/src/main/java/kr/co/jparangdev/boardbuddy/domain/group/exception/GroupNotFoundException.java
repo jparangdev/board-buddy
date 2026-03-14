@@ -1,7 +1,11 @@
 package kr.co.jparangdev.boardbuddy.domain.group.exception;
 
-public class GroupNotFoundException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupErrorCode;
+import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
+
+public class GroupNotFoundException extends NotFoundException {
+
     public GroupNotFoundException(Long groupId) {
-        super("Group not found: " + groupId);
+        super(GroupErrorCode.GROUP_NOT_FOUND, "Group not found: " + groupId);
     }
 }

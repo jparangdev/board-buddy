@@ -1,7 +1,10 @@
 package kr.co.jparangdev.boardbuddy.application.auth.exception;
 
-public class OAuthAuthenticationException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.UnauthorizedException;
+
+public class OAuthAuthenticationException extends UnauthorizedException {
+
     public OAuthAuthenticationException(String message, Throwable cause) {
-        super(message, cause);
+        super(AuthErrorCode.OAUTH_AUTHENTICATION_FAILED, message, cause);
     }
 }

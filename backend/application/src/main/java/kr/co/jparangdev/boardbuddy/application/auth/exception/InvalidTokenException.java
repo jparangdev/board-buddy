@@ -1,7 +1,10 @@
 package kr.co.jparangdev.boardbuddy.application.auth.exception;
 
-public class InvalidTokenException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.UnauthorizedException;
+
+public class InvalidTokenException extends UnauthorizedException {
+
     public InvalidTokenException(String message) {
-        super(message);
+        super(AuthErrorCode.INVALID_TOKEN, message);
     }
 }

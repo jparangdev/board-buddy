@@ -1,8 +1,10 @@
 package kr.co.jparangdev.boardbuddy.application.auth.exception;
 
-public class InvalidCredentialsException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.UnauthorizedException;
+
+public class InvalidCredentialsException extends UnauthorizedException {
 
     public InvalidCredentialsException() {
-        super("Invalid email or password");
+        super(AuthErrorCode.INVALID_CREDENTIALS, "Invalid email or password");
     }
 }

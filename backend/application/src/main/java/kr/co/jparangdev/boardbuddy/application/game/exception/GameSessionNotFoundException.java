@@ -1,7 +1,11 @@
 package kr.co.jparangdev.boardbuddy.application.game.exception;
 
-public class GameSessionNotFoundException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.GameErrorCode;
+
+public class GameSessionNotFoundException extends NotFoundException {
+
     public GameSessionNotFoundException(Long sessionId) {
-        super("Game session not found: " + sessionId);
+        super(GameErrorCode.GAME_SESSION_NOT_FOUND, "Game session not found: " + sessionId);
     }
 }

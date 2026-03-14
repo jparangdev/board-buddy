@@ -1,7 +1,10 @@
 package kr.co.jparangdev.boardbuddy.domain.game.exception;
 
-public class DuplicateGameNameException extends RuntimeException {
+import kr.co.jparangdev.boardbuddy.domain.exception.ConflictException;
+
+public class DuplicateGameNameException extends ConflictException {
+
     public DuplicateGameNameException(String name) {
-        super("Game with name already exists: " + name);
+        super(GameErrorCode.DUPLICATE_GAME_NAME, "Game with name already exists: " + name);
     }
 }
