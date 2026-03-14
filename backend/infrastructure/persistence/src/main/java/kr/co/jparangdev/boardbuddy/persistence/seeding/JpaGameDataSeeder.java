@@ -42,6 +42,7 @@ public class JpaGameDataSeeder implements GameDataSeeder {
             new SeedGame("The Resistance", "레지스탕스", "The Resistance", 5, 10, ScoreStrategy.WIN_LOSE),
             new SeedGame("Uno", "우노", "Uno", 2, 10, ScoreStrategy.LOW_WIN),
             new SeedGame("Love Letter", "러브레터", "Love Letter", 2, 6, ScoreStrategy.HIGH_WIN),
+            new SeedGame("Hanabi", "하나비", "Hanabi", 2, 5, ScoreStrategy.COOPERATIVE),
             new SeedGame("Dixit", "딕싯", "Dixit", 3, 8, ScoreStrategy.HIGH_WIN),
             new SeedGame("윷놀이", "윷놀이", "Yut Nori", 2, 4, ScoreStrategy.HIGH_WIN),
             new SeedGame("할리갈리", "할리갈리", "Halli Galli", 2, 6, ScoreStrategy.RANK_ONLY),
