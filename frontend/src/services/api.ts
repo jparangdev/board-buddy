@@ -63,7 +63,8 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     return undefined as T;
   }
 
-  return response.json();
+  const text = await response.text();
+  return text ? JSON.parse(text) : undefined as T;
 }
 
 export const api = {
