@@ -180,4 +180,50 @@ class CustomGameManagementServiceTest {
                 .isInstanceOf(UserNotGroupMemberException.class);
         }
     }
+
+    @Test
+    @DisplayName("Create Custom Game Failed - Group Not Found")
+    void createCustomGameGroupNotFound() {
+        try (MockedStatic<SecurityContextHolder> holder = mockStatic(SecurityContextHolder.class)) {
+            // given
+            mockSecurityContext(holder, 1L);
+            given(groupRepository.findById(10L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+                .isInstanceOf(GroupNotFoundException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("Get Custom Games Failed - Authentication Missing")
+    void getCustomGamesByGroupAuthenticationMissing() {
+        try (MockedStatic<SecurityContextHolder> holder = mockStatic(SecurityContextHolder.class)) {
+            // given
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(null);
+            holder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            // when & then
+            assertThatThrownBy(() -> customGameManagementService.getCustomGamesByGroup(10L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Authentication is missing");
+        }
+    }
+
+    @Test
+    @DisplayName("Create Custom Game Failed - Authentication Missing")
+    void createCustomGameAuthenticationMissing() {
+        try (MockedStatic<SecurityContextHolder> holder = mockStatic(SecurityContextHolder.class)) {
+            // given
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(null);
+            holder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            // when & then
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Authentication is missing");
+        }
+    }
 }
