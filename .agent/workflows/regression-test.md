@@ -34,24 +34,23 @@ npm run dev
 **Verification**: Ensure the site is reachable at `http://localhost:3000` (or the port shown in terminal).
 
 ## 4. Execute Test Scenarios
-Refer to [regression_testcase.md](file:///Users/jparangdev/Workspace/board-buddy/testcases/regression_testcase.md) and perform each step sequentially.
+Run the Playwright end-to-end test suite to cover all regression scenarios. This will automatically open the Playwright UI so you can watch the tests execute.
+
+```bash
+# From the frontend directory
+npm run test:e2e
+```
+
+**Verification**: When the Playwright UI opens, click the "Run all tests" (▶️) button to start. Ensure all Playwright tests pass successfully in the UI.
 
 > [!CAUTION]
-> If a scenario step fails, **STOP THE TEST**. Do not continue with further test cases as they may depend on the state created in previous steps.
+> If a test fails, **STOP THE TEST**. Investigate the Playwright report generated (usually in `playwright-report/`) or the terminal output.
 
-### Scenarios to Cover:
-1.  **User Account Lifecycle**: Create and delete a temporary account.
-2.  **User Registration (User B)**: Register a secondary user for group testing.
-3.  **Main User Login (User A)**: Log in as the primary tester.
-4.  **Game Creation**: Register board games with different strategies.
-5.  **Group Creation**: Create a group and invite members.
-6.  **Record Game Session**: Log a play session and verify history.
-7.  **Group Reordering**: Verify drag-and-drop persistence.
-8.  **Enhanced Strategies**: Test Cooperative and Win/Lose game results.
-
-## 5. Reporting
-If any step fails:
-1. Mark the failure in the test report.
-2. **HALT all further testing**.
-3. Investigate the cause (logs, browser console).
-4. Fix the issue and restart the regression suite from Step 1.
+## 5. AI Feedback Loop & Reporting
+If any Playwright test fails, you can leverage the AI Assistant to automatically fix the issue:
+1. **HALT all further testing**.
+2. Provide the Playwright error output (from the terminal or report) to the AI Assistant.
+3. Example prompt: *"Playwright test failed with this error: [error logs]. Please investigate and fix it."*
+4. The AI will analyze the failures, access the relevant files, and modify the code (either the test.spec.ts script or the application code) to resolve the issue.
+5. Once the AI reports the fix is applied, restart the regression test: `npm run test:e2e`.
+6. If all tests pass, the regression test is successfully completed!

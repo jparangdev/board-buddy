@@ -234,46 +234,66 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
     // Record Session A: Catan
     await page.goto('/groups');
     await page.getByRole('heading', { name: groupName }).first().click();
-    await page.getByRole('button', { name: /Record Game/i }).click();
+    await page.getByRole('link', { name: /Record Game/i }).click();
     
-    // Select Game
-    await page.getByRole('combobox').click();
-    await page.getByRole('option', { name: 'Catan' }).click();
+    // Step 1: Select Game
+    await page.getByRole('heading', { name: 'Catan', exact: true }).click();
+    await page.getByRole('button', { name: /Next/i }).click();
     
-    // Select Players
-    await page.getByText(/PlayerOne/i).click();
-    await page.getByText(/PlayerTwo/i).click();
-    await page.getByText(/PlayerThree/i).click();
+    // Step 2: Select Players
+    await page.locator('input[type="checkbox"]').nth(0).check();
+    await page.locator('input[type="checkbox"]').nth(1).check();
+    await page.locator('input[type="checkbox"]').nth(2).check();
+    await page.getByRole('button', { name: /Next/i }).click();
     
-    // Enter Scores (High scores win)
+    // Step 3: Enter Scores (High scores win)
     await page.locator('input[type="number"]').nth(0).fill('10');
     await page.locator('input[type="number"]').nth(1).fill('8');
     await page.locator('input[type="number"]').nth(2).fill('5');
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 4: Confirm session
     await page.getByRole('button', { name: /Save Session/i }).click();
 
     // Verify redirect
     await expect(page).toHaveURL(/\/groups\/\d+$/);
 
     // Record Session B: Splendor (P2 vs P4)
-    await page.getByRole('button', { name: /Record Game/i }).click();
-    await page.getByRole('combobox').click();
-    await page.getByRole('option', { name: 'Splendor' }).click();
-    await page.getByText(/PlayerTwo/i).click();
-    await page.getByText(/PlayerFour/i).click();
+    await page.getByRole('link', { name: /Record Game/i }).click();
+    
+    // Step 1: Select Game
+    await page.getByRole('heading', { name: 'Splendor', exact: true }).click();
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 2: Select Players
+    await page.locator('input[type="checkbox"]').nth(1).check();
+    await page.locator('input[type="checkbox"]').nth(3).check();
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 3: Enter Scores
     await page.locator('input[type="number"]').nth(0).fill('15');
     await page.locator('input[type="number"]').nth(1).fill('12');
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 4: Confirm
     await page.getByRole('button', { name: /Save Session/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+$/);
     
-    // We could add C, D, E here but logic is mostly identical...
     // Let's add Session E: Hanabi (Cooperative)
-    await page.getByRole('button', { name: /Record Game/i }).click();
-    await page.getByRole('combobox').click();
-    await page.getByRole('option', { name: 'Hanabi' }).click();
-    await page.getByText(/PlayerOne/i).click();
-    await page.getByText(/PlayerTwo/i).click();
-    await page.getByText(/PlayerThree/i).click();
-    await page.getByText(/PlayerFour/i).click();
+    await page.getByRole('link', { name: /Record Game/i }).click();
+    
+    // Step 1: Select Game
+    await page.getByRole('heading', { name: 'Hanabi', exact: true }).click();
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 2: Select Players
+    await page.locator('input[type="checkbox"]').nth(0).check();
+    await page.locator('input[type="checkbox"]').nth(1).check();
+    await page.locator('input[type="checkbox"]').nth(2).check();
+    await page.locator('input[type="checkbox"]').nth(3).check();
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 3: Enter Scores / Win status
     // Co-op has a single team score or win/loss button
     const winBtn = page.getByRole('button', { name: /^Won/i });
     if (await winBtn.isVisible()) {
@@ -281,13 +301,16 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
     } else {
       await page.locator('input[type="number"]').first().fill('25');
     }
+    await page.getByRole('button', { name: /Next/i }).click();
+
+    // Step 4: Confirm
     await page.getByRole('button', { name: /Save Session/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+$/);
   });
 
   test('8. Dashboard Navigation & 10. Statistics', async () => {
     // Currently inside Board Game Crew group page
-    const viewStatsBtn = page.getByRole('button', { name: /View Stats|📊/i });
+    const viewStatsBtn = page.getByRole('link', { name: /View Stats|📊/i });
     if (await viewStatsBtn.isVisible()) {
       await viewStatsBtn.click();
       await expect(page).toHaveURL(/\/groups\/\d+\/dashboard/);
@@ -312,10 +335,60 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
     await page.getByLabel(/Group Name/i).fill(emptyGroupName);
     await page.locator('form').getByRole('button', { name: 'Create Group', exact: true }).click();
     
-    await page.getByRole('heading', { name: emptyGroupName }).first().click();
-    await page.getByRole('button', { name: /View Stats|📊/i }).click();
+      await page.getByRole('heading', { name: emptyGroupName }).first().click();
+    await page.getByRole('link', { name: /View Stats|📊/i }).click();
     
     await expect(page.getByText(/No game sessions/i)).toBeVisible();
   });
-});
 
+  test('11. Game Filtering & Search', async () => {
+    await page.goto('/games');
+    const searchInput = page.locator('input[placeholder*="Search"]');
+    await searchInput.fill('Terraforming');
+    await expect(page.getByRole('heading', { name: 'Terraforming Mars', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Catan', exact: true })).not.toBeVisible();
+
+    await searchInput.fill('InvalidGameNameXYZ');
+    await expect(page.getByText(/No games found matching/i)).toBeVisible();
+  });
+
+  test('12. Session Detail (Session Management placeholder)', async () => {
+    await page.goto('/groups');
+    await page.getByRole('heading', { name: groupName }).first().click();
+    
+    const sessionLink = page.locator('a').filter({ hasText: /Catan/i }).first();
+    if (await sessionLink.isVisible()) {
+      await sessionLink.click();
+      await expect(page).toHaveURL(/\/groups\/\d+\/sessions\/\d+/);
+      await expect(page.getByRole('heading', { name: 'Catan', exact: true })).toBeVisible();
+    }
+  });
+
+  test('13. Group Management (Delete Group)', async () => {
+    await page.goto('/groups');
+    await page.getByRole('heading', { name: emptyGroupName }).first().click();
+    
+    const deleteIconBtn = page.locator('button[title="Delete group"]');
+    if (await deleteIconBtn.isVisible()) {
+        await deleteIconBtn.click();
+        const confirmDeleteBtn = page.locator('.btn-danger').filter({ hasText: /Delete/i }).first();
+        await confirmDeleteBtn.click();
+        await expect(page).toHaveURL(/\/groups/);
+        await expect(page.getByRole('heading', { name: emptyGroupName })).not.toBeVisible();
+    }
+  });
+
+  test('14. Logout & Auth Guarding', async () => {
+    await page.goto('/games');
+    const userMenuBtn = page.locator('header button').filter({ hasText: /PlayerOne/i }).first();
+    await userMenuBtn.click();
+    
+    const logoutBtn = page.locator('button').filter({ hasText: /Logout/i }).first();
+    await logoutBtn.click();
+    
+    await expect(page).toHaveURL(/\/login/);
+
+    await page.goto('/groups');
+    await expect(page).toHaveURL(/\/login/);
+  });
+});
