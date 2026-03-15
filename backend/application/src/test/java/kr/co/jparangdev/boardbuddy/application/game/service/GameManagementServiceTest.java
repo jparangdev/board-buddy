@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateGameNameException;
 import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
+import kr.co.jparangdev.boardbuddy.application.shared.TxExecutor;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
@@ -29,9 +32,14 @@ class GameManagementServiceTest {
     @Mock
     private GameRepository gameRepository;
 
+    @Mock
+    private TxExecutor transactionExecutor;
+
     @BeforeEach
     void setUp() {
-        gameManagementService = new GameManagementService(gameRepository);
+        lenient().when(transactionExecutor.write(any(Supplier.class)))
+                .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
+        gameManagementService = new GameManagementService(gameRepository, transactionExecutor);
     }
 
     @Test
