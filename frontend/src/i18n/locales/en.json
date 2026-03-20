@@ -92,7 +92,8 @@
     "noCustomGames": "No custom games yet. Add your group's favorite games!",
     "adding": "Adding...",
     "custom": "Custom",
-    "customGameTooltip": "Add your group's own games in addition to the predefined games"
+    "customGameTooltip": "Add your group's own games in addition to the predefined games",
+    "addNewGame": "Add New Game"
   },
   "session": {
     "title": "Game Sessions",
@@ -112,7 +113,17 @@
     "game": "Game",
     "players": "Players",
     "noGamesRegistered": "No games registered yet.",
-    "addGameFirst": "Add a game first."
+    "addGameFirst": "Add a game first.",
+    "notFound": "Session not found",
+    "results": "Results",
+    "playedOn": "Played on {{date}}",
+    "playerCount": "{{count}} players",
+    "player": "Player",
+    "winnerCount": "Winner Count",
+    "winnerCountHint": "Top {{count}} place(s) win.",
+    "winPoints": "Win Points",
+    "losePoints": "Lose Points",
+    "pointsHint": "Points are awarded based on win/lose result."
   },
   "scoreStrategy": {
     "HIGH_WIN": "High Wins",
@@ -130,6 +141,7 @@
     "lost": "Lost",
     "score": "Score",
     "rank": "Rank",
+    "result": "Result",
     "rankedInOrder": "Players are ranked in the order selected."
   },
   "stats": {
@@ -145,6 +157,8 @@
     "mostActive": "Most Active",
     "mostWins": "Most Wins",
     "winRate": "Win Rate",
+    "totalScore": "Total Score Ranking",
+    "totalScoreValue": "{{score}} pts",
     "popularGames": "Popular Games",
     "sessions": "x",
     "wins": "W",

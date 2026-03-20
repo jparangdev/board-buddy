@@ -14,13 +14,15 @@ class GroupStatsTest {
         var winRateStat = new GroupStats.WinRateStat(1L, "Alice", "Alice#AA01", 0.8, 5L, 4L);
         var gamePlayStat = new GroupStats.GamePlayStat("Catan", 3L);
 
-        GroupStats stats = new GroupStats(10L, 25L, List.of(playerStat), List.of(playerStat), List.of(winRateStat), List.of(gamePlayStat));
+        var scoreStat = new GroupStats.ScoreStat(1L, "Alice", "Alice#AA01", 42L);
+        GroupStats stats = new GroupStats(10L, 25L, List.of(playerStat), List.of(playerStat), List.of(winRateStat), List.of(scoreStat), List.of(gamePlayStat));
 
         assertThat(stats.totalSessions()).isEqualTo(10L);
         assertThat(stats.totalParticipations()).isEqualTo(25L);
         assertThat(stats.mostActivePlayers()).containsExactly(playerStat);
         assertThat(stats.mostWins()).containsExactly(playerStat);
         assertThat(stats.winRateRanking()).containsExactly(winRateStat);
+        assertThat(stats.totalScoreRanking()).containsExactly(scoreStat);
         assertThat(stats.mostPlayedGames()).containsExactly(gamePlayStat);
     }
 
@@ -54,7 +56,7 @@ class GroupStatsTest {
 
     @Test
     void empty_stats_are_valid() {
-        GroupStats stats = new GroupStats(0L, 0L, List.of(), List.of(), List.of(), List.of());
+        GroupStats stats = new GroupStats(0L, 0L, List.of(), List.of(), List.of(), List.of(), List.of());
 
         assertThat(stats.totalSessions()).isEqualTo(0L);
         assertThat(stats.mostActivePlayers()).isEmpty();

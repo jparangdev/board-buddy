@@ -101,11 +101,19 @@ export interface PlayerStatEntry {
   wins?: number;
 }
 
+export interface ScoreStatEntry {
+  userId: number;
+  nickname: string;
+  userTag: string;
+  totalScore: number;
+}
+
 export interface GroupStats {
   totalSessions: number;
   totalParticipations: number;
   mostActivePlayers: PlayerStatEntry[];
   mostWins: PlayerStatEntry[];
   winRateRanking: PlayerStatEntry[];
+  totalScoreRanking: ScoreStatEntry[];
   mostPlayedGames: { gameName: string; playCount: number }[];
 }

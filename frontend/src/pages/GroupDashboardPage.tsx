@@ -1,11 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { Group, GroupStats } from '@/types';
+import type { Group, GroupStats, ScoreStatEntry } from '@/types';
 import { gameSessionService, groupService } from '@/services';
 import styles from './GroupDashboardPage.module.css';
 
-const RANK_MEDALS = ['🥇', '🥈', '🥉'];
 
 function RankingSection({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -45,7 +44,7 @@ export function GroupDashboardPage() {
   if (isLoading) {
     return (
       <div className={styles.loading}>
-        <span className={styles.loadingIcon}>🎲</span>
+        <span className={styles.loadingIcon}>...</span>
         <p>{t('common.loading')}</p>
       </div>
     );
@@ -71,13 +70,13 @@ export function GroupDashboardPage() {
       </Link>
 
       <div className={styles.pageHeader}>
-        <h1>&#x1F4CA; {t('stats.dashboard')}</h1>
+        <h1>{t('stats.dashboard')}</h1>
         <p className="text-muted">{group.name}</p>
       </div>
 
       {!hasStats ? (
         <div className={styles.emptyState}>
-          <span className={styles.emptyIcon}>&#x1F3AE;</span>
+
           <p className={styles.emptyTitle}>{t('stats.noStatsYet')}</p>
           <p className="text-muted">{t('stats.recordFirst')}</p>
           <Link to={`/groups/${id}/sessions/new`} className="btn btn-primary">
@@ -98,12 +97,12 @@ export function GroupDashboardPage() {
           </div>
 
           {stats.mostActivePlayers.length > 0 && (
-            <RankingSection title={`\u{1F3AE} ${t('stats.mostActive')}`}>
+            <RankingSection title={t('stats.mostActive')}>
               {(() => {
                 const max = Math.max(...stats.mostActivePlayers.map(p => p.sessionCount ?? 0), 1);
                 return stats.mostActivePlayers.map((p, i) => (
                   <div key={p.userId} className={styles.rankRow}>
-                    <span className={styles.medal}>{RANK_MEDALS[i]}</span>
+                    <span className={styles.medal}>#{i + 1}</span>
                     <span className={styles.name}>{p.nickname}</span>
                     <div className={styles.barTrack}>
                       <div
@@ -119,12 +118,12 @@ export function GroupDashboardPage() {
           )}
 
           {stats.mostWins.length > 0 && (
-            <RankingSection title={`\u{1F3C6} ${t('stats.mostWins')}`}>
+            <RankingSection title={t('stats.mostWins')}>
               {(() => {
                 const max = Math.max(...stats.mostWins.map(p => p.winCount ?? 0), 1);
                 return stats.mostWins.map((p, i) => (
                   <div key={p.userId} className={styles.rankRow}>
-                    <span className={styles.medal}>{RANK_MEDALS[i]}</span>
+                    <span className={styles.medal}>#{i + 1}</span>
                     <span className={styles.name}>{p.nickname}</span>
                     <div className={styles.barTrack}>
                       <div
@@ -139,13 +138,13 @@ export function GroupDashboardPage() {
             </RankingSection>
           )}
 
-          <RankingSection title={`\u{1F4C8} ${t('stats.winRate')}`}>
+          <RankingSection title={t('stats.winRate')}>
             {stats.winRateRanking.length === 0 ? (
               <p className={styles.emptyNote}>{t('stats.winRateMinGames')}</p>
             ) : (
               stats.winRateRanking.map((p, i) => (
                 <div key={p.userId} className={styles.rankRow}>
-                  <span className={styles.medal}>{RANK_MEDALS[i]}</span>
+                  <span className={styles.medal}>#{i + 1}</span>
                   <span className={styles.name}>{p.nickname}</span>
                   <div className={styles.barTrack}>
                     <div
@@ -159,8 +158,29 @@ export function GroupDashboardPage() {
             )}
           </RankingSection>
 
+          {stats.totalScoreRanking && stats.totalScoreRanking.length > 0 && (
+            <RankingSection title={t('stats.totalScore')}>
+              {(() => {
+                const max = Math.max(...stats.totalScoreRanking.map((p: ScoreStatEntry) => p.totalScore), 1);
+                return stats.totalScoreRanking.map((p: ScoreStatEntry, i: number) => (
+                  <div key={p.userId} className={styles.rankRow}>
+                    <span className={styles.medal}>#{i + 1}</span>
+                    <span className={styles.name}>{p.nickname}</span>
+                    <div className={styles.barTrack}>
+                      <div
+                        className={`${styles.barFill} ${styles.barFillWins}`}
+                        style={{ width: `${(p.totalScore / max) * 100}%` }}
+                      />
+                    </div>
+                    <span className={styles.value}>{t('stats.totalScoreValue', { score: p.totalScore })}</span>
+                  </div>
+                ));
+              })()}
+            </RankingSection>
+          )}
+
           {stats.mostPlayedGames.length > 0 && (
-            <RankingSection title={`\u{1F3B2} ${t('stats.popularGames')}`}>
+            <RankingSection title={t('stats.popularGames')}>
               {(() => {
                 const max = Math.max(...stats.mostPlayedGames.map(g => g.playCount), 1);
                 return stats.mostPlayedGames.map((g, i) => (

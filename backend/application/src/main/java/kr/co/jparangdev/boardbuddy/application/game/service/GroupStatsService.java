@@ -48,7 +48,7 @@ public class GroupStatsService implements GroupStatsQueryUseCase {
         List<GameSession> sessions = gameSessionRepository.findAllByGroupId(groupId);
 
         if (sessions.isEmpty()) {
-            return new GroupStats(0, 0, List.of(), List.of(), List.of(), List.of());
+            return new GroupStats(0, 0, List.of(), List.of(), List.of(), List.of(), List.of());
         }
 
         List<Long> sessionIds = sessions.stream().map(GameSession::getId).toList();
@@ -64,12 +64,17 @@ public class GroupStatsService implements GroupStatsQueryUseCase {
                 .filter(GameResult::isWon)
                 .collect(Collectors.groupingBy(GameResult::getUserId, Collectors.counting()));
 
+        Map<Long, Long> scoreByUser = results.stream()
+                .filter(r -> r.getScore() != null)
+                .collect(Collectors.groupingBy(GameResult::getUserId, Collectors.summingLong(r -> r.getScore())));
+
         List<GroupStats.PlayerStat> mostActivePlayers = buildPlayerStats(participationByUser, TOP_LIMIT);
         List<GroupStats.PlayerStat> mostWins = buildPlayerStats(winsByUser, TOP_LIMIT);
         List<GroupStats.WinRateStat> winRateRanking = buildWinRateStats(participationByUser, winsByUser, MIN_GAMES_FOR_WIN_RATE, TOP_LIMIT);
+        List<GroupStats.ScoreStat> totalScoreRanking = buildScoreStats(scoreByUser, TOP_LIMIT);
         List<GroupStats.GamePlayStat> mostPlayedGames = buildGameStats(sessions, TOP_LIMIT);
 
-        return new GroupStats(totalSessions, totalParticipations, mostActivePlayers, mostWins, winRateRanking, mostPlayedGames);
+        return new GroupStats(totalSessions, totalParticipations, mostActivePlayers, mostWins, winRateRanking, totalScoreRanking, mostPlayedGames);
     }
 
     private List<GroupStats.PlayerStat> buildPlayerStats(Map<Long, Long> countByUser, int limit) {
@@ -102,6 +107,19 @@ public class GroupStatsService implements GroupStatsQueryUseCase {
                 })
                 .sorted(Comparator.comparingDouble(GroupStats.WinRateStat::winRate).reversed())
                 .limit(limit)
+                .toList();
+    }
+
+    private List<GroupStats.ScoreStat> buildScoreStats(Map<Long, Long> scoreByUser, int limit) {
+        return scoreByUser.entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+                .limit(limit)
+                .map(entry -> {
+                    User user = userRepository.findById(entry.getKey()).orElse(null);
+                    String nickname = user != null ? user.getNickname() : "";
+                    String userTag = user != null ? user.getUserTag() : "";
+                    return new GroupStats.ScoreStat(entry.getKey(), nickname, userTag, entry.getValue());
+                })
                 .toList();
     }
 

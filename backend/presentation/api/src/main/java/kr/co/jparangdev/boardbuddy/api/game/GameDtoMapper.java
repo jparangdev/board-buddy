@@ -150,6 +150,15 @@ public class GameDtoMapper {
                 .build())
             .toList();
 
+        List<GroupStatsDto.ScorePlayerEntry> totalScoreRanking = stats.totalScoreRanking().stream()
+            .map(p -> GroupStatsDto.ScorePlayerEntry.builder()
+                .userId(p.userId())
+                .nickname(p.nickname())
+                .userTag(p.userTag())
+                .totalScore(p.totalScore())
+                .build())
+            .toList();
+
         List<GroupStatsDto.GameStatEntry> mostPlayedGames = stats.mostPlayedGames().stream()
             .map(g -> GroupStatsDto.GameStatEntry.builder()
                 .gameName(g.gameName())
@@ -163,6 +172,7 @@ public class GameDtoMapper {
             .mostActivePlayers(mostActivePlayers)
             .mostWins(mostWins)
             .winRateRanking(winRateRanking)
+            .totalScoreRanking(totalScoreRanking)
             .mostPlayedGames(mostPlayedGames)
             .build();
     }

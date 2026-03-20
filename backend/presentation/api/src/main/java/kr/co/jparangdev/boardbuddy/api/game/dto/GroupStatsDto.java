@@ -45,12 +45,22 @@ public class GroupStatsDto {
 
     @Getter
     @Builder
+    public static class ScorePlayerEntry {
+        private Long userId;
+        private String nickname;
+        private String userTag;
+        private long totalScore;
+    }
+
+    @Getter
+    @Builder
     public static class Response {
         private long totalSessions;
         private long totalParticipations;
         private List<ActivePlayerEntry> mostActivePlayers;
         private List<WinPlayerEntry> mostWins;
         private List<WinRateEntry> winRateRanking;
+        private List<ScorePlayerEntry> totalScoreRanking;
         private List<GameStatEntry> mostPlayedGames;
     }
 }

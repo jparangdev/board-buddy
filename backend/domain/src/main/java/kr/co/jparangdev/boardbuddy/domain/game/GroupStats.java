@@ -8,6 +8,7 @@ public record GroupStats(
         List<PlayerStat> mostActivePlayers,
         List<PlayerStat> mostWins,
         List<WinRateStat> winRateRanking,
+        List<ScoreStat> totalScoreRanking,
         List<GamePlayStat> mostPlayedGames
 ) {
 
@@ -25,6 +26,13 @@ public record GroupStats(
             double winRate,
             long totalGames,
             long wins
+    ) {}
+
+    public record ScoreStat(
+            Long userId,
+            String nickname,
+            String userTag,
+            long totalScore
     ) {}
 
     public record GamePlayStat(
