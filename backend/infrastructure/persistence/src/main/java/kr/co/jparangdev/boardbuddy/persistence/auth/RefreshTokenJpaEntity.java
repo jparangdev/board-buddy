@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.auth;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,9 +24,9 @@ public class RefreshTokenJpaEntity {
     private Long userId;
 
     @Column(name = "expires_at", nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
-    public RefreshTokenJpaEntity(String token, Long userId, LocalDateTime expiresAt) {
+    public RefreshTokenJpaEntity(String token, Long userId, Instant expiresAt) {
         this.token = token;
         this.userId = userId;
         this.expiresAt = expiresAt;

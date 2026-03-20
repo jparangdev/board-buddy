@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.group.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +28,7 @@ public class GroupDto {
         private Long id;
         private String name;
         private Long ownerId;
-        private LocalDateTime createdAt;
+        private Instant createdAt;
     }
 
     @Getter
@@ -37,7 +37,7 @@ public class GroupDto {
         private Long id;
         private String name;
         private Long ownerId;
-        private LocalDateTime createdAt;
+        private Instant createdAt;
         private List<MemberResponse> members;
     }
 
@@ -48,7 +48,7 @@ public class GroupDto {
         private String nickname;
         private String discriminator;
         private String userTag;
-        private LocalDateTime joinedAt;
+        private Instant joinedAt;
     }
 
     @Getter

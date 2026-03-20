@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.domain.game;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import lombok.*;
 
@@ -15,12 +15,12 @@ public class CustomGame {
     private int minPlayers;
     private int maxPlayers;
     private ScoreStrategy scoreStrategy;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Builder
     public CustomGame(Long id, Long groupId, String name, String nameKo, String nameEn,
                       int minPlayers, int maxPlayers,
-                      ScoreStrategy scoreStrategy, LocalDateTime createdAt) {
+                      ScoreStrategy scoreStrategy, Instant createdAt) {
         this.id = id;
         this.groupId = groupId;
         this.name = name;
@@ -43,7 +43,7 @@ public class CustomGame {
                 .minPlayers(minPlayers)
                 .maxPlayers(maxPlayers)
                 .scoreStrategy(scoreStrategy)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .build();
     }
 }

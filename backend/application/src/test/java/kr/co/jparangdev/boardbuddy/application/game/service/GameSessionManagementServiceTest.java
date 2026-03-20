@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +83,7 @@ class GameSessionManagementServiceTest {
 
             // when
             SessionConfig config = new SessionConfig(ScoreStrategy.HIGH_WIN, 1, 3, 0);
-            gameSessionManagementService.createSession(groupId, gameId, LocalDateTime.now(), results, config);
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             // then
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
@@ -135,7 +135,7 @@ class GameSessionManagementServiceTest {
 
             // when
             SessionConfig config = new SessionConfig(ScoreStrategy.LOW_WIN, 1, 3, 0);
-            gameSessionManagementService.createSession(groupId, gameId, LocalDateTime.now(), results, config);
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             // then
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
@@ -183,7 +183,7 @@ class GameSessionManagementServiceTest {
 
             // winnerCount = 2 (top 2 win)
             SessionConfig config = new SessionConfig(ScoreStrategy.RANK_ONLY, 2, 3, 0);
-            gameSessionManagementService.createSession(groupId, gameId, LocalDateTime.now(), results, config);
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
             verify(gameResultRepository).saveAll(captor.capture());
@@ -235,7 +235,7 @@ class GameSessionManagementServiceTest {
             given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
 
             SessionConfig config = new SessionConfig(ScoreStrategy.WIN_LOSE, 1, 5, 1);
-            gameSessionManagementService.createSession(groupId, gameId, LocalDateTime.now(), results, config);
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
             verify(gameResultRepository).saveAll(captor.capture());

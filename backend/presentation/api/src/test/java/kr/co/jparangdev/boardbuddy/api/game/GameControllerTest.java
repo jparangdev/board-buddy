@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -55,12 +55,12 @@ class GameControllerTest {
         // given
         Game game = Game.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(LocalDateTime.now())
+                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(LocalDateTime.now())
+                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
                 .build();
 
         given(gameQueryUseCase.getGameList()).willReturn(List.of(game));
@@ -81,12 +81,12 @@ class GameControllerTest {
         // given
         Game game = Game.builder()
                 .id(1L).name("Catan").minPlayers(3).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(LocalDateTime.now())
+                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Catan").minPlayers(3).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(LocalDateTime.now())
+                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
                 .build();
 
         given(gameQueryUseCase.getGameDetail(1L)).willReturn(game);
@@ -110,12 +110,12 @@ class GameControllerTest {
 
         Game game = Game.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(LocalDateTime.now())
+                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(LocalDateTime.now())
+                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
                 .build();
 
         given(gameCommandUseCase.createGame(any(String.class), anyInt(), anyInt(), any(ScoreStrategy.class)))

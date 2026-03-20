@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.game.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import jakarta.validation.constraints.*;
@@ -39,7 +39,7 @@ public class CustomGameDto {
         private int minPlayers;
         private int maxPlayers;
         private String scoreStrategy;
-        private LocalDateTime createdAt;
+        private Instant createdAt;
     }
 
     @Getter

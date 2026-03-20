@@ -1,6 +1,7 @@
 package kr.co.jparangdev.boardbuddy.persistence.auth;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -20,13 +21,13 @@ public class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
     @Override
     @Transactional
     public void save(String token, Long userId) {
-        LocalDateTime expiresAt = LocalDateTime.now().plusDays(TTL_DAYS);
+        Instant expiresAt = Instant.now().plus(TTL_DAYS, ChronoUnit.DAYS);
         jpaRepository.save(new RefreshTokenJpaEntity(token, userId, expiresAt));
     }
 
     @Override
     public Optional<Long> findUserIdByToken(String token) {
-        return jpaRepository.findByTokenAndExpiresAtAfter(token, LocalDateTime.now())
+        return jpaRepository.findByTokenAndExpiresAtAfter(token, Instant.now())
                 .map(RefreshTokenJpaEntity::getUserId);
     }
 

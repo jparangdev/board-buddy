@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -68,14 +68,14 @@ class GroupControllerTest {
                 .id(1L)
                 .name("New Group")
                 .ownerId(1L)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .build();
 
         GroupDto.Response response = GroupDto.Response.builder()
                 .id(1L)
                 .name("New Group")
                 .ownerId(1L)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .build();
 
         given(groupCommandUseCase.createGroup(any(String.class), anyList())).willReturn(group);

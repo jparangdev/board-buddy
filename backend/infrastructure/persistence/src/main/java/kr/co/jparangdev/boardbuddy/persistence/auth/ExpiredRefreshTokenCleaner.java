@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.auth;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class ExpiredRefreshTokenCleaner {
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public void purgeExpiredTokens() {
-        jpaRepository.deleteAllExpiredBefore(LocalDateTime.now());
+        jpaRepository.deleteAllExpiredBefore(Instant.now());
         log.debug("Purged expired refresh tokens");
     }
 }

@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.game.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -21,7 +21,7 @@ public class GameSessionDto {
         private Long customGameId;
 
         @NotNull(message = "Played at is required")
-        private LocalDateTime playedAt;
+        private Instant playedAt;
 
         @NotEmpty(message = "At least one result is required")
         @Valid
@@ -61,8 +61,8 @@ public class GameSessionDto {
         private Long gameId;
         private Long customGameId;
         private String gameName;
-        private LocalDateTime playedAt;
-        private LocalDateTime createdAt;
+        private Instant playedAt;
+        private Instant createdAt;
     }
 
     @Getter
@@ -74,8 +74,8 @@ public class GameSessionDto {
         private Long customGameId;
         private String gameName;
         private String scoreStrategy;
-        private LocalDateTime playedAt;
-        private LocalDateTime createdAt;
+        private Instant playedAt;
+        private Instant createdAt;
         private List<ResultResponse> results;
     }
 

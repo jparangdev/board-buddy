@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.domain.group;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import lombok.*;
 
@@ -10,11 +10,11 @@ public class GroupMember {
     private Long id;
     private Long groupId;
     private Long userId;
-    private LocalDateTime joinedAt;
+    private Instant joinedAt;
     private int displayOrder;
 
     @Builder
-    public GroupMember(Long id, Long groupId, Long userId, LocalDateTime joinedAt, int displayOrder) {
+    public GroupMember(Long id, Long groupId, Long userId, Instant joinedAt, int displayOrder) {
         this.id = id;
         this.groupId = groupId;
         this.userId = userId;
@@ -26,7 +26,7 @@ public class GroupMember {
         return GroupMember.builder()
                 .groupId(groupId)
                 .userId(userId)
-                .joinedAt(LocalDateTime.now())
+                .joinedAt(Instant.now())
                 .displayOrder(0)
                 .build();
     }

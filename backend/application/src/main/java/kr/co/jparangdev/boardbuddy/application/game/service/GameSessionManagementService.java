@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.application.game.service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,7 +59,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
     @Override
     @Transactional
-    public GameSession createSession(Long groupId, Long gameId, LocalDateTime playedAt, List<ResultInput> results, SessionConfig config) {
+    public GameSession createSession(Long groupId, Long gameId, Instant playedAt, List<ResultInput> results, SessionConfig config) {
         Long currentUserId = getCurrentUserId();
         validateGroupMembership(groupId, currentUserId);
         validateParticipants(groupId, results);
@@ -78,7 +78,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
     @Override
     @Transactional
-    public GameSession createSessionWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, List<ResultInput> results, SessionConfig config) {
+    public GameSession createSessionWithCustomGame(Long groupId, Long customGameId, Instant playedAt, List<ResultInput> results, SessionConfig config) {
         Long currentUserId = getCurrentUserId();
         validateGroupMembership(groupId, currentUserId);
         validateParticipants(groupId, results);

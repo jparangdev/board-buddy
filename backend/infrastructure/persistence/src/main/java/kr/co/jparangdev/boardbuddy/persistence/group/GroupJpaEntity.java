@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "groups")
@@ -25,16 +25,16 @@ public class GroupJpaEntity {
     private Long ownerId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+            createdAt = Instant.now();
         }
     }
 
-    public GroupJpaEntity(Long id, String name, Long ownerId, LocalDateTime createdAt) {
+    public GroupJpaEntity(Long id, String name, Long ownerId, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.ownerId = ownerId;

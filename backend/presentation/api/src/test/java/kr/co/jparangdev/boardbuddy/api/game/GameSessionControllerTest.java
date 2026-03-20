@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +73,7 @@ class GameSessionControllerTest {
     @WithMockUser
     void createSessionSuccess() throws Exception {
         // given
-        LocalDateTime playedAt = LocalDateTime.of(2026, 2, 8, 14, 0);
+        Instant playedAt = Instant.parse("2026-02-08T05:00:00Z");
 
         GameSessionDto.CreateRequest request = GameSessionDto.CreateRequest.builder()
                 .gameId(1L)
@@ -85,7 +85,7 @@ class GameSessionControllerTest {
                 .build();
 
         GameSession session = GameSession.builder()
-                .id(1L).groupId(1L).gameId(1L).playedAt(playedAt).createdAt(LocalDateTime.now())
+                .id(1L).groupId(1L).gameId(1L).playedAt(playedAt).createdAt(Instant.now())
                 .build();
 
         Game game = Game.builder()
@@ -116,7 +116,7 @@ class GameSessionControllerTest {
     void getSessionsByGroupSuccess() throws Exception {
         // given
         GameSession session = GameSession.builder()
-                .id(1L).groupId(1L).gameId(1L).playedAt(LocalDateTime.now()).createdAt(LocalDateTime.now())
+                .id(1L).groupId(1L).gameId(1L).playedAt(Instant.now()).createdAt(Instant.now())
                 .build();
 
         Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
@@ -144,7 +144,7 @@ class GameSessionControllerTest {
     void getSessionDetailSuccess() throws Exception {
         // given
         GameSession session = GameSession.builder()
-                .id(1L).groupId(1L).gameId(1L).playedAt(LocalDateTime.now()).createdAt(LocalDateTime.now())
+                .id(1L).groupId(1L).gameId(1L).playedAt(Instant.now()).createdAt(Instant.now())
                 .build();
 
         Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build();

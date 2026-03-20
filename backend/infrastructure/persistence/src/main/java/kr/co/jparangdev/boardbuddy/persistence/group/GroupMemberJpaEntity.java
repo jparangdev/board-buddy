@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.group;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +25,7 @@ public class GroupMemberJpaEntity {
     private Long userId;
 
     @Column(name = "joined_at", nullable = false)
-    private LocalDateTime joinedAt;
+    private Instant joinedAt;
 
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
@@ -33,11 +33,11 @@ public class GroupMemberJpaEntity {
     @PrePersist
     protected void onCreate() {
         if (joinedAt == null) {
-            joinedAt = LocalDateTime.now();
+            joinedAt = Instant.now();
         }
     }
 
-    public GroupMemberJpaEntity(Long id, Long groupId, Long userId, LocalDateTime joinedAt, int displayOrder) {
+    public GroupMemberJpaEntity(Long id, Long groupId, Long userId, Instant joinedAt, int displayOrder) {
         this.id = id;
         this.groupId = groupId;
         this.userId = userId;

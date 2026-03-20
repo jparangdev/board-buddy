@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.game;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,18 +38,18 @@ public class CustomGameJpaEntity {
     private String scoreStrategy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+            createdAt = Instant.now();
         }
     }
 
     public CustomGameJpaEntity(Long id, Long groupId, String name, String nameKo, String nameEn,
                                 int minPlayers, int maxPlayers,
-                                String scoreStrategy, LocalDateTime createdAt) {
+                                String scoreStrategy, Instant createdAt) {
         this.id = id;
         this.groupId = groupId;
         this.name = name;

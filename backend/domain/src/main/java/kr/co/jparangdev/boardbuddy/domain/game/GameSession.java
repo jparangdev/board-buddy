@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.domain.game;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,8 +14,8 @@ public class GameSession {
     private Long groupId;
     private Long gameId;
     private Long customGameId;
-    private LocalDateTime playedAt;
-    private LocalDateTime createdAt;
+    private Instant playedAt;
+    private Instant createdAt;
     private ScoreStrategy scoreStrategy;
     private int winnerCount;
     private int winPoints;
@@ -23,7 +23,7 @@ public class GameSession {
 
     @Builder
     public GameSession(Long id, Long groupId, Long gameId, Long customGameId,
-                       LocalDateTime playedAt, LocalDateTime createdAt,
+                       Instant playedAt, Instant createdAt,
                        ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
         this.id = id;
         this.groupId = groupId;
@@ -37,12 +37,12 @@ public class GameSession {
         this.losePoints = losePoints;
     }
 
-    public static GameSession create(Long groupId, Long gameId, LocalDateTime playedAt, SessionConfig config) {
+    public static GameSession create(Long groupId, Long gameId, Instant playedAt, SessionConfig config) {
         return GameSession.builder()
                 .groupId(groupId)
                 .gameId(gameId)
                 .playedAt(playedAt)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .scoreStrategy(config.scoreStrategy())
                 .winnerCount(config.winnerCount())
                 .winPoints(config.winPoints())
@@ -50,12 +50,12 @@ public class GameSession {
                 .build();
     }
 
-    public static GameSession createWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, SessionConfig config) {
+    public static GameSession createWithCustomGame(Long groupId, Long customGameId, Instant playedAt, SessionConfig config) {
         return GameSession.builder()
                 .groupId(groupId)
                 .customGameId(customGameId)
                 .playedAt(playedAt)
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .scoreStrategy(config.scoreStrategy())
                 .winnerCount(config.winnerCount())
                 .winPoints(config.winPoints())

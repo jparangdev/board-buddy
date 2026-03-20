@@ -1,6 +1,6 @@
 package kr.co.jparangdev.boardbuddy.persistence.game;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.*;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
@@ -29,10 +29,10 @@ public class GameSessionJpaEntity {
     private Long customGameId;
 
     @Column(name = "played_at", nullable = false)
-    private LocalDateTime playedAt;
+    private Instant playedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "score_strategy", nullable = false)
@@ -50,12 +50,12 @@ public class GameSessionJpaEntity {
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+            createdAt = Instant.now();
         }
     }
 
     public GameSessionJpaEntity(Long id, Long groupId, Long gameId, Long customGameId,
-                                LocalDateTime playedAt, LocalDateTime createdAt,
+                                Instant playedAt, Instant createdAt,
                                 ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
         this.id = id;
         this.groupId = groupId;
