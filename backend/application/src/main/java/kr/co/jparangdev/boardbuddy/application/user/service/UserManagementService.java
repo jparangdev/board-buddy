@@ -7,9 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 

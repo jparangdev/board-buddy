@@ -1,15 +1,15 @@
 package kr.co.jparangdev.boardbuddy.domain.exception;
 
-public abstract class BusinessException extends RuntimeException {
+public abstract class BoardBuddyException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    protected BusinessException(ErrorCode errorCode, String message) {
+    protected BoardBuddyException(ErrorCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    protected BusinessException(ErrorCode errorCode, String message, Throwable cause) {
+    protected BoardBuddyException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }

@@ -1,10 +1,11 @@
 package kr.co.jparangdev.boardbuddy.application.auth.service;
 
-import kr.co.jparangdev.boardbuddy.application.auth.dto.LocalAuthCredentials;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidCredentialsException;
-import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.LocalAuthCredentials;
+import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.InvalidCredentialsException;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class LocalAuthenticationProviderTest {

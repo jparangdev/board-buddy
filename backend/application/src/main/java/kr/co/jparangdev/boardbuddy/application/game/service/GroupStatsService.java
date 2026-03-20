@@ -1,8 +1,6 @@
 package kr.co.jparangdev.boardbuddy.application.game.service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,20 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GroupStatsQueryUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
-import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
-import kr.co.jparangdev.boardbuddy.domain.game.Game;
-import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
-import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
-import kr.co.jparangdev.boardbuddy.domain.game.GroupStats;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameResultRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameSessionRepository;
+import kr.co.jparangdev.boardbuddy.domain.game.*;
+import kr.co.jparangdev.boardbuddy.domain.game.repository.*;
+import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 

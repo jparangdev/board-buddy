@@ -10,9 +10,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -21,16 +19,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.CustomGameNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateCustomGameNameException;
-import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.CustomGameNotFoundException;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.DuplicateCustomGameNameException;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
+import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
 
 @ExtendWith(MockitoExtension.class)
 class CustomGameManagementServiceTest {

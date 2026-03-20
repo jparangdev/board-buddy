@@ -10,18 +10,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateGameNameException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.shared.TxExecutor;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.DuplicateGameNameException;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.GameNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
 
 @ExtendWith(MockitoExtension.class)

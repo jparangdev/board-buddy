@@ -2,9 +2,7 @@ package kr.co.jparangdev.boardbuddy.api.auth;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,10 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import kr.co.jparangdev.boardbuddy.api.auth.dto.AuthDto;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
 import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.DuplicateEmailException;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidCredentialsException;
 import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
 import kr.co.jparangdev.boardbuddy.application.auth.usecase.RegisterUseCase;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.DuplicateEmailException;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.InvalidCredentialsException;
 import tools.jackson.databind.json.JsonMapper;
 
 @WebMvcTest(AuthController.class)

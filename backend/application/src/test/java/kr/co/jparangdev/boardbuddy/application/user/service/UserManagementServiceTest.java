@@ -9,9 +9,7 @@ import static org.mockito.Mockito.mockStatic;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -20,8 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,10 +56,10 @@ class UserManagementServiceTest {
         // given
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
-        
+
         given(securityContext.getAuthentication()).willReturn(authentication);
         given(authentication.getPrincipal()).willReturn(1L);
-        
+
         User user = User.builder().id(1L).nickname("test").build();
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
@@ -99,10 +97,10 @@ class UserManagementServiceTest {
         // given
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
-        
+
         given(securityContext.getAuthentication()).willReturn(authentication);
         given(authentication.getPrincipal()).willReturn(1L);
-        
+
         given(userRepository.findById(1L)).willReturn(Optional.empty());
 
         try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {

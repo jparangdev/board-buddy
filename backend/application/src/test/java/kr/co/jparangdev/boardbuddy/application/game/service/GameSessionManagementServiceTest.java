@@ -3,40 +3,25 @@ package kr.co.jparangdev.boardbuddy.application.game.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameSessionNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase.ResultInput;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
-import kr.co.jparangdev.boardbuddy.domain.game.Game;
-import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
-import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
-import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.CustomGameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameResultRepository;
-import kr.co.jparangdev.boardbuddy.domain.game.repository.GameSessionRepository;
+import kr.co.jparangdev.boardbuddy.domain.game.*;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.GameSessionNotFoundException;
+import kr.co.jparangdev.boardbuddy.domain.game.repository.*;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
@@ -81,7 +66,7 @@ class GameSessionManagementServiceTest {
             Long gameId = 1L;
             given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
-            
+
             Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.HIGH_WIN).build();
             given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
 
@@ -104,7 +89,7 @@ class GameSessionManagementServiceTest {
 
             List<GameResult> savedResults = captor.getValue();
             assertThat(savedResults).hasSize(2);
-            
+
             // user2 (200) -> rank 1
             GameResult result2 = savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get();
             assertThat(result2.getRank()).isEqualTo(1);
@@ -130,7 +115,7 @@ class GameSessionManagementServiceTest {
             Long gameId = 1L;
             given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
-            
+
             Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.LOW_WIN).build();
             given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
 
@@ -152,7 +137,7 @@ class GameSessionManagementServiceTest {
             verify(gameResultRepository).saveAll(captor.capture());
 
             List<GameResult> savedResults = captor.getValue();
-            
+
             // user1 (10) -> rank 1 (Low Win)
             GameResult result1 = savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get();
             assertThat(result1.getRank()).isEqualTo(1);
@@ -173,7 +158,7 @@ class GameSessionManagementServiceTest {
             Long groupId = 1L;
             given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
-            
+
             GameSession session = GameSession.builder().id(10L).groupId(groupId).build();
             given(gameSessionRepository.findAllByGroupId(groupId)).willReturn(List.of(session));
 

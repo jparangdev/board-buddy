@@ -7,15 +7,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.*;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionQueryUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.exception.GroupNotFoundException;
-import kr.co.jparangdev.boardbuddy.application.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.game.*;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.*;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.*;
+import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
 import lombok.RequiredArgsConstructor;
 
 @Service

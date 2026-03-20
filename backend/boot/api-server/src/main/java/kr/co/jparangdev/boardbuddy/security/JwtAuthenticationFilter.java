@@ -1,19 +1,20 @@
 package kr.co.jparangdev.boardbuddy.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import kr.co.jparangdev.boardbuddy.application.auth.service.JwtTokenProvider;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Collections;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.Collections;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import kr.co.jparangdev.boardbuddy.application.auth.service.JwtTokenProvider;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.InvalidTokenException;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

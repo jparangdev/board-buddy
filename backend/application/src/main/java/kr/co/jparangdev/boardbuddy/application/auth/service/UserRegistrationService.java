@@ -1,13 +1,14 @@
 package kr.co.jparangdev.boardbuddy.application.auth.service;
 
-import kr.co.jparangdev.boardbuddy.application.auth.exception.DuplicateEmailException;
-import kr.co.jparangdev.boardbuddy.application.auth.usecase.RegisterUseCase;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import kr.co.jparangdev.boardbuddy.application.auth.usecase.RegisterUseCase;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.DuplicateEmailException;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional

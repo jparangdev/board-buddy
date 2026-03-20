@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.jparangdev.boardbuddy.application.game.exception.DuplicateGameNameException;
-import kr.co.jparangdev.boardbuddy.application.game.exception.GameNotFoundException;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameQueryUseCase;
 import kr.co.jparangdev.boardbuddy.application.shared.TxExecutor;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.DuplicateGameNameException;
+import kr.co.jparangdev.boardbuddy.domain.game.exception.GameNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
 

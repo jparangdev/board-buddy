@@ -1,16 +1,17 @@
 package kr.co.jparangdev.boardbuddy.application.auth.service;
 
-import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
-import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
-import kr.co.jparangdev.boardbuddy.application.auth.exception.InvalidTokenException;
-import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
-import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthCredentials;
+import kr.co.jparangdev.boardbuddy.application.auth.dto.AuthTokens;
+import kr.co.jparangdev.boardbuddy.application.auth.usecase.AuthenticationUseCase;
+import kr.co.jparangdev.boardbuddy.domain.auth.ProviderType;
+import kr.co.jparangdev.boardbuddy.domain.auth.exception.InvalidTokenException;
+import kr.co.jparangdev.boardbuddy.domain.user.User;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
