@@ -94,7 +94,7 @@ export function GroupDetailPage() {
           </p>
         </div>
         <Link to={`/groups/${group.id}/dashboard`} className="btn btn-secondary">
-          &#x1F4CA; {t('stats.viewDashboard')}
+          {t('stats.viewDashboard')}
         </Link>
       </div>
 
