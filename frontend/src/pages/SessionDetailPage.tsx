@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
 import type {GameSessionDetail} from '@/types';
 import {gameSessionService} from '@/services';
 import styles from './SessionDetailPage.module.css';
@@ -8,6 +9,7 @@ const BINARY_STRATEGIES = ['WIN_LOSE', 'COOPERATIVE'];
 
 export function SessionDetailPage() {
   const { groupId, sessionId } = useParams<{ groupId: string; sessionId: string }>();
+  const {t, i18n} = useTranslation();
   const [session, setSession] = useState<GameSessionDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,7 +32,7 @@ export function SessionDetailPage() {
     return (
       <div className={styles.loading}>
         <span className={styles.loadingIcon}>&#x1F3B2;</span>
-        <p>Loading session...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -39,9 +41,9 @@ export function SessionDetailPage() {
     return (
       <div className="container">
         <div className={styles.notFound}>
-          <h2>Session not found</h2>
+          <h2>{t('session.notFound')}</h2>
           <Link to={`/groups/${groupId}`} className="btn btn-primary">
-            Back to Group
+            {t('session.backToGroup')}
           </Link>
         </div>
       </div>
@@ -61,7 +63,7 @@ export function SessionDetailPage() {
 
   const getResultLabel = (rank: number) => {
     if (isBinaryStrategy) {
-      return rank === 1 ? 'Won' : 'Lost';
+      return rank === 1 ? t('scoreStrategy.won') : t('scoreStrategy.lost');
     }
     return null;
   };
@@ -69,7 +71,7 @@ export function SessionDetailPage() {
   return (
     <div className="container">
       <Link to={`/groups/${groupId}`} className={styles.backLink}>
-        &larr; Back to Group
+        &larr; {t('session.backToGroup')}
       </Link>
 
       <div className={styles.header}>
@@ -78,19 +80,19 @@ export function SessionDetailPage() {
           <h1>{session.gameName}</h1>
         </div>
         <div className={styles.meta}>
-          <span>Played on {new Date(session.playedAt).toLocaleString()}</span>
-          <span>{session.results.length} players</span>
+          <span>{t('session.playedOn', { date: new Date(session.playedAt).toLocaleString(i18n.language) })}</span>
+          <span>{t('session.playerCount', { count: session.results.length })}</span>
         </div>
       </div>
 
       <div className={styles.section}>
-        <h2>Results</h2>
+        <h2>{t('session.results')}</h2>
         <table className={styles.resultTable}>
           <thead>
             <tr>
-              <th>{isBinaryStrategy ? 'Result' : 'Rank'}</th>
-              <th>Player</th>
-              {!isBinaryStrategy && !isRankOnly && <th>Score</th>}
+              <th>{isBinaryStrategy ? t('scoreStrategy.result') : t('scoreStrategy.rank')}</th>
+              <th>{t('session.player')}</th>
+              {!isBinaryStrategy && !isRankOnly && <th>{t('scoreStrategy.score')}</th>}
             </tr>
           </thead>
           <tbody>

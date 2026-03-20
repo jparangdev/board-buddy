@@ -81,7 +81,7 @@ export function GameListPage() {
     return (
       <div className={styles.loading}>
         <span className={styles.loadingIcon}>&#x1F3B2;</span>
-        <p>Loading games...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -90,21 +90,21 @@ export function GameListPage() {
     <div className="container">
       <div className={styles.header}>
         <div>
-          <h1>Board Games</h1>
-          <p className="text-muted">Available game types for your sessions</p>
+          <h1>{t('game.boardGames')}</h1>
+          <p className="text-muted">{t('game.availableGames')}</p>
         </div>
         <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          + Add Game
+          + {t('game.addGame')}
         </button>
       </div>
 
       {games.length === 0 ? (
         <div className={styles.emptyState}>
           <span className={styles.emptyIcon}>&#x1F3B2;</span>
-          <h2>No games registered</h2>
-          <p>Add your first board game to start recording sessions!</p>
+          <h2>{t('game.noGames')}</h2>
+          <p>{t('game.addFirstGame')}</p>
           <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-            Add First Game
+            {t('game.addGame')}
           </button>
         </div>
       ) : (
@@ -113,7 +113,7 @@ export function GameListPage() {
             <input
               type="text"
               className="input"
-              placeholder="Search games... (supports Korean chosung)"
+              placeholder={t('game.searchGames')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -130,7 +130,7 @@ export function GameListPage() {
 
           {filteredAndSortedGames.length === 0 ? (
             <div className={styles.noResults}>
-              <p>No games found matching "{searchQuery}"</p>
+              <p>{t('game.noResults', { query: searchQuery })}</p>
             </div>
           ) : (
             <div className={styles.grid}>
@@ -153,23 +153,23 @@ export function GameListPage() {
       {showCreateModal && (
         <div className={styles.modal} onClick={() => setShowCreateModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h2>Add New Game</h2>
+            <h2>{t('game.addNewGame')}</h2>
             <form onSubmit={handleCreate}>
               <div className="form-group">
-                <label htmlFor="gameName">Game Name</label>
+                <label htmlFor="gameName">{t('game.gameName')}</label>
                 <input
                   id="gameName"
                   className="input"
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  placeholder="e.g. Splendor, Catan"
+                  placeholder={t('placeholder.gameName')}
                   required
                   maxLength={100}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="minPlayers">Min Players</label>
+                <label htmlFor="minPlayers">{t('game.minPlayers')}</label>
                 <input
                   id="minPlayers"
                   className="input"
@@ -182,7 +182,7 @@ export function GameListPage() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="maxPlayers">Max Players</label>
+                <label htmlFor="maxPlayers">{t('game.maxPlayers')}</label>
                 <input
                   id="maxPlayers"
                   className="input"
@@ -195,26 +195,26 @@ export function GameListPage() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="scoreStrategy">Score Strategy</label>
+                <label htmlFor="scoreStrategy">{t('game.scoreStrategy')}</label>
                 <select
                   id="scoreStrategy"
                   className="input"
                   value={formScoreStrategy}
                   onChange={(e) => setFormScoreStrategy(e.target.value)}
                 >
-                  <option value="HIGH_WIN">High Score Wins</option>
-                  <option value="LOW_WIN">Low Score Wins</option>
-                  <option value="RANK_ONLY">Rank Only</option>
-                  <option value="WIN_LOSE">Win / Lose</option>
-                  <option value="COOPERATIVE">Cooperative</option>
+                  <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
+                  <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
+                  <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+                  <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
+                  <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
                 </select>
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={isSubmitting || !formName.trim()}>
-                  {isSubmitting ? 'Adding...' : 'Add Game'}
+                  {isSubmitting ? t('game.adding') : t('game.addGame')}
                 </button>
               </div>
             </form>
