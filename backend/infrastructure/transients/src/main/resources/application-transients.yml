@@ -1,7 +1,0 @@
-spring:
-  data:
-    redis:
-      host: ${KV_HOST}
-      port: ${KV_PORT}
-      username: ${KV_USERNAME:}
-      password: ${KV_PASSWORD:}
