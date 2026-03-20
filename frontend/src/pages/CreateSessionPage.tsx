@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import type {CustomGame, Game, GroupMember} from '@/types';
@@ -42,6 +42,9 @@ export function CreateSessionPage() {
 
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
+  const [rankOrder, setRankOrder] = useState<typeof members>([]);
+  const rankDragItem = useRef<number | null>(null);
+  const rankDragOverItem = useRef<number | null>(null);
   const [scores, setScores] = useState<Map<number, string>>(new Map());
   const [wonStatus, setWonStatus] = useState<Map<number, boolean>>(new Map());
   const [teamWon, setTeamWon] = useState(true);
@@ -120,22 +123,21 @@ export function CreateSessionPage() {
     if (!groupId || !selectedGame) return;
     setIsSubmitting(true);
     try {
-      const memberIds = Array.from(selectedMemberIds);
-      const results = memberIds.map((userId) => {
-        switch (strategy) {
-          case 'RANK_ONLY':
-            return { userId, score: null };
-          case 'WIN_LOSE':
-            return { userId, score: null, won: wonStatus.get(userId) ?? false };
-          case 'COOPERATIVE':
-            return { userId, score: null, won: teamWon };
-          default:
-            return {
-              userId,
-              score: scores.get(userId) ? Number(scores.get(userId)) : null,
-            };
-        }
-      });
+      const results = strategy === 'RANK_ONLY'
+        ? rankOrder.map((member) => ({ userId: member.id, score: null }))
+        : Array.from(selectedMemberIds).map((userId) => {
+            switch (strategy) {
+              case 'WIN_LOSE':
+                return { userId, score: null, won: wonStatus.get(userId) ?? false };
+              case 'COOPERATIVE':
+                return { userId, score: null, won: teamWon };
+              default:
+                return {
+                  userId,
+                  score: scores.get(userId) ? Number(scores.get(userId)) : null,
+                };
+            }
+          });
 
       const request = selectedGame.isCustom
         ? { customGameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results }
@@ -172,6 +174,30 @@ export function CreateSessionPage() {
   };
 
   const selectedMembers = members.filter((m) => selectedMemberIds.has(m.id));
+
+  useEffect(() => {
+    setRankOrder(members.filter((m) => selectedMemberIds.has(m.id)));
+  }, [selectedMemberIds, members]);
+
+  const handleRankDragStart = (index: number) => {
+    rankDragItem.current = index;
+  };
+
+  const handleRankDragEnter = (index: number) => {
+    rankDragOverItem.current = index;
+  };
+
+  const handleRankDragEnd = () => {
+    if (rankDragItem.current === null || rankDragOverItem.current === null) return;
+    if (rankDragItem.current !== rankDragOverItem.current) {
+      const updated = [...rankOrder];
+      const [removed] = updated.splice(rankDragItem.current, 1);
+      updated.splice(rankDragOverItem.current, 0, removed);
+      setRankOrder(updated);
+    }
+    rankDragItem.current = null;
+    rankDragOverItem.current = null;
+  };
 
   const selectGame = (game: Game | CustomGame, isCustom: boolean) => {
     setSelectedGame({ ...game, isCustom });
@@ -443,10 +469,19 @@ export function CreateSessionPage() {
 
           {strategy === 'RANK_ONLY' && (
             <div className={styles.scoreInputs}>
-              {selectedMembers.map((member, index) => (
-                <div key={member.id} className={styles.scoreRow}>
+              {rankOrder.map((member, index) => (
+                <div
+                  key={member.id}
+                  className={styles.scoreRow}
+                  draggable
+                  onDragStart={() => handleRankDragStart(index)}
+                  onDragEnter={() => handleRankDragEnter(index)}
+                  onDragEnd={handleRankDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                >
                   <span className={styles.rankNumber}>#{index + 1}</span>
                   <label>{member.nickname}</label>
+                  <span className={styles.dragHandle}>⠿</span>
                 </div>
               ))}
               <p className="text-muted" style={{marginTop: 'var(--spacing-sm)', fontSize: '0.85rem'}}>

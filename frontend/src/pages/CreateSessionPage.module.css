@@ -345,6 +345,17 @@
   min-width: 32px;
 }
 
+.dragHandle {
+  color: var(--color-text-light);
+  cursor: grab;
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
 .customBadge {
   display: inline-block;
   margin-left: var(--spacing-sm);
