@@ -1,12 +1,35 @@
+import {useEffect, useState} from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {AuthProvider} from '@/hooks';
-import {Layout, ProtectedRoute} from '@/components';
+import {ErrorBanner, Layout, ProtectedRoute, ServerErrorModal} from '@/components';
 import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, LoginPage, RegisterPage, SessionDetailPage} from '@/pages';
+import type {ApiError} from '@/types';
 
 function App() {
+  const [serverError, setServerError] = useState<ApiError | null>(null);
+  const [clientError, setClientError] = useState<ApiError | null>(null);
+
+  useEffect(() => {
+    const onServerError = (e: Event) => setServerError((e as CustomEvent<ApiError>).detail);
+    const onClientError = (e: Event) => setClientError((e as CustomEvent<ApiError>).detail);
+
+    window.addEventListener('boardbuddy:server-error', onServerError);
+    window.addEventListener('boardbuddy:client-error', onClientError);
+    return () => {
+      window.removeEventListener('boardbuddy:server-error', onServerError);
+      window.removeEventListener('boardbuddy:client-error', onClientError);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
+        {clientError && (
+          <ErrorBanner error={clientError} onClose={() => setClientError(null)} />
+        )}
+        {serverError && (
+          <ServerErrorModal error={serverError} onClose={() => setServerError(null)} />
+        )}
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

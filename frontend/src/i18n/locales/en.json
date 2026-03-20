@@ -14,7 +14,14 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "clear": "Clear"
+    "clear": "Clear",
+    "close": "Close"
+  },
+  "error": {
+    "serverErrorTitle": "Server Error",
+    "serverErrorMessage": "An unexpected error occurred on the server.",
+    "errorCode": "Error Code:",
+    "contactAdmin": "If this keeps happening, please contact the administrator."
   },
   "nav": {
     "groups": "Groups",

@@ -14,7 +14,14 @@
     "next": "다음",
     "previous": "이전",
     "submit": "제출",
-    "clear": "지우기"
+    "clear": "지우기",
+    "close": "닫기"
+  },
+  "error": {
+    "serverErrorTitle": "서버 오류",
+    "serverErrorMessage": "서버에서 예기치 않은 오류가 발생했습니다.",
+    "errorCode": "오류 코드:",
+    "contactAdmin": "계속해서 문제가 발생하면 관리자에게 문의해 주세요."
   },
   "nav": {
     "groups": "그룹",

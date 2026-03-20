@@ -34,8 +34,10 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     url += `?${searchParams.toString()}`;
   }
 
+  const lang = localStorage.getItem('language') || 'ko';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Accept-Language': lang,
     ...(init.headers as Record<string, string>),
   };
 
@@ -52,10 +54,18 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   });
 
   if (!response.ok) {
-    const errorBody: ApiError = await response.json().catch(() => ({
+    const body = await response.json().catch(() => ({
       error: 'UNKNOWN_ERROR',
       message: `HTTP error! status: ${response.status}`,
     }));
+    const errorBody: ApiError = { ...body, status: response.status };
+
+    if (response.status >= 500) {
+      window.dispatchEvent(new CustomEvent('boardbuddy:server-error', { detail: errorBody }));
+    } else {
+      window.dispatchEvent(new CustomEvent('boardbuddy:client-error', { detail: errorBody }));
+    }
+
     throw errorBody;
   }
 

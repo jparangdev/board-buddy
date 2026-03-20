@@ -6,5 +6,6 @@ export * from './game';
 export interface ApiError {
   error: string;
   message: string;
+  status: number;
   fieldErrors?: Record<string, string>;
 }
