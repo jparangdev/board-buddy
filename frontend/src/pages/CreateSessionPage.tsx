@@ -41,6 +41,7 @@ export function CreateSessionPage() {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
+  const [scoreStrategy, setScoreStrategy] = useState<string>('HIGH_WIN');
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
   const [rankOrder, setRankOrder] = useState<typeof members>([]);
   const rankDragItem = useRef<number | null>(null);
@@ -49,8 +50,11 @@ export function CreateSessionPage() {
   const [wonStatus, setWonStatus] = useState<Map<number, boolean>>(new Map());
   const [teamWon, setTeamWon] = useState(true);
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().slice(0, 16));
+  const [winnerCount, setWinnerCount] = useState(1);
+  const [winPoints, setWinPoints] = useState(3);
+  const [losePoints, setLosePoints] = useState(0);
 
-  const strategy = selectedGame?.scoreStrategy ?? 'HIGH_WIN';
+  const strategy = scoreStrategy;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +68,7 @@ export function CreateSessionPage() {
         setGames(gamesData);
         setCustomGames(customGamesData);
         setMembers(membersData);
+        setSelectedMemberIds(new Set(membersData.map((m) => m.id)));
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -139,9 +144,10 @@ export function CreateSessionPage() {
             }
           });
 
+      const sessionConfig = { scoreStrategy, winnerCount, winPoints, losePoints };
       const request = selectedGame.isCustom
-        ? { customGameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results }
-        : { gameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results };
+        ? { customGameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results, ...sessionConfig }
+        : { gameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results, ...sessionConfig };
 
       await gameSessionService.createSession(Number(groupId), request);
       navigate(`/groups/${groupId}`);
@@ -201,6 +207,7 @@ export function CreateSessionPage() {
 
   const selectGame = (game: Game | CustomGame, isCustom: boolean) => {
     setSelectedGame({ ...game, isCustom });
+    setScoreStrategy(game.scoreStrategy ?? 'HIGH_WIN');
   };
 
   const handleCreateCustomGame = async (e: React.FormEvent) => {
@@ -416,6 +423,21 @@ export function CreateSessionPage() {
       {step === 'scores' && (
         <div className={styles.section}>
           <h2>{t('session.enterResults')}</h2>
+          <div className="form-group" style={{marginBottom: 'var(--spacing-md)'}}>
+            <label htmlFor="scoreStrategy">{t('game.scoreStrategy')}</label>
+            <select
+              id="scoreStrategy"
+              className="input"
+              value={scoreStrategy}
+              onChange={(e) => setScoreStrategy(e.target.value)}
+            >
+              <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
+              <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
+              <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+              <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
+              <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
+            </select>
+          </div>
           <p className="text-muted" style={{marginBottom: 'var(--spacing-md)'}}>
             {getScoreHint()}
           </p>
@@ -430,6 +452,31 @@ export function CreateSessionPage() {
             />
           </div>
 
+          {strategy === 'COOPERATIVE' && (
+            <div className={styles.scoreInputs} style={{marginBottom: 'var(--spacing-md)'}}>
+              <div className={styles.configRow}>
+                <label>{t('session.winPoints')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={0}
+                  value={winPoints}
+                  onChange={(e) => setWinPoints(Number(e.target.value))}
+                />
+                <label>{t('session.losePoints')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={0}
+                  value={losePoints}
+                  onChange={(e) => setLosePoints(Number(e.target.value))}
+                />
+                <span className="text-muted" style={{fontSize: '0.85rem'}}>
+                  {t('session.pointsHint')}
+                </span>
+              </div>
+            </div>
+          )}
           {strategy === 'COOPERATIVE' && (
             <div className={styles.cooperativeToggle}>
               <span className={styles.toggleLabel}>{t('scoreStrategy.teamResult')}</span>
@@ -469,6 +516,20 @@ export function CreateSessionPage() {
 
           {strategy === 'RANK_ONLY' && (
             <div className={styles.scoreInputs}>
+              <div className={styles.configRow}>
+                <label>{t('session.winnerCount')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={1}
+                  max={rankOrder.length}
+                  value={winnerCount}
+                  onChange={(e) => setWinnerCount(Math.max(1, Number(e.target.value)))}
+                />
+                <span className="text-muted" style={{fontSize: '0.85rem'}}>
+                  {t('session.winnerCountHint', { count: winnerCount })}
+                </span>
+              </div>
               {rankOrder.map((member, index) => (
                 <div
                   key={member.id}
@@ -492,6 +553,27 @@ export function CreateSessionPage() {
 
           {strategy === 'WIN_LOSE' && (
             <div className={styles.scoreInputs}>
+              <div className={styles.configRow}>
+                <label>{t('session.winPoints')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={0}
+                  value={winPoints}
+                  onChange={(e) => setWinPoints(Number(e.target.value))}
+                />
+                <label>{t('session.losePoints')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={0}
+                  value={losePoints}
+                  onChange={(e) => setLosePoints(Number(e.target.value))}
+                />
+                <span className="text-muted" style={{fontSize: '0.85rem'}}>
+                  {t('session.pointsHint')}
+                </span>
+              </div>
               {selectedMembers.map((member) => (
                 <div key={member.id} className={styles.scoreRow}>
                   <label>{member.nickname}</label>

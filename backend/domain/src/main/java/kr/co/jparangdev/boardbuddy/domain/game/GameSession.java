@@ -16,33 +16,50 @@ public class GameSession {
     private Long customGameId;
     private LocalDateTime playedAt;
     private LocalDateTime createdAt;
+    private ScoreStrategy scoreStrategy;
+    private int winnerCount;
+    private int winPoints;
+    private int losePoints;
 
     @Builder
     public GameSession(Long id, Long groupId, Long gameId, Long customGameId,
-                       LocalDateTime playedAt, LocalDateTime createdAt) {
+                       LocalDateTime playedAt, LocalDateTime createdAt,
+                       ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
         this.id = id;
         this.groupId = groupId;
         this.gameId = gameId;
         this.customGameId = customGameId;
         this.playedAt = playedAt;
         this.createdAt = createdAt;
+        this.scoreStrategy = scoreStrategy;
+        this.winnerCount = winnerCount;
+        this.winPoints = winPoints;
+        this.losePoints = losePoints;
     }
 
-    public static GameSession create(Long groupId, Long gameId, LocalDateTime playedAt) {
+    public static GameSession create(Long groupId, Long gameId, LocalDateTime playedAt, SessionConfig config) {
         return GameSession.builder()
                 .groupId(groupId)
                 .gameId(gameId)
                 .playedAt(playedAt)
                 .createdAt(LocalDateTime.now())
+                .scoreStrategy(config.scoreStrategy())
+                .winnerCount(config.winnerCount())
+                .winPoints(config.winPoints())
+                .losePoints(config.losePoints())
                 .build();
     }
 
-    public static GameSession createWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt) {
+    public static GameSession createWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, SessionConfig config) {
         return GameSession.builder()
                 .groupId(groupId)
                 .customGameId(customGameId)
                 .playedAt(playedAt)
                 .createdAt(LocalDateTime.now())
+                .scoreStrategy(config.scoreStrategy())
+                .winnerCount(config.winnerCount())
+                .winPoints(config.winPoints())
+                .losePoints(config.losePoints())
                 .build();
     }
 }

@@ -14,7 +14,11 @@ public class GameSessionMapper {
             session.getGameId(),
             session.getCustomGameId(),
             session.getPlayedAt(),
-            session.getCreatedAt()
+            session.getCreatedAt(),
+            session.getScoreStrategy(),
+            session.getWinnerCount(),
+            session.getWinPoints(),
+            session.getLosePoints()
         );
     }
 
@@ -26,6 +30,10 @@ public class GameSessionMapper {
             .customGameId(entity.getCustomGameId())
             .playedAt(entity.getPlayedAt())
             .createdAt(entity.getCreatedAt())
+            .scoreStrategy(entity.getScoreStrategy())
+            .winnerCount(entity.getWinnerCount())
+            .winPoints(entity.getWinPoints())
+            .losePoints(entity.getLosePoints())
             .build();
     }
 }

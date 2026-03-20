@@ -20,6 +20,8 @@ import kr.co.jparangdev.boardbuddy.domain.game.CustomGame;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.GameResult;
 import kr.co.jparangdev.boardbuddy.domain.game.GameSession;
+import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
+import kr.co.jparangdev.boardbuddy.domain.game.SessionConfig;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,17 +49,20 @@ public class GameSessionController {
                 .map(r -> new GameSessionCommandUseCase.ResultInput(r.getUserId(), r.getScore(), r.getWon()))
                 .toList();
 
+        ScoreStrategy scoreStrategy = ScoreStrategy.valueOf(request.getScoreStrategy());
+        SessionConfig config = new SessionConfig(scoreStrategy, request.getWinnerCount(), request.getWinPoints(), request.getLosePoints());
+
         GameSession session;
         String gameName;
 
         if (request.getCustomGameId() != null) {
             session = gameSessionCommandUseCase.createSessionWithCustomGame(
-                    groupId, request.getCustomGameId(), request.getPlayedAt(), results);
+                    groupId, request.getCustomGameId(), request.getPlayedAt(), results, config);
             CustomGame customGame = customGameQueryUseCase.getCustomGameDetail(request.getCustomGameId());
             gameName = customGame.getName();
         } else {
             session = gameSessionCommandUseCase.createSession(
-                    groupId, request.getGameId(), request.getPlayedAt(), results);
+                    groupId, request.getGameId(), request.getPlayedAt(), results, config);
             Game game = gameQueryUseCase.getGameDetail(request.getGameId());
             gameName = game.getName();
         }
@@ -104,16 +109,16 @@ public class GameSessionController {
         List<GameResult> results = gameSessionQueryUseCase.getSessionResults(sessionId);
 
         String gameName;
-        String scoreStrategy;
         if (session.getCustomGameId() != null) {
             CustomGame customGame = customGameQueryUseCase.getCustomGameDetail(session.getCustomGameId());
             gameName = customGame.getName();
-            scoreStrategy = customGame.getScoreStrategy().name();
         } else {
             Game game = gameQueryUseCase.getGameDetail(session.getGameId());
             gameName = game.getName();
-            scoreStrategy = game.getScoreStrategy().name();
         }
+        String scoreStrategy = session.getScoreStrategy() != null
+                ? session.getScoreStrategy().name()
+                : ScoreStrategy.HIGH_WIN.name();
 
         List<Long> userIds = results.stream().map(GameResult::getUserId).toList();
         List<User> users = userIds.stream()

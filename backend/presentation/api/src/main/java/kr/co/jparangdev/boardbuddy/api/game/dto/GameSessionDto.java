@@ -26,6 +26,18 @@ public class GameSessionDto {
         @NotEmpty(message = "At least one result is required")
         @Valid
         private List<ResultInput> results;
+
+        /** Scoring strategy for this session. Default HIGH_WIN. */
+        private String scoreStrategy = "HIGH_WIN";
+
+        /** RANK_ONLY: how many top ranks count as a win. Default 1. */
+        private int winnerCount = 1;
+
+        /** WIN_LOSE / COOPERATIVE: points awarded to winners. Default 3. */
+        private int winPoints = 3;
+
+        /** WIN_LOSE / COOPERATIVE: points awarded to losers. Default 0. */
+        private int losePoints = 0;
     }
 
     @Getter

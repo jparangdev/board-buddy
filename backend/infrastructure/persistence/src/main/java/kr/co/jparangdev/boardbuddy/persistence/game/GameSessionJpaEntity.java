@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.persistence.game;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,19 @@ public class GameSessionJpaEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "score_strategy", nullable = false)
+    private ScoreStrategy scoreStrategy;
+
+    @Column(name = "winner_count", nullable = false)
+    private int winnerCount;
+
+    @Column(name = "win_points", nullable = false)
+    private int winPoints;
+
+    @Column(name = "lose_points", nullable = false)
+    private int losePoints;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -41,12 +55,17 @@ public class GameSessionJpaEntity {
     }
 
     public GameSessionJpaEntity(Long id, Long groupId, Long gameId, Long customGameId,
-                                LocalDateTime playedAt, LocalDateTime createdAt) {
+                                LocalDateTime playedAt, LocalDateTime createdAt,
+                                ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
         this.id = id;
         this.groupId = groupId;
         this.gameId = gameId;
         this.customGameId = customGameId;
         this.playedAt = playedAt;
         this.createdAt = createdAt;
+        this.scoreStrategy = scoreStrategy;
+        this.winnerCount = winnerCount;
+        this.winPoints = winPoints;
+        this.losePoints = losePoints;
     }
 }

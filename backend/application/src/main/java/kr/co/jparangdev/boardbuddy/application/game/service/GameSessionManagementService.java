@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameSessionQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.game.*;
+import kr.co.jparangdev.boardbuddy.domain.game.SessionConfig;
 import kr.co.jparangdev.boardbuddy.domain.game.exception.*;
 import kr.co.jparangdev.boardbuddy.domain.game.repository.*;
 import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupNotFoundException;
@@ -22,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GameSessionManagementService implements GameSessionQueryUseCase, GameSessionCommandUseCase {
-
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
     private final GameRepository gameRepository;
@@ -59,18 +59,18 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
     @Override
     @Transactional
-    public GameSession createSession(Long groupId, Long gameId, LocalDateTime playedAt, List<ResultInput> results) {
+    public GameSession createSession(Long groupId, Long gameId, LocalDateTime playedAt, List<ResultInput> results, SessionConfig config) {
         Long currentUserId = getCurrentUserId();
         validateGroupMembership(groupId, currentUserId);
         validateParticipants(groupId, results);
 
-        Game game = gameRepository.findById(gameId)
+        gameRepository.findById(gameId)
                 .orElseThrow(() -> new GameNotFoundException(gameId));
 
-        GameSession session = GameSession.create(groupId, gameId, playedAt);
+        GameSession session = GameSession.create(groupId, gameId, playedAt, config);
         GameSession savedSession = gameSessionRepository.save(session);
 
-        List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, game.getScoreStrategy());
+        List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, config.scoreStrategy(), config);
         gameResultRepository.saveAll(gameResults);
 
         return savedSession;
@@ -78,18 +78,18 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
     @Override
     @Transactional
-    public GameSession createSessionWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, List<ResultInput> results) {
+    public GameSession createSessionWithCustomGame(Long groupId, Long customGameId, LocalDateTime playedAt, List<ResultInput> results, SessionConfig config) {
         Long currentUserId = getCurrentUserId();
         validateGroupMembership(groupId, currentUserId);
         validateParticipants(groupId, results);
 
-        CustomGame customGame = customGameRepository.findById(customGameId)
+        customGameRepository.findById(customGameId)
                 .orElseThrow(() -> new CustomGameNotFoundException(customGameId));
 
-        GameSession session = GameSession.createWithCustomGame(groupId, customGameId, playedAt);
+        GameSession session = GameSession.createWithCustomGame(groupId, customGameId, playedAt, config);
         GameSession savedSession = gameSessionRepository.save(session);
 
-        List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, customGame.getScoreStrategy());
+        List<GameResult> gameResults = calculateRanks(savedSession.getId(), results, config.scoreStrategy(), config);
         gameResultRepository.saveAll(gameResults);
 
         return savedSession;
@@ -112,15 +112,18 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
         }
     }
 
-    private List<GameResult> calculateRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy) {
+    private List<GameResult> calculateRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy, SessionConfig config) {
         return switch (strategy) {
             case HIGH_WIN, LOW_WIN -> calculateScoreBasedRanks(sessionId, results, strategy);
-            case RANK_ONLY -> calculateRankOnly(sessionId, results);
-            case WIN_LOSE -> calculateWinLoseRanks(sessionId, results);
-            case COOPERATIVE -> calculateCooperativeRanks(sessionId, results);
+            case RANK_ONLY -> calculateRankOnly(sessionId, results, config.winnerCount());
+            case WIN_LOSE -> calculateWinLoseRanks(sessionId, results, config.winPoints(), config.losePoints());
+            case COOPERATIVE -> calculateCooperativeRanks(sessionId, results, config.winPoints(), config.losePoints());
         };
     }
 
+    /**
+     * HIGH_WIN / LOW_WIN: sort by score, auto-derive won = (rank == 1).
+     */
     private List<GameResult> calculateScoreBasedRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy) {
         boolean hasScores = results.stream().anyMatch(r -> r.score() != null);
 
@@ -128,7 +131,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             List<GameResult> gameResults = new ArrayList<>();
             for (int i = 0; i < results.size(); i++) {
                 ResultInput input = results.get(i);
-                gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), Boolean.TRUE.equals(input.won()), i + 1));
+                gameResults.add(GameResult.create(sessionId, input.userId(), null, i == 0, i + 1));
             }
             return gameResults;
         }
@@ -147,39 +150,56 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
                 currentRank = i + 1;
             }
             ResultInput input = sorted.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), Boolean.TRUE.equals(input.won()), currentRank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), currentRank == 1, currentRank));
         }
         return gameResults;
     }
 
-    private List<GameResult> calculateRankOnly(Long sessionId, List<ResultInput> results) {
+    /**
+     * RANK_ONLY: rank by input order, score = numPlayers - rank + 1,
+     * mark top winnerCount ranks as won.
+     */
+    private List<GameResult> calculateRankOnly(Long sessionId, List<ResultInput> results, int winnerCount) {
+        int numPlayers = results.size();
         List<GameResult> gameResults = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
+            int rank = i + 1;
+            int score = numPlayers - rank + 1;
+            boolean won = rank <= winnerCount;
             ResultInput input = results.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, Boolean.TRUE.equals(input.won()), i + 1));
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank));
         }
         return gameResults;
     }
 
-    private List<GameResult> calculateWinLoseRanks(Long sessionId, List<ResultInput> results) {
+    /**
+     * WIN_LOSE: rank 1 for winners, rank 2 for losers; assign configured points as score.
+     */
+    private List<GameResult> calculateWinLoseRanks(Long sessionId, List<ResultInput> results, int winPoints, int losePoints) {
         List<GameResult> gameResults = new ArrayList<>();
         for (ResultInput input : results) {
-            int rank = Boolean.TRUE.equals(input.won()) ? 1 : 2;
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, Boolean.TRUE.equals(input.won()), rank));
+            boolean won = Boolean.TRUE.equals(input.won());
+            int rank = won ? 1 : 2;
+            int score = won ? winPoints : losePoints;
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank));
         }
         return gameResults;
     }
 
-    private List<GameResult> calculateCooperativeRanks(Long sessionId, List<ResultInput> results) {
+    /**
+     * COOPERATIVE: entire team shares the same outcome; assign configured points as score.
+     */
+    private List<GameResult> calculateCooperativeRanks(Long sessionId, List<ResultInput> results, int winPoints, int losePoints) {
         boolean teamWon = results.stream()
                 .findFirst()
                 .map(r -> Boolean.TRUE.equals(r.won()))
                 .orElse(false);
         int rank = teamWon ? 1 : 2;
+        int score = teamWon ? winPoints : losePoints;
 
         List<GameResult> gameResults = new ArrayList<>();
         for (ResultInput input : results) {
-            gameResults.add(GameResult.create(sessionId, input.userId(), null, teamWon, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, teamWon, rank));
         }
         return gameResults;
     }
