@@ -93,5 +93,21 @@ trigger: always_on
 - Exception extends category base + implements `MessageResolvable`
 - Constructor captures relevant context (IDs, names, etc.)
 
+## Time Handling
+
+- **Local time matters + business logic depends on timezone** → store `LocalDateTime` + separate `timezone` column (e.g., `VARCHAR zone_id`); reconstruct `ZonedDateTime` in the domain object by combining them
+- **Timezone is irrelevant / only absolute ordering matters** → store `Instant` only
+- Never store `LocalDateTime` alone when the timezone context is ambiguous or unknown
+
+```
+// Case 1: timezone-aware (e.g., scheduled events, recurring sessions)
+LocalDateTime localTime  -- what the user sees
+String zoneId            -- e.g., "Asia/Seoul"
+// domain object combines: ZonedDateTime.of(localTime, ZoneId.of(zoneId))
+
+// Case 2: pure timestamp (e.g., createdAt, updatedAt, token expiry)
+Instant instant          -- UTC epoch, no timezone needed
+```
+
 ## Commit
 - **Fallow Google commit convention**
