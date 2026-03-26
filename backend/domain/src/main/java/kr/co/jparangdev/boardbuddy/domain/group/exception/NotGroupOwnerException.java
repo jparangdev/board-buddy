@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.domain.group.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.ForbiddenException;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 
+@SuppressWarnings("java:S110")
 public class NotGroupOwnerException extends ForbiddenException implements MessageResolvable {
 
     private final Long groupId;

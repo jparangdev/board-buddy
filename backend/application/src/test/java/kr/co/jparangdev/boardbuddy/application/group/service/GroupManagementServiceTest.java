@@ -44,16 +44,6 @@ class GroupManagementServiceTest {
         groupManagementService = new GroupManagementService(groupRepository, groupMemberRepository, userRepository);
     }
 
-    private void mockSecurityContext(Long userId) {
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-
-        given(securityContext.getAuthentication()).willReturn(authentication);
-        given(authentication.getPrincipal()).willReturn(userId);
-
-        SecurityContextHolder.setContext(securityContext);
-    }
-
     @Test
     @DisplayName("Create Group Success")
     void createGroupSuccess() {

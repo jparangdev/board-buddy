@@ -7,6 +7,10 @@ import lombok.Getter;
 
 public class GroupStatsDto {
 
+    private GroupStatsDto() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     @Getter
     @Builder
     public static class ActivePlayerEntry {

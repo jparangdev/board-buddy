@@ -39,6 +39,9 @@ out/
 ### macOS ###
 .DS_Store
 
+## sonar ##
+/.scannerwork/
+
 ### Secrets ###
 **/application-secret.yml
 backend/.env

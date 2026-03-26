@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private static final String UNEXPECTED_ERROR_MESSAGE = "An unexpected error occurred";
+
     private final MessageSource messageSource;
 
     @Getter
@@ -84,7 +86,7 @@ public class GlobalExceptionHandler {
         log.error("[{}] {}", e.getErrorCode(), e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ErrorResponse(e.getErrorCode().name(), "An unexpected error occurred"));
+            .body(new ErrorResponse(e.getErrorCode().name(), UNEXPECTED_ERROR_MESSAGE));
     }
 
     @ExceptionHandler(BoardBuddyException.class)
@@ -92,7 +94,7 @@ public class GlobalExceptionHandler {
         log.error("Unhandled BoardBuddyException [{}] {}", e.getErrorCode(), e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ErrorResponse(e.getErrorCode().name(), "An unexpected error occurred"));
+            .body(new ErrorResponse(e.getErrorCode().name(), UNEXPECTED_ERROR_MESSAGE));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -115,7 +117,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred", e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"));
+            .body(new ErrorResponse("INTERNAL_ERROR", UNEXPECTED_ERROR_MESSAGE));
     }
 
     private String resolveMessage(BoardBuddyException e, Locale locale) {

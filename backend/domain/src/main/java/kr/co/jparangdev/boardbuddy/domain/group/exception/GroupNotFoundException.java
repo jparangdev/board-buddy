@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.domain.group.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
 
+@SuppressWarnings("java:S110")
 public class GroupNotFoundException extends NotFoundException implements MessageResolvable {
 
     private final Long groupId;

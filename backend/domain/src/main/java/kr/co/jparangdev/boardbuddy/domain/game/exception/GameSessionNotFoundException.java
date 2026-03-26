@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.domain.game.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
 
+@SuppressWarnings("java:S110")
 public class GameSessionNotFoundException extends NotFoundException implements MessageResolvable {
 
     private final Long sessionId;

@@ -12,12 +12,12 @@ DROP TABLE IF EXISTS users;
 -- Users table
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    nickname VARCHAR(50) NOT NULL,
-    discriminator VARCHAR(4) NOT NULL,
-    provider VARCHAR(20) NOT NULL,
-    provider_id VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255),
+    email VARCHAR2(255) NOT NULL UNIQUE,
+    nickname VARCHAR2(50) NOT NULL,
+    discriminator VARCHAR2(4) NOT NULL,
+    provider VARCHAR2(20) NOT NULL,
+    provider_id VARCHAR2(255) NOT NULL,
+    password_hash VARCHAR2(255),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     UNIQUE (provider, provider_id),
@@ -29,7 +29,7 @@ CREATE INDEX idx_nickname_discriminator ON users(nickname, discriminator);
 -- Refresh Tokens table
 CREATE TABLE refresh_tokens (
     id BIGSERIAL PRIMARY KEY,
-    token VARCHAR(512) NOT NULL UNIQUE,
+    token VARCHAR2(512) NOT NULL UNIQUE,
     user_id BIGINT NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -40,7 +40,7 @@ CREATE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
 -- Groups table
 CREATE TABLE groups (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR2(100) NOT NULL,
     owner_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -64,7 +64,7 @@ CREATE TABLE invitations (
     group_id BIGINT NOT NULL,
     inviter_id BIGINT NOT NULL,
     invitee_id BIGINT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    status VARCHAR2(20) NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMP NOT NULL,
     responded_at TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
@@ -77,12 +77,12 @@ CREATE INDEX idx_invitations_invitee_status ON invitations(invitee_id, status);
 -- Games table (board game types)
 CREATE TABLE games (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    name_ko VARCHAR(100),
-    name_en VARCHAR(100),
+    name VARCHAR2(100) NOT NULL UNIQUE,
+    name_ko VARCHAR2(100),
+    name_en VARCHAR2(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
     created_at TIMESTAMP NOT NULL
 );
 
@@ -90,12 +90,12 @@ CREATE TABLE games (
 CREATE TABLE custom_games (
     id BIGSERIAL PRIMARY KEY,
     group_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    name_ko VARCHAR(100),
-    name_en VARCHAR(100),
+    name VARCHAR2(100) NOT NULL,
+    name_ko VARCHAR2(100),
+    name_en VARCHAR2(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
     created_at TIMESTAMP NOT NULL,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     UNIQUE (group_id, name)
@@ -109,7 +109,7 @@ CREATE TABLE game_sessions (
     custom_game_id BIGINT,
     played_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
     winner_count INT NOT NULL DEFAULT 1,
     win_points INT NOT NULL DEFAULT 3,
     lose_points INT NOT NULL DEFAULT 0,

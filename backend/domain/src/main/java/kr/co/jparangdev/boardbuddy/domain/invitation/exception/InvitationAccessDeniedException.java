@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.domain.invitation.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.ForbiddenException;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 
+@SuppressWarnings("java:S110")
 public class InvitationAccessDeniedException extends ForbiddenException implements MessageResolvable {
 
     private final Long invitationId;

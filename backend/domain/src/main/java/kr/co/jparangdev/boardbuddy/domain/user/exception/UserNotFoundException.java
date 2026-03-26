@@ -3,9 +3,10 @@ package kr.co.jparangdev.boardbuddy.domain.user.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 import kr.co.jparangdev.boardbuddy.domain.exception.NotFoundException;
 
+@SuppressWarnings("java:S110")
 public class UserNotFoundException extends NotFoundException implements MessageResolvable {
 
-    private final Object identifier;
+    private final transient Object identifier;
 
     public UserNotFoundException(Long userId) {
         super(UserErrorCode.USER_NOT_FOUND, "User not found: " + userId);

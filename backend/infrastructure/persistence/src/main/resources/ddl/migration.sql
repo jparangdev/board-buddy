@@ -2,10 +2,10 @@
 CREATE TABLE IF NOT EXISTS public.custom_games (
     id BIGSERIAL PRIMARY KEY,
     group_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR2(100) NOT NULL,
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE CASCADE,
     UNIQUE (group_id, name)
@@ -31,10 +31,10 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='games' AND column_name='name_ko') THEN
-        ALTER TABLE public.games ADD COLUMN name_ko VARCHAR(100);
+        ALTER TABLE public.games ADD COLUMN name_ko VARCHAR2(100);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='games' AND column_name='name_en') THEN
-        ALTER TABLE public.games ADD COLUMN name_en VARCHAR(100);
+        ALTER TABLE public.games ADD COLUMN name_en VARCHAR2(100);
     END IF;
 END $$;
 
@@ -42,9 +42,9 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='custom_games' AND column_name='name_ko') THEN
-        ALTER TABLE public.custom_games ADD COLUMN name_ko VARCHAR(100);
+        ALTER TABLE public.custom_games ADD COLUMN name_ko VARCHAR2(100);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='custom_games' AND column_name='name_en') THEN
-        ALTER TABLE public.custom_games ADD COLUMN name_en VARCHAR(100);
+        ALTER TABLE public.custom_games ADD COLUMN name_en VARCHAR2(100);
     END IF;
 END $$;

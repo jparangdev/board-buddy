@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.domain.user.exception;
 import kr.co.jparangdev.boardbuddy.domain.exception.ForbiddenException;
 import kr.co.jparangdev.boardbuddy.domain.exception.MessageResolvable;
 
+@SuppressWarnings("java:S110")
 public class UserNotGroupMemberException extends ForbiddenException implements MessageResolvable {
 
     private final Long groupId;

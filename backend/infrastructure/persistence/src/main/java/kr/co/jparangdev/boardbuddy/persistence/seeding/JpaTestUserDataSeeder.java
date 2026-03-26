@@ -62,7 +62,7 @@ public class JpaTestUserDataSeeder implements UserDataSeeder {
         }
 
         if (created > 0) {
-            log.info("Seeded {} test users (password: {})", created, TEST_PASSWORD);
+            log.info("Seeded {} test users", created);
         } else {
             log.debug("Test users already exist, skipping creation");
         }
