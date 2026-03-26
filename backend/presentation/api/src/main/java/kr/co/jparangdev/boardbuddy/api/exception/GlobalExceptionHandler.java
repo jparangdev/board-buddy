@@ -96,16 +96,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException e, Locale locale) {
+        Locale resolved = locale != null ? locale : LocaleContextHolder.getLocale();
         Map<String, String> fieldErrors = e.getBindingResult().getFieldErrors().stream()
             .collect(Collectors.toMap(
                 FieldError::getField,
                 FieldError::getDefaultMessage,
                 (first, second) -> first
             ));
+        String message = messageSource.getMessage("VALIDATION_ERROR", null, "Invalid request", resolved);
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(new ErrorResponse("VALIDATION_ERROR", "Validation failed", fieldErrors));
+            .body(new ErrorResponse("VALIDATION_ERROR", message, fieldErrors));
     }
 
     @ExceptionHandler(RuntimeException.class)
