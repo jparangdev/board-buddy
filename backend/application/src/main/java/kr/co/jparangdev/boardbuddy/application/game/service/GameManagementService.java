@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameCommandUseCase;
 import kr.co.jparangdev.boardbuddy.application.game.usecase.GameQueryUseCase;
-import kr.co.jparangdev.boardbuddy.application.shared.TxExecutor;
 import kr.co.jparangdev.boardbuddy.domain.game.Game;
 import kr.co.jparangdev.boardbuddy.domain.game.ScoreStrategy;
 import kr.co.jparangdev.boardbuddy.domain.game.exception.DuplicateGameNameException;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class GameManagementService implements GameQueryUseCase, GameCommandUseCase {
 
     private final GameRepository gameRepository;
-    private final TxExecutor transactionExecutor;
 
     @Override
     public List<Game> getGameList() {
@@ -35,8 +33,9 @@ public class GameManagementService implements GameQueryUseCase, GameCommandUseCa
     }
 
     @Override
+    @Transactional
     public Game createGame(String name, int minPlayers, int maxPlayers, ScoreStrategy scoreStrategy) {
-        return transactionExecutor.write(() -> createGame(name, null, null, minPlayers, maxPlayers, scoreStrategy));
+        return createGame(name, null, null, minPlayers, maxPlayers, scoreStrategy);
     }
 
     @Override

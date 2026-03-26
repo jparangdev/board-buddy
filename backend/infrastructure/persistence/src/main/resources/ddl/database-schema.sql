@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS game_results;
 DROP TABLE IF EXISTS game_sessions;
 DROP TABLE IF EXISTS custom_games;
 DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS invitations;
 DROP TABLE IF EXISTS group_members;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS refresh_tokens;
@@ -56,6 +57,22 @@ CREATE TABLE group_members (
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE (group_id, user_id)
 );
+
+-- Invitations table
+CREATE TABLE invitations (
+    id BIGSERIAL PRIMARY KEY,
+    group_id BIGINT NOT NULL,
+    inviter_id BIGINT NOT NULL,
+    invitee_id BIGINT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL,
+    responded_at TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (inviter_id) REFERENCES users(id),
+    FOREIGN KEY (invitee_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_invitations_invitee_status ON invitations(invitee_id, status);
 
 -- Games table (board game types)
 CREATE TABLE games (

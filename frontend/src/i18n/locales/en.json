@@ -26,6 +26,7 @@
   "nav": {
     "groups": "Groups",
     "games": "Games",
+    "invitations": "Invitations",
     "logout": "Logout"
   },
   "auth": {
@@ -77,7 +78,8 @@
     "loadingGroups": "Rolling the dice...",
     "addMembers": "Add Members",
     "autoAddedAsOwner": "You are automatically added as the owner. e.g. Nickname#AB12",
-    "noUsersFound": "No users found"
+    "noUsersFound": "No users found",
+    "createFailed": "Failed to create group"
   },
   "game": {
     "title": "Board Games",
@@ -173,12 +175,26 @@
     "noData": "No data",
     "winRateMinGames": "Need 3+ games"
   },
+  "invitation": {
+    "pendingInvitations": "Pending Invitations",
+    "noInvitations": "No pending invitations",
+    "invitedBy": "Invited by {{name}}",
+    "accept": "Accept",
+    "reject": "Decline",
+    "inviteMembers": "Invite Members",
+    "inviteMember": "Invite Member",
+    "invite": "Invite",
+    "inviteHint": "Invited users will join after accepting. e.g. Nickname#AB12 or email",
+    "inviteSent": "Invitations sent to {{count}} member(s)",
+    "inviteFailed": "Failed to send invitation"
+  },
   "placeholder": {
     "gameName": "e.g. Splendor, Catan",
     "customGameName": "e.g. Our House Rules Chess",
     "groupName": "e.g. Friday Board Game Night",
     "search": "Search...",
     "userTag": "e.g. Nickname#AB12",
+    "userTagOrEmail": "e.g. Nickname#AB12 or email",
     "score": "Score"
   }
 }

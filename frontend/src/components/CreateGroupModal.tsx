@@ -1,7 +1,7 @@
 import {type FormEvent, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {ApiError, Group, User} from '@/types';
-import {groupService, userService} from '@/services';
+import {groupService, invitationService, userService} from '@/services';
 import {useAuth, useDebounce} from '@/hooks';
 import styles from './Modal.module.css';
 
@@ -65,12 +65,18 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
     setIsLoading(true);
 
     try {
-      const memberIds = selectedMembers.map((m) => m.id);
-      const group = await groupService.create(name, memberIds);
+      // Create group (owner only joins immediately)
+      const group = await groupService.create(name, []);
+
+      // Send invitations to each selected member
+      await Promise.allSettled(
+        selectedMembers.map((m) => invitationService.inviteUser(group.id, m.id))
+      );
+
       onCreated(group);
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to create group');
+      setError(apiError.message || t('group.createFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -102,17 +108,17 @@ export function CreateGroupModal({ onClose, onCreated }: Props) {
           </div>
 
           <div className="form-group" style={{ marginTop: 'var(--spacing-md)' }}>
-            <label htmlFor="memberSearch">{t('group.addMembers')}</label>
+            <label htmlFor="memberSearch">{t('invitation.inviteMembers')}</label>
             <input
               id="memberSearch"
               type="text"
               className="input"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder={t('placeholder.userTag')}
+              placeholder={t('placeholder.userTagOrEmail')}
             />
             <p className={styles.searchHint}>
-              {t('group.autoAddedAsOwner')}
+              {t('invitation.inviteHint')}
             </p>
           </div>
 

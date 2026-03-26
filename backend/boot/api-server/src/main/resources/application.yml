@@ -8,11 +8,6 @@ spring:
       - optional:classpath:application-persistence.yml
       - optional:classpath:application-security.yml
 
-spring:
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-
 logging:
   level:
     root: INFO

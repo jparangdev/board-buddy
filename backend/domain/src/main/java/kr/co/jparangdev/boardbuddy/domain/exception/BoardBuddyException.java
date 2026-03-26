@@ -1,5 +1,8 @@
 package kr.co.jparangdev.boardbuddy.domain.exception;
 
+import lombok.Getter;
+
+@Getter
 public abstract class BoardBuddyException extends RuntimeException {
 
     private final ErrorCode errorCode;
@@ -12,9 +15,5 @@ public abstract class BoardBuddyException extends RuntimeException {
     protected BoardBuddyException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
     }
 }

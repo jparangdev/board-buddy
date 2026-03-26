@@ -159,4 +159,32 @@ class UserManagementServiceTest {
         // then
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("Search Users - Email search finds user by full email")
+    void searchUsersByEmail() {
+        // given
+        User user = User.builder().id(1L).nickname("tester").email("tester@example.com").build();
+        given(userRepository.findByEmail("tester@example.com")).willReturn(Optional.of(user));
+
+        // when
+        List<User> result = userManagementService.searchUsers("tester@example.com");
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getNickname()).isEqualTo("tester");
+    }
+
+    @Test
+    @DisplayName("Search Users - Email not found returns empty")
+    void searchUsersByEmailNotFound() {
+        // given
+        given(userRepository.findByEmail("unknown@example.com")).willReturn(Optional.empty());
+
+        // when
+        List<User> result = userManagementService.searchUsers("unknown@example.com");
+
+        // then
+        assertThat(result).isEmpty();
+    }
 }

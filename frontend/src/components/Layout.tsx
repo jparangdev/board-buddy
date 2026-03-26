@@ -2,7 +2,7 @@ import {Link, Outlet, useNavigate} from 'react-router-dom';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
-import {authService} from '@/services';
+import {authService, invitationService} from '@/services';
 import styles from './Layout.module.css';
 
 export function Layout() {
@@ -17,7 +17,15 @@ export function Layout() {
   };
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    invitationService.getPendingInvitations()
+      .then((invitations) => setPendingCount(invitations.length))
+      .catch(() => setPendingCount(0));
+  }, [user]);
 
   const handleLogout = async () => {
     setShowMenu(false);
@@ -69,6 +77,12 @@ export function Layout() {
               </Link>
               <Link to="/games" className={styles.navLink}>
                 {t('nav.games')}
+              </Link>
+              <Link to="/invitations" className={styles.navLink} style={{position: 'relative'}}>
+                {t('nav.invitations')}
+                {pendingCount > 0 && (
+                  <span className={styles.badge}>{pendingCount}</span>
+                )}
               </Link>
               <div className={styles.userSection} ref={menuRef}>
                 <button

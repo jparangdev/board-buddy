@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {AuthProvider} from '@/hooks';
 import {ErrorBanner, Layout, ProtectedRoute, ServerErrorModal} from '@/components';
-import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, LoginPage, RegisterPage, SessionDetailPage} from '@/pages';
+import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, InvitationsPage, LoginPage, RegisterPage, SessionDetailPage} from '@/pages';
 import type {ApiError} from '@/types';
 
 function App() {
@@ -42,6 +42,7 @@ function App() {
               <Route path="/groups/:groupId/sessions/new" element={<CreateSessionPage />} />
               <Route path="/groups/:groupId/sessions/:sessionId" element={<SessionDetailPage />} />
               <Route path="/games" element={<GameListPage />} />
+              <Route path="/invitations" element={<InvitationsPage />} />
               <Route path="/" element={<Navigate to="/groups" replace />} />
             </Route>
           </Route>

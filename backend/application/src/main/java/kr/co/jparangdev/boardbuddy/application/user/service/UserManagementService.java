@@ -38,7 +38,17 @@ public class UserManagementService implements UserQueryUseCase, kr.co.jparangdev
 
     @Override
     public List<User> searchUsers(String keyword) {
-        if (keyword == null || keyword.isBlank() || !keyword.contains("#")) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        // Support full email search
+        if (keyword.contains("@")) {
+            return userRepository.findByEmail(keyword.trim())
+                .stream()
+                .toList();
+        }
+        // Support user tag (nickname#DISCRIMINATOR) search
+        if (!keyword.contains("#")) {
             return List.of();
         }
         String[] parts = keyword.trim().split("#", 2);

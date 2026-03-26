@@ -98,8 +98,8 @@ test.describe('1. User Account Lifecycle', () => {
     }
     await page.getByRole('button', { name: /Create Account/i }).click();
 
-    // Verify error message is shown (it might be a specific error module or simple paragraph)
-    const errorMsg = page.locator('p, span').filter({ hasText: /Error|Fail|use/i });
+    // Verify error message is shown using CSS class module pattern for errors
+    const errorMsg = page.locator('p[class*="error"]');
     await expect(errorMsg.first()).toBeVisible();
   });
 });
@@ -131,25 +131,34 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
 
   test('4. Game Creation', async () => {
     await page.goto('/games');
+    
+    // Wait for the loading state to finish so that games are visible
+    // Wait for the 'Add Game' button or grid to appear
+    await page.waitForTimeout(1000);
+    
     // Check if Terraforming Mars already exists
-    const gameExists = await page.getByText('Terraforming Mars').isVisible();
+    const gameExists = await page.getByText(/Terraforming Mars|테라포밍 마스/i).first().isVisible();
     
     if (!gameExists) {
-      await page.getByRole('button', { name: /\+ Add Game|Add/i }).click();
-      await page.getByLabel(/Game Name/i).fill('Terraforming Mars');
-      await page.getByLabel(/Min/i).fill('1');
-      await page.getByLabel(/Max/i).fill('5');
-      // Assume default score strategy might be High Score Wins
-      // The popup has "Add Game" button, and the page header might have "+ Add Game"
-      await page.locator('form').getByRole('button', { name: /Add|Submit|Save/i }).click();
+      // Open add game modal
+      await page.getByRole('button', { name: /\+ Add|추가/i }).first().click();
+      await page.getByLabel(/Game|이름/i).first().fill('Terraforming Mars');
+      await page.getByLabel(/Min|최소/i).first().fill('1');
+      await page.getByLabel(/Max|최대/i).first().fill('5');
+      // Submit the form
+      const submitBtn = page.locator('form').getByRole('button', { name: /Add|Submit|Save|추가|생성/i });
+      await submitBtn.click();
+      
+      // Wait for the POST request to finish or the modal to close
+      await page.waitForTimeout(2000);
     }
-    
     // Verify 5 games are visible (Catan, Splendor, Love Letter, Hanabi, Terraforming Mars)
+    // Note: Catan, Splendor, Love Letter, Hanabi are pre-seeded Official Games.
     await expect(page.getByRole('heading', { name: 'Catan', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Splendor', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Love Letter', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Hanabi', exact: true })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Terraforming Mars', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Love Letter|러브 레터/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Hanabi|하나비/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Terraforming Mars|테라포밍 마스/i })).toBeVisible();
   });
 
   test('5. Group Creation & Population', async () => {
@@ -234,77 +243,107 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
     // Record Session A: Catan
     await page.goto('/groups');
     await page.getByRole('heading', { name: groupName }).first().click();
-    await page.getByRole('link', { name: /Record Game/i }).click();
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
     
     // Step 1: Select Game
-    await page.getByRole('heading', { name: 'Catan', exact: true }).click();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('heading', { name: /Catan|카탄/i }).first().click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
     
     // Step 2: Select Players
     await page.locator('input[type="checkbox"]').nth(0).check();
     await page.locator('input[type="checkbox"]').nth(1).check();
     await page.locator('input[type="checkbox"]').nth(2).check();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
     
     // Step 3: Enter Scores (High scores win)
     await page.locator('input[type="number"]').nth(0).fill('10');
     await page.locator('input[type="number"]').nth(1).fill('8');
     await page.locator('input[type="number"]').nth(2).fill('5');
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 4: Confirm session
-    await page.getByRole('button', { name: /Save Session/i }).click();
+    await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
 
     // Verify redirect
     await expect(page).toHaveURL(/\/groups\/\d+$/);
 
     // Record Session B: Splendor (P2 vs P4)
-    await page.getByRole('link', { name: /Record Game/i }).click();
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
     
     // Step 1: Select Game
-    await page.getByRole('heading', { name: 'Splendor', exact: true }).click();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('heading', { name: /Splendor|스플렌더/i }).first().click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 2: Select Players
     await page.locator('input[type="checkbox"]').nth(1).check();
     await page.locator('input[type="checkbox"]').nth(3).check();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 3: Enter Scores
     await page.locator('input[type="number"]').nth(0).fill('15');
     await page.locator('input[type="number"]').nth(1).fill('12');
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 4: Confirm
-    await page.getByRole('button', { name: /Save Session/i }).click();
+    await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+$/);
     
     // Let's add Session E: Hanabi (Cooperative)
-    await page.getByRole('link', { name: /Record Game/i }).click();
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
     
     // Step 1: Select Game
-    await page.getByRole('heading', { name: 'Hanabi', exact: true }).click();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('heading', { name: /Hanabi|하나비/i }).first().click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 2: Select Players
     await page.locator('input[type="checkbox"]').nth(0).check();
     await page.locator('input[type="checkbox"]').nth(1).check();
     await page.locator('input[type="checkbox"]').nth(2).check();
     await page.locator('input[type="checkbox"]').nth(3).check();
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 3: Enter Scores / Win status
     // Co-op has a single team score or win/loss button
-    const winBtn = page.getByRole('button', { name: /^Won/i });
+    const winBtn = page.getByRole('button', { name: /^Won|^승리/i });
     if (await winBtn.isVisible()) {
       await winBtn.click();
     } else {
       await page.locator('input[type="number"]').first().fill('25');
     }
-    await page.getByRole('button', { name: /Next/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 4: Confirm
-    await page.getByRole('button', { name: /Save Session/i }).click();
+    await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
+    await expect(page).toHaveURL(/\/groups\/\d+$/);
+
+    // Record Session F: Custom Game (House Rules Chess)
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
+    
+    // Step 1: Create Custom Game
+    await page.getByRole('button', { name: /\+ Add Custom Game|\+ 커스텀 게임/i }).click();
+    await page.getByLabel(/Game|이름/i).first().fill('House Rules Chess');
+    await page.getByLabel(/Min|최소/i).first().fill('2');
+    await page.getByLabel(/Max|최대/i).first().fill('10');
+    // Select LOW_WIN strategy
+    await page.getByLabel(/Score Strategy|점수/i).selectOption('LOW_WIN');
+    await page.locator('button[type="submit"]').filter({ hasText: /Add Game|Add|Submit|Save|추가|생성/i }).click();
+    
+    // Select the newly created Custom Game
+    await page.getByRole('heading', { name: /House Rules Chess/i }).click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 2: Select Players (P1, P2)
+    await page.locator('input[type="checkbox"]').nth(0).check();
+    await page.locator('input[type="checkbox"]').nth(1).check();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 3: Enter Scores (Low wins)
+    await page.locator('input[type="number"]').nth(0).fill('2');
+    await page.locator('input[type="number"]').nth(1).fill('3');
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 4: Confirm
+    await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+$/);
   });
 

@@ -6,3 +6,4 @@ export { GroupDashboardPage } from './GroupDashboardPage';
 export { GameListPage } from './GameListPage';
 export { CreateSessionPage } from './CreateSessionPage';
 export { SessionDetailPage } from './SessionDetailPage';
+export { InvitationsPage } from './InvitationsPage';

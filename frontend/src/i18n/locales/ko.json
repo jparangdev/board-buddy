@@ -26,6 +26,7 @@
   "nav": {
     "groups": "그룹",
     "games": "게임",
+    "invitations": "초대",
     "logout": "로그아웃"
   },
   "auth": {
@@ -77,7 +78,8 @@
     "loadingGroups": "주사위 굴리는 중...",
     "addMembers": "멤버 추가",
     "autoAddedAsOwner": "소유자로 자동 추가됩니다. 예: 닉네임#AB12",
-    "noUsersFound": "사용자를 찾을 수 없습니다"
+    "noUsersFound": "사용자를 찾을 수 없습니다",
+    "createFailed": "그룹 생성에 실패했습니다"
   },
   "game": {
     "title": "보드게임",
@@ -173,12 +175,26 @@
     "noData": "데이터 없음",
     "winRateMinGames": "3게임 이상 필요"
   },
+  "invitation": {
+    "pendingInvitations": "받은 초대",
+    "noInvitations": "받은 초대가 없습니다",
+    "invitedBy": "{{name}}님이 초대했습니다",
+    "accept": "수락",
+    "reject": "거절",
+    "inviteMembers": "멤버 초대",
+    "inviteMember": "멤버 초대",
+    "invite": "초대",
+    "inviteHint": "초대받은 유저가 수락 후 그룹에 참여합니다. 예: 닉네임#AB12 또는 이메일",
+    "inviteSent": "{{count}}명에게 초대장을 보냈습니다",
+    "inviteFailed": "초대에 실패했습니다"
+  },
   "placeholder": {
     "gameName": "예: 스플렌더, 카탄",
     "customGameName": "예: 우리집 룰 체스",
     "groupName": "예: 금요일 보드게임 모임",
     "search": "검색...",
     "userTag": "예: 닉네임#AB12",
+    "userTagOrEmail": "예: 닉네임#AB12 또는 이메일",
     "score": "점수"
   }
 }
