@@ -47,3 +47,4 @@ out/
 backend/.env
 /frontend/test-error.txt
 /frontend/test-output.txt
+/.claude/worktrees/

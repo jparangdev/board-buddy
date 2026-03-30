@@ -12,6 +12,8 @@ logging:
   level:
     root: INFO
     kr.co.jparangdev.boardbuddy: DEBUG
+  loki:
+    url: ${LOKI_URL:http://localhost:3100}
 
 # Swagger (OpenAPI)
 springdoc:

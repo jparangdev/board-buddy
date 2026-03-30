@@ -19,4 +19,7 @@ dependencies {
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Loki logging
+    implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
 }

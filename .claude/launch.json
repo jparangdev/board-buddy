@@ -1,0 +1,32 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "api-server",
+      "runtimeExecutable": "./gradlew",
+      "runtimeArgs": [":backend:boot:api-server:bootRun"],
+      "port": 8080,
+      "env": {
+        "DB_URL": "jdbc:postgresql://localhost:5432/board-buddy",
+        "DB_USERNAME": "board-buddy-app",
+        "DB_PASSWORD": "jparangdev",
+        "KV_HOST": "localhost",
+        "KV_PORT": "6379",
+        "KV_USERNAME": "board-buddy-app",
+        "KV_PASSWORD": "jparangdev"
+      }
+    },
+    {
+      "name": "batch-server",
+      "runtimeExecutable": "./gradlew",
+      "runtimeArgs": [":backend:boot:batch-server:bootRun"],
+      "port": null
+    }
+  ]
+}
