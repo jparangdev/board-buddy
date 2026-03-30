@@ -22,4 +22,8 @@ dependencies {
 
     // Loki logging
     implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
+
+    // Actuator & Metrics (for Prometheus)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
