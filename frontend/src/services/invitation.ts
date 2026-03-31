@@ -11,6 +11,15 @@ export const invitationService = {
     return response.invitations;
   },
 
+  async getSentInvitations(): Promise<Invitation[]> {
+    const response = await api.get<InvitationListResponse>('/invitations/sent');
+    return response.invitations;
+  },
+
+  async cancel(id: number): Promise<void> {
+    return api.post(`/invitations/${id}/cancel`);
+  },
+
   async accept(id: number): Promise<void> {
     return api.post(`/invitations/${id}/accept`);
   },

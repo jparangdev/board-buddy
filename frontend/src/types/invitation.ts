@@ -5,6 +5,8 @@ export interface Invitation {
   inviterId: number;
   inviterNickname: string;
   inviteeId: number;
+  inviteeNickname?: string;
+  status?: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   createdAt: string;
 }
 

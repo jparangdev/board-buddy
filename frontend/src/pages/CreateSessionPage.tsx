@@ -68,7 +68,7 @@ export function CreateSessionPage() {
         setGames(gamesData);
         setCustomGames(customGamesData);
         setMembers(membersData);
-        setSelectedMemberIds(new Set(membersData.map((m) => m.id)));
+        setSelectedMemberIds(new Set(membersData.filter((m) => m.status !== 'PENDING').map((m) => m.id)));
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -398,22 +398,28 @@ export function CreateSessionPage() {
             {members.map((member) => (
               <div
                 key={member.id}
-                className={`${styles.memberRow} ${selectedMemberIds.has(member.id) ? styles.memberRowSelected : ''}`}
-                onClick={() => toggleMember(member.id)}
+                className={`${styles.memberRow} ${selectedMemberIds.has(member.id) ? styles.memberRowSelected : ''} ${member.status === 'PENDING' ? styles.memberRowDisabled : ''}`}
+                onClick={() => member.status !== 'PENDING' && toggleMember(member.id)}
               >
                 <input
                   type="checkbox"
                   className={styles.checkbox}
                   checked={selectedMemberIds.has(member.id)}
+                  disabled={member.status === 'PENDING'}
                   onChange={(e) => {
                     e.stopPropagation();
-                    toggleMember(member.id);
+                    if (member.status !== 'PENDING') {
+                      toggleMember(member.id);
+                    }
                   }}
                 />
                 <div className={styles.memberAvatar}>
                   {member.nickname.charAt(0).toUpperCase()}
                 </div>
                 <span className={styles.memberName}>{member.nickname}</span>
+                {member.status === 'PENDING' && (
+                  <span className="badge badge-muted">{t('group.pendingMember')}</span>
+                )}
               </div>
             ))}
           </div>

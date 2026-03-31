@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberInfo;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
 
 @Component
 public class GroupDtoMapper {
@@ -20,12 +20,14 @@ public class GroupDtoMapper {
             .build();
     }
 
-    public GroupDto.MemberResponse toMemberResponse(User user) {
+    public GroupDto.MemberResponse toMemberResponse(GroupMemberInfo info) {
         return GroupDto.MemberResponse.builder()
-            .id(user.getId())
-            .nickname(user.getNickname())
-            .discriminator(user.getDiscriminator())
-            .userTag(user.getUserTag())
+            .id(info.userId())
+            .nickname(info.nickname())
+            .discriminator(info.discriminator())
+            .userTag(info.userTag())
+            .joinedAt(info.joinedAt())
+            .status(info.status().name())
             .build();
     }
 
@@ -38,7 +40,7 @@ public class GroupDtoMapper {
             .build();
     }
 
-    public GroupDto.MemberListResponse toMemberListResponse(List<User> users) {
+    public GroupDto.MemberListResponse toMemberListResponse(List<GroupMemberInfo> users) {
         List<GroupDto.MemberResponse> members = users.stream()
             .map(this::toMemberResponse)
             .toList();

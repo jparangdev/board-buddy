@@ -49,6 +49,7 @@ public class GroupDto {
         private String discriminator;
         private String userTag;
         private Instant joinedAt;
+        private String status;
     }
 
     @Getter

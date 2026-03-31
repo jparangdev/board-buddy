@@ -16,7 +16,9 @@ export function Layout() {
     localStorage.setItem('language', newLang);
   };
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -27,10 +29,20 @@ export function Layout() {
       .catch(() => setPendingCount(0));
   }, [user]);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     setShowMenu(false);
-    await logout();
-    navigate('/login');
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -128,6 +140,33 @@ export function Layout() {
       <footer className={styles.footer}>
         <p>Board Buddy - Find your game night crew</p>
       </footer>
+
+      {showLogoutModal && (
+        <div className={styles.modal} onClick={() => setShowLogoutModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2>{t('auth.logoutTitle')}</h2>
+            <p>{t('auth.logoutConfirm')}</p>
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowLogoutModal(false)}
+                disabled={isLoggingOut}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? t('common.loading') : t('nav.logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

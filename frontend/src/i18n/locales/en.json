@@ -40,6 +40,8 @@
     "deleteAccount": "Delete Account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This cannot be undone.",
     "deleteFailed": "Failed to delete account. Please try again.",
+    "logoutTitle": "Logout",
+    "logoutConfirm": "Are you sure you want to log out?",
     "loginTitle": "Login",
     "registerTitle": "Create Account",
     "emailPlaceholder": "Enter your email",
@@ -79,7 +81,8 @@
     "addMembers": "Add Members",
     "autoAddedAsOwner": "You are automatically added as the owner. e.g. Nickname#AB12",
     "noUsersFound": "No users found",
-    "createFailed": "Failed to create group"
+    "createFailed": "Failed to create group",
+    "pendingMember": "Invited"
   },
   "game": {
     "title": "Board Games",
@@ -177,8 +180,15 @@
   },
   "invitation": {
     "pendingInvitations": "Pending Invitations",
+    "sentInvitations": "Sent Invitations",
     "noInvitations": "No pending invitations",
+    "noSentInvitations": "No sent invitations",
     "invitedBy": "Invited by {{name}}",
+    "invitedUser": "Sent to {{name}}",
+    "statusPending": "Pending",
+    "statusAccepted": "Accepted",
+    "statusRejected": "Rejected",
+    "cancel": "Cancel",
     "accept": "Accept",
     "reject": "Decline",
     "inviteMembers": "Invite Members",

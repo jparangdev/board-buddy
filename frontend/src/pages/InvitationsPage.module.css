@@ -86,6 +86,13 @@
   flex-shrink: 0;
 }
 
+.sentActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .card {
     flex-direction: column;

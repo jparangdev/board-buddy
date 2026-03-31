@@ -6,6 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberInfo;
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberStatus;
 import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
@@ -13,6 +15,9 @@ import kr.co.jparangdev.boardbuddy.domain.group.exception.GroupNotFoundException
 import kr.co.jparangdev.boardbuddy.domain.group.exception.NotGroupOwnerException;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import kr.co.jparangdev.boardbuddy.domain.invitation.Invitation;
+import kr.co.jparangdev.boardbuddy.domain.invitation.InvitationStatus;
+import kr.co.jparangdev.boardbuddy.domain.invitation.repository.InvitationRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotFoundException;
 import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
@@ -26,6 +31,7 @@ public class GroupManagementService implements GroupCommandUseCase, GroupQueryUs
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -36,21 +42,25 @@ public class GroupManagementService implements GroupCommandUseCase, GroupQueryUs
         Group group = Group.create(name, currentUserId);
         Group savedGroup = groupRepository.save(group);
 
-        // Use Set to deduplicate; owner is always first
-        Set<Long> uniqueMemberIds = new LinkedHashSet<>();
-        uniqueMemberIds.add(currentUserId);
-        uniqueMemberIds.addAll(memberIds);
+        // Owner is an active member
+        groupMemberRepository.save(GroupMember.create(savedGroup.getId(), currentUserId));
 
-        for (Long userId : uniqueMemberIds) {
-            GroupMember member = GroupMember.create(savedGroup.getId(), userId);
-            groupMemberRepository.save(member);
+        // Invite other users as pending
+        Set<Long> uniqueInviteeIds = new LinkedHashSet<>(memberIds);
+        uniqueInviteeIds.remove(currentUserId);
+        for (Long inviteeId : uniqueInviteeIds) {
+            if (!userRepository.existsById(inviteeId)) {
+                throw new UserNotFoundException(inviteeId);
+            }
+            Invitation invitation = Invitation.create(savedGroup.getId(), currentUserId, inviteeId);
+            invitationRepository.save(invitation);
         }
 
         return savedGroup;
     }
 
     @Override
-    public List<User> getGroupMembers(Long groupId) {
+    public List<GroupMemberInfo> getGroupMembers(Long groupId) {
         Long currentUserId = getCurrentUserId();
 
         // 1. 모임 존재 확인
@@ -65,14 +75,44 @@ public class GroupManagementService implements GroupCommandUseCase, GroupQueryUs
 
         // 3. 멤버 목록 조회
         List<GroupMember> members = groupMemberRepository.findAllByGroupId(groupId);
-        List<Long> userIds = members.stream()
-                .map(GroupMember::getUserId)
-                .toList();
+        Map<Long, GroupMember> memberMap = new HashMap<>();
+        for (GroupMember member : members) {
+            memberMap.put(member.getUserId(), member);
+        }
 
-        return userIds.stream()
-                .map(userId -> userRepository.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException(userId)))
-                .toList();
+        List<GroupMemberInfo> results = new ArrayList<>();
+        for (GroupMember member : members) {
+            User user = userRepository.findById(member.getUserId())
+                    .orElseThrow(() -> new UserNotFoundException(member.getUserId()));
+            results.add(new GroupMemberInfo(
+                    user.getId(),
+                    user.getNickname(),
+                    user.getDiscriminator(),
+                    user.getUserTag(),
+                    member.getJoinedAt(),
+                    GroupMemberStatus.ACTIVE
+            ));
+        }
+
+        // 4. 초대 중인 멤버 포함
+        List<Invitation> pendingInvitations = invitationRepository.findAllByGroupIdAndStatus(groupId, InvitationStatus.PENDING);
+        for (Invitation invitation : pendingInvitations) {
+            if (memberMap.containsKey(invitation.getInviteeId())) {
+                continue;
+            }
+            User user = userRepository.findById(invitation.getInviteeId())
+                    .orElseThrow(() -> new UserNotFoundException(invitation.getInviteeId()));
+            results.add(new GroupMemberInfo(
+                    user.getId(),
+                    user.getNickname(),
+                    user.getDiscriminator(),
+                    user.getUserTag(),
+                    null,
+                    GroupMemberStatus.PENDING
+            ));
+        }
+
+        return results;
     }
 
     @Override
@@ -148,6 +188,7 @@ public class GroupManagementService implements GroupCommandUseCase, GroupQueryUs
             throw new NotGroupOwnerException(groupId, currentUserId);
         }
 
+        invitationRepository.deleteAllByGroupId(groupId);
         groupMemberRepository.deleteAllByGroupId(groupId);
         groupRepository.deleteById(groupId);
     }

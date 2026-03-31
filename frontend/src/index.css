@@ -151,17 +151,20 @@ a:hover {
 .input {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  border: none;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 1rem;
-  background: var(--color-bg-tertiary);
+  background: var(--color-bg-secondary);
   color: var(--color-text);
-  transition: outline 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
 }
 
 .input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2), inset 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .input::placeholder {
@@ -197,6 +200,16 @@ a:hover {
 .badge-green {
   background: var(--color-green);
   color: white;
+}
+
+.badge-red {
+  background: var(--color-red);
+  color: white;
+}
+
+.badge-muted {
+  background: var(--color-border);
+  color: var(--color-text-light);
 }
 
 /* Container */

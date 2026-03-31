@@ -29,6 +29,13 @@ public class InvitationRepositoryImpl implements InvitationRepository {
     }
 
     @Override
+    public List<Invitation> findAllByGroupIdAndStatus(Long groupId, InvitationStatus status) {
+        return jpaRepository.findAllByGroupIdAndStatus(groupId, status).stream()
+            .map(mapper::toDomain)
+            .toList();
+    }
+
+    @Override
     public List<Invitation> findAllByInviteeIdAndStatus(Long inviteeId, InvitationStatus status) {
         return jpaRepository.findAllByInviteeIdAndStatus(inviteeId, status).stream()
             .map(mapper::toDomain)
@@ -36,7 +43,19 @@ public class InvitationRepositoryImpl implements InvitationRepository {
     }
 
     @Override
+    public List<Invitation> findAllByInviterId(Long inviterId) {
+        return jpaRepository.findAllByInviterId(inviterId).stream()
+            .map(mapper::toDomain)
+            .toList();
+    }
+
+    @Override
     public boolean existsByGroupIdAndInviteeIdAndStatus(Long groupId, Long inviteeId, InvitationStatus status) {
         return jpaRepository.existsByGroupIdAndInviteeIdAndStatus(groupId, inviteeId, status);
+    }
+
+    @Override
+    public void deleteAllByGroupId(Long groupId) {
+        jpaRepository.deleteAllByGroupId(groupId);
     }
 }

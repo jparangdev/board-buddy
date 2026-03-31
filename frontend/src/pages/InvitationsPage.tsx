@@ -8,13 +8,18 @@ import styles from './InvitationsPage.module.css';
 export function InvitationsPage() {
   const {t} = useTranslation();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [sentInvitations, setSentInvitations] = useState<Invitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
 
   const fetchInvitations = async () => {
     try {
-      const data = await invitationService.getPendingInvitations();
-      setInvitations(data);
+      const [pendingData, sentData] = await Promise.all([
+        invitationService.getPendingInvitations(),
+        invitationService.getSentInvitations(),
+      ]);
+      setInvitations(pendingData);
+      setSentInvitations(sentData);
     } catch (error) {
       console.error('Failed to fetch invitations:', error);
     } finally {
@@ -43,6 +48,35 @@ export function InvitationsPage() {
         next.delete(id);
         return next;
       });
+    }
+  };
+
+  const handleCancel = async (id: number) => {
+    setProcessingIds((prev) => new Set(prev).add(id));
+    try {
+      await invitationService.cancel(id);
+      setSentInvitations((prev) =>
+        prev.map((inv) => (inv.id === id ? { ...inv, status: 'REJECTED' } : inv))
+      );
+    } catch (error) {
+      console.error('Failed to cancel invitation:', error);
+    } finally {
+      setProcessingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const getStatusBadge = (status?: Invitation['status']) => {
+    switch (status) {
+      case 'ACCEPTED':
+        return <span className="badge badge-green">{t('invitation.statusAccepted')}</span>;
+      case 'REJECTED':
+        return <span className="badge badge-red">{t('invitation.statusRejected')}</span>;
+      default:
+        return <span className="badge badge-muted">{t('invitation.statusPending')}</span>;
     }
   };
 
@@ -97,6 +131,45 @@ export function InvitationsPage() {
                 >
                   {t('invitation.reject')}
                 </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.header} style={{marginTop: 'var(--spacing-xl)'}}>
+        <h1>{t('invitation.sentInvitations')}</h1>
+      </div>
+
+      {sentInvitations.length === 0 ? (
+        <div className={styles.empty}>
+          <span className={styles.emptyIcon}>&#x1F4EC;</span>
+          <p>{t('invitation.noSentInvitations')}</p>
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {sentInvitations.map((inv) => (
+            <div key={inv.id} className={styles.card}>
+              <div className={styles.cardInfo}>
+                <div className={styles.groupName}>{inv.groupName}</div>
+                <div className={styles.meta}>
+                  {t('invitation.invitedUser', {name: inv.inviteeNickname ?? inv.inviteeId})}
+                  <span className={styles.date}>
+                    {new Date(inv.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.sentActions}>
+                {getStatusBadge(inv.status)}
+                {inv.status === 'PENDING' && (
+                  <button
+                    className="btn btn-secondary"
+                    disabled={processingIds.has(inv.id)}
+                    onClick={() => handleCancel(inv.id)}
+                  >
+                    {t('invitation.cancel')}
+                  </button>
+                )}
               </div>
             </div>
           ))}

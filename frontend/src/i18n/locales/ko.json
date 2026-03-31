@@ -40,6 +40,8 @@
     "deleteAccount": "계정 삭제",
     "deleteAccountConfirm": "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
     "deleteFailed": "계정 삭제에 실패했습니다. 다시 시도해주세요.",
+    "logoutTitle": "로그아웃",
+    "logoutConfirm": "정말 로그아웃 하시겠습니까?",
     "loginTitle": "로그인",
     "registerTitle": "계정 만들기",
     "emailPlaceholder": "이메일을 입력하세요",
@@ -79,7 +81,8 @@
     "addMembers": "멤버 추가",
     "autoAddedAsOwner": "소유자로 자동 추가됩니다. 예: 닉네임#AB12",
     "noUsersFound": "사용자를 찾을 수 없습니다",
-    "createFailed": "그룹 생성에 실패했습니다"
+    "createFailed": "그룹 생성에 실패했습니다",
+    "pendingMember": "초대중"
   },
   "game": {
     "title": "보드게임",
@@ -177,8 +180,15 @@
   },
   "invitation": {
     "pendingInvitations": "받은 초대",
+    "sentInvitations": "보낸 초대",
     "noInvitations": "받은 초대가 없습니다",
+    "noSentInvitations": "보낸 초대가 없습니다",
     "invitedBy": "{{name}}님이 초대했습니다",
+    "invitedUser": "{{name}}님에게 보냈습니다",
+    "statusPending": "대기중",
+    "statusAccepted": "수락됨",
+    "statusRejected": "거절됨",
+    "cancel": "취소",
     "accept": "수락",
     "reject": "거절",
     "inviteMembers": "멤버 초대",

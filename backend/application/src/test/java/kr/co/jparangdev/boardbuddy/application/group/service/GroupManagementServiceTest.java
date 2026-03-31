@@ -18,11 +18,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberInfo;
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberStatus;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
 import kr.co.jparangdev.boardbuddy.domain.group.GroupMember;
 import kr.co.jparangdev.boardbuddy.domain.group.exception.NotGroupOwnerException;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository;
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
+import kr.co.jparangdev.boardbuddy.domain.invitation.InvitationStatus;
+import kr.co.jparangdev.boardbuddy.domain.invitation.repository.InvitationRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
 import kr.co.jparangdev.boardbuddy.domain.user.repository.UserRepository;
@@ -37,11 +41,18 @@ class GroupManagementServiceTest {
     @Mock
     private GroupMemberRepository groupMemberRepository;
     @Mock
+    private InvitationRepository invitationRepository;
+    @Mock
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        groupManagementService = new GroupManagementService(groupRepository, groupMemberRepository, userRepository);
+        groupManagementService = new GroupManagementService(
+                groupRepository,
+                groupMemberRepository,
+                invitationRepository,
+                userRepository
+        );
     }
 
     @Test
@@ -57,6 +68,7 @@ class GroupManagementServiceTest {
 
             Group group = Group.builder().id(1L).name("Test Group").ownerId(1L).build();
             given(groupRepository.save(any(Group.class))).willReturn(group);
+            given(userRepository.existsById(2L)).willReturn(true);
 
             // when
             Group result = groupManagementService.createGroup("Test Group", List.of(2L));
@@ -64,8 +76,10 @@ class GroupManagementServiceTest {
             // then
             assertThat(result.getId()).isEqualTo(1L);
             verify(groupRepository).save(any(Group.class));
-            // owner(1L) + member(2L) = 2 saves
-            verify(groupMemberRepository, org.mockito.Mockito.times(2)).save(any(GroupMember.class));
+            // owner only
+            verify(groupMemberRepository, org.mockito.Mockito.times(1)).save(any(GroupMember.class));
+            // invitee is pending
+            verify(invitationRepository, org.mockito.Mockito.times(1)).save(any());
         }
     }
 
@@ -89,13 +103,16 @@ class GroupManagementServiceTest {
 
             User user = User.builder().id(1L).nickname("tester").build();
             given(userRepository.findById(1L)).willReturn(Optional.of(user));
+            given(invitationRepository.findAllByGroupIdAndStatus(1L, InvitationStatus.PENDING))
+                    .willReturn(List.of());
 
             // when
-            List<User> result = groupManagementService.getGroupMembers(1L);
+            List<GroupMemberInfo> result = groupManagementService.getGroupMembers(1L);
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getNickname()).isEqualTo("tester");
+            assertThat(result.get(0).nickname()).isEqualTo("tester");
+            assertThat(result.get(0).status()).isEqualTo(GroupMemberStatus.ACTIVE);
         }
     }
 
@@ -187,6 +204,7 @@ class GroupManagementServiceTest {
             groupManagementService.deleteGroup(1L);
 
             // then
+            verify(invitationRepository).deleteAllByGroupId(1L);
             verify(groupMemberRepository).deleteAllByGroupId(1L);
             verify(groupRepository).deleteById(1L);
         }

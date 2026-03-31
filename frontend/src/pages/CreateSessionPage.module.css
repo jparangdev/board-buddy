@@ -239,6 +239,11 @@
   background: rgba(35, 165, 89, 0.1);
 }
 
+.memberRowDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .checkbox {
   width: 20px;
   height: 20px;

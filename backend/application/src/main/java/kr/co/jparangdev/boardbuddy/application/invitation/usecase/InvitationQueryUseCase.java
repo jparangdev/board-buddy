@@ -6,4 +6,5 @@ import kr.co.jparangdev.boardbuddy.application.invitation.dto.InvitationInfo;
 
 public interface InvitationQueryUseCase {
     List<InvitationInfo> getMyPendingInvitations();
+    List<InvitationInfo> getMySentInvitations();
 }

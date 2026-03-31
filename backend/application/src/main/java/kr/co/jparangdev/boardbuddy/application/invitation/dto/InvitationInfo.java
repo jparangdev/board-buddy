@@ -9,5 +9,7 @@ public record InvitationInfo(
     Long inviterId,
     String inviterNickname,
     Long inviteeId,
+    String inviteeNickname,
+    String status,
     Instant createdAt
 ) {}

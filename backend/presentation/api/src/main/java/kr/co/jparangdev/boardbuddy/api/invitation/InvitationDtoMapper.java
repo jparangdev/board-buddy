@@ -16,6 +16,8 @@ public class InvitationDtoMapper {
             .inviterId(info.inviterId())
             .inviterNickname(info.inviterNickname())
             .inviteeId(info.inviteeId())
+            .inviteeNickname(info.inviteeNickname())
+            .status(info.status())
             .createdAt(info.createdAt())
             .build();
     }

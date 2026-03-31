@@ -15,10 +15,7 @@ import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
 import kr.co.jparangdev.boardbuddy.domain.invitation.Invitation;
 import kr.co.jparangdev.boardbuddy.domain.invitation.InvitationStatus;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.DuplicateInvitationException;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.InvitationAccessDeniedException;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.InvitationNotFoundException;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.InvitationNotPendingException;
+import kr.co.jparangdev.boardbuddy.domain.invitation.exception.*;
 import kr.co.jparangdev.boardbuddy.domain.invitation.repository.InvitationRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotFoundException;
@@ -93,24 +90,84 @@ public class InvitationManagementService implements InvitationCommandUseCase, In
 
         return invitationRepository.findAllByInviteeIdAndStatus(currentUserId, InvitationStatus.PENDING)
                 .stream()
-                .map(inv -> {
-                    String groupName = groupRepository.findById(inv.getGroupId())
-                            .map(g -> g.getName())
-                            .orElse("Unknown Group");
-                    String inviterNickname = userRepository.findById(inv.getInviterId())
-                            .map(User::getNickname)
-                            .orElse("Unknown User");
-                    return new InvitationInfo(
-                            inv.getId(),
-                            inv.getGroupId(),
-                            groupName,
-                            inv.getInviterId(),
-                            inviterNickname,
-                            inv.getInviteeId(),
-                            inv.getCreatedAt()
-                    );
-                })
+                .flatMap(inv -> groupRepository.findById(inv.getGroupId())
+                        .map(group -> {
+                            String inviterNickname = userRepository.findById(inv.getInviterId())
+                                    .map(User::getNickname)
+                                    .orElse("Unknown User");
+                            String inviteeNickname = userRepository.findById(inv.getInviteeId())
+                                    .map(User::getNickname)
+                                    .orElse("Unknown User");
+                            InvitationInfo info = new InvitationInfo(
+                                    inv.getId(),
+                                    inv.getGroupId(),
+                                    group.getName(),
+                                    inv.getInviterId(),
+                                    inviterNickname,
+                                    inv.getInviteeId(),
+                                    inviteeNickname,
+                                    inv.getStatus().name(),
+                                    inv.getCreatedAt()
+                            );
+                            return java.util.stream.Stream.of(info);
+                        })
+                        .orElseGet(java.util.stream.Stream::empty))
                 .toList();
+    }
+
+    @Override
+    public List<InvitationInfo> getMySentInvitations() {
+        Long currentUserId = getCurrentUserId();
+
+        return invitationRepository.findAllByInviterId(currentUserId)
+                .stream()
+                .flatMap(inv -> groupRepository.findById(inv.getGroupId())
+                        .map(group -> {
+                            String inviterNickname = userRepository.findById(inv.getInviterId())
+                                    .map(User::getNickname)
+                                    .orElse("Unknown User");
+                            String inviteeNickname = userRepository.findById(inv.getInviteeId())
+                                    .map(User::getNickname)
+                                    .orElse("Unknown User");
+                            InvitationInfo info = new InvitationInfo(
+                                    inv.getId(),
+                                    inv.getGroupId(),
+                                    group.getName(),
+                                    inv.getInviterId(),
+                                    inviterNickname,
+                                    inv.getInviteeId(),
+                                    inviteeNickname,
+                                    inv.getStatus().name(),
+                                    inv.getCreatedAt()
+                            );
+                            return java.util.stream.Stream.of(info);
+                        })
+                        .orElseGet(java.util.stream.Stream::empty))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void cancelInvitation(Long invitationId) {
+        Long currentUserId = getCurrentUserId();
+
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new InvitationNotFoundException(invitationId));
+
+        if (!invitation.isPending()) {
+            throw new InvitationNotPendingException(invitationId);
+        }
+
+        boolean isInviter = invitation.getInviterId().equals(currentUserId);
+        boolean isOwner = groupRepository.findById(invitation.getGroupId())
+                .map(group -> group.isOwner(currentUserId))
+                .orElse(false);
+
+        if (!isInviter && !isOwner) {
+            throw new InvitationAccessDeniedException(invitationId, currentUserId);
+        }
+
+        invitationRepository.save(invitation.reject());
     }
 
     private Long getCurrentUserId() {

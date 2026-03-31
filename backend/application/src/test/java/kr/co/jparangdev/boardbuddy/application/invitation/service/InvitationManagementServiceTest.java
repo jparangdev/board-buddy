@@ -24,9 +24,7 @@ import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupMemberRepository
 import kr.co.jparangdev.boardbuddy.domain.group.repository.GroupRepository;
 import kr.co.jparangdev.boardbuddy.domain.invitation.Invitation;
 import kr.co.jparangdev.boardbuddy.domain.invitation.InvitationStatus;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.DuplicateInvitationException;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.InvitationAccessDeniedException;
-import kr.co.jparangdev.boardbuddy.domain.invitation.exception.InvitationNotPendingException;
+import kr.co.jparangdev.boardbuddy.domain.invitation.exception.*;
 import kr.co.jparangdev.boardbuddy.domain.invitation.repository.InvitationRepository;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
 import kr.co.jparangdev.boardbuddy.domain.user.exception.UserNotGroupMemberException;
@@ -203,6 +201,7 @@ class InvitationManagementServiceTest {
             assertThat(result).hasSize(1);
             assertThat(result.get(0).groupName()).isEqualTo("Test Group");
             assertThat(result.get(0).inviterNickname()).isEqualTo("Alice");
+            assertThat(result.get(0).status()).isEqualTo("PENDING");
         }
     }
 }

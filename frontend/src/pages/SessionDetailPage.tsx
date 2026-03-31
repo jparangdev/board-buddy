@@ -1,8 +1,9 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import type {GameSessionDetail} from '@/types';
-import {gameSessionService} from '@/services';
+import {customGameService, gameService, gameSessionService} from '@/services';
+import {getGameName} from '@/utils/game';
 import styles from './SessionDetailPage.module.css';
 
 const BINARY_STRATEGIES = ['WIN_LOSE', 'COOPERATIVE'];
@@ -12,13 +13,21 @@ export function SessionDetailPage() {
   const {t, i18n} = useTranslation();
   const [session, setSession] = useState<GameSessionDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [gameNames, setGameNames] = useState<Map<number, string>>(new Map());
+  const [customGameNames, setCustomGameNames] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
     const fetchData = async () => {
       if (!groupId || !sessionId) return;
       try {
-        const data = await gameSessionService.getSessionDetail(Number(groupId), Number(sessionId));
+        const [data, gamesData, customGamesData] = await Promise.all([
+          gameSessionService.getSessionDetail(Number(groupId), Number(sessionId)),
+          gameService.getGames(),
+          customGameService.getCustomGames(Number(groupId)),
+        ]);
         setSession(data);
+        setGameNames(new Map(gamesData.map((game) => [game.id, getGameName(game, i18n.language)])));
+        setCustomGameNames(new Map(customGamesData.map((game) => [game.id, getGameName(game, i18n.language)])));
       } catch (error) {
         console.error('Failed to fetch session:', error);
       } finally {
@@ -26,7 +35,7 @@ export function SessionDetailPage() {
       }
     };
     fetchData();
-  }, [groupId, sessionId]);
+  }, [groupId, sessionId, i18n.language]);
 
   if (isLoading) {
     return (
@@ -68,6 +77,17 @@ export function SessionDetailPage() {
     return null;
   };
 
+  const sessionGameName = useMemo(() => {
+    if (!session) return '';
+    if (session.customGameId && customGameNames.has(session.customGameId)) {
+      return customGameNames.get(session.customGameId) ?? session.gameName;
+    }
+    if (session.gameId && gameNames.has(session.gameId)) {
+      return gameNames.get(session.gameId) ?? session.gameName;
+    }
+    return session.gameName;
+  }, [customGameNames, gameNames, session]);
+
   return (
     <div className="container">
       <Link to={`/groups/${groupId}`} className={styles.backLink}>
@@ -77,7 +97,7 @@ export function SessionDetailPage() {
       <div className={styles.header}>
         <div className={styles.titleRow}>
           <span className={styles.icon}>&#x1F3AF;</span>
-          <h1>{session.gameName}</h1>
+          <h1>{sessionGameName}</h1>
         </div>
         <div className={styles.meta}>
           <span>{t('session.playedOn', { date: new Date(session.playedAt).toLocaleString(i18n.language) })}</span>

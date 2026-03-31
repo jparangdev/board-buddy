@@ -27,6 +27,8 @@ public class InvitationDto {
         private Long inviterId;
         private String inviterNickname;
         private Long inviteeId;
+        private String inviteeNickname;
+        private String status;
         private Instant createdAt;
     }
 

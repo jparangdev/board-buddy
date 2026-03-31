@@ -24,11 +24,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import kr.co.jparangdev.boardbuddy.api.group.dto.GroupDto;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupCommandUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.GroupQueryUseCase;
-import kr.co.jparangdev.boardbuddy.application.group.usecase.UpdateGroupOrderUseCase;
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberInfo;
+import kr.co.jparangdev.boardbuddy.application.group.dto.GroupMemberStatus;
+import kr.co.jparangdev.boardbuddy.application.group.usecase.*;
 import kr.co.jparangdev.boardbuddy.domain.group.Group;
-import kr.co.jparangdev.boardbuddy.domain.user.User;
 import tools.jackson.databind.json.JsonMapper;
 
 @WebMvcTest(GroupController.class)
@@ -97,11 +96,12 @@ class GroupControllerTest {
     void getGroupMembersSuccess() throws Exception {
         // given
         Long groupId = 1L;
-        User user = User.builder().id(2L).build();
-        List<User> members = List.of(user);
+        GroupMemberInfo info = new GroupMemberInfo(2L, "nick", "0001", "nick#0001", null, GroupMemberStatus.ACTIVE);
+        List<GroupMemberInfo> members = List.of(info);
 
         GroupDto.MemberResponse memberResponse = GroupDto.MemberResponse.builder()
                 .id(2L)
+                .status("ACTIVE")
                 .build();
         GroupDto.MemberListResponse response = GroupDto.MemberListResponse.builder()
                 .members(List.of(memberResponse))

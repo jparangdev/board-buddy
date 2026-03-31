@@ -11,6 +11,7 @@ export interface GroupMember {
   discriminator: string;
   userTag: string;
   joinedAt: string | null;
+  status?: 'ACTIVE' | 'PENDING';
 }
 
 export interface GroupListResponse {
@@ -25,4 +26,3 @@ export interface CreateGroupRequest {
   name: string;
   memberIds: number[];
 }
-

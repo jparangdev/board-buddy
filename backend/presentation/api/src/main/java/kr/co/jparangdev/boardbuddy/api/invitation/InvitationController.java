@@ -21,7 +21,7 @@ public class InvitationController {
 
     @PostMapping("/api/v1/groups/{groupId}/invitations")
     @ResponseStatus(HttpStatus.CREATED)
-    public void inviteUser(@PathVariable Long groupId,
+    public void inviteUser(@PathVariable("groupId") Long groupId,
                             @Valid @RequestBody InvitationDto.CreateRequest request) {
         invitationCommandUseCase.inviteUser(groupId, request.getInviteeId());
     }
@@ -37,15 +37,32 @@ public class InvitationController {
                 .build();
     }
 
+    @GetMapping("/api/v1/invitations/sent")
+    public InvitationDto.InvitationListResponse getMySentInvitations() {
+        List<InvitationDto.Response> responses = invitationQueryUseCase.getMySentInvitations()
+                .stream()
+                .map(dtoMapper::toResponse)
+                .toList();
+        return InvitationDto.InvitationListResponse.builder()
+                .invitations(responses)
+                .build();
+    }
+
     @PostMapping("/api/v1/invitations/{id}/accept")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void acceptInvitation(@PathVariable Long id) {
+    public void acceptInvitation(@PathVariable("id") Long id) {
         invitationCommandUseCase.respondToInvitation(id, true);
     }
 
     @PostMapping("/api/v1/invitations/{id}/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void rejectInvitation(@PathVariable Long id) {
+    public void rejectInvitation(@PathVariable("id") Long id) {
         invitationCommandUseCase.respondToInvitation(id, false);
+    }
+
+    @PostMapping("/api/v1/invitations/{id}/cancel")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelInvitation(@PathVariable("id") Long id) {
+        invitationCommandUseCase.cancelInvitation(id);
     }
 }
