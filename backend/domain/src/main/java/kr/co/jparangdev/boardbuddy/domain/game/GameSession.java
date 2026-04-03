@@ -1,6 +1,7 @@
 package kr.co.jparangdev.boardbuddy.domain.game;
 
 import java.time.Instant;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,11 +21,14 @@ public class GameSession {
     private int winnerCount;
     private int winPoints;
     private int losePoints;
+    /** Comma-separated points per rank (e.g. "10,7,5,3"). Null when not applicable. */
+    private String rankPoints;
 
     @Builder
     public GameSession(Long id, Long groupId, Long gameId, Long customGameId,
                        Instant playedAt, Instant createdAt,
-                       ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
+                       ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints,
+                       String rankPoints) {
         this.id = id;
         this.groupId = groupId;
         this.gameId = gameId;
@@ -35,6 +39,7 @@ public class GameSession {
         this.winnerCount = winnerCount;
         this.winPoints = winPoints;
         this.losePoints = losePoints;
+        this.rankPoints = rankPoints;
     }
 
     public static GameSession create(Long groupId, Long gameId, Instant playedAt, SessionConfig config) {
@@ -47,6 +52,7 @@ public class GameSession {
                 .winnerCount(config.winnerCount())
                 .winPoints(config.winPoints())
                 .losePoints(config.losePoints())
+                .rankPoints(serializeRankPoints(config.rankPoints()))
                 .build();
     }
 
@@ -60,6 +66,17 @@ public class GameSession {
                 .winnerCount(config.winnerCount())
                 .winPoints(config.winPoints())
                 .losePoints(config.losePoints())
+                .rankPoints(serializeRankPoints(config.rankPoints()))
                 .build();
+    }
+
+    private static String serializeRankPoints(List<Integer> rankPoints) {
+        if (rankPoints == null || rankPoints.isEmpty()) return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rankPoints.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(rankPoints.get(i));
+        }
+        return sb.toString();
     }
 }

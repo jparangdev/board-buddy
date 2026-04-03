@@ -55,12 +55,12 @@ class GameControllerTest {
         // given
         Game game = Game.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
+                .scoreStrategy(ScoreStrategy.RANK_ONLY).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
+                .scoreStrategy("RANK_ONLY").createdAt(Instant.now())
                 .build();
 
         given(gameQueryUseCase.getGameList()).willReturn(List.of(game));
@@ -81,12 +81,12 @@ class GameControllerTest {
         // given
         Game game = Game.builder()
                 .id(1L).name("Catan").minPlayers(3).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
+                .scoreStrategy(ScoreStrategy.RANK_ONLY).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Catan").minPlayers(3).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
+                .scoreStrategy("RANK_ONLY").createdAt(Instant.now())
                 .build();
 
         given(gameQueryUseCase.getGameDetail(1L)).willReturn(game);
@@ -105,17 +105,17 @@ class GameControllerTest {
     void createGameSuccess() throws Exception {
         // given
         GameDto.CreateRequest request = GameDto.CreateRequest.builder()
-                .name("Splendor").minPlayers(2).maxPlayers(4).scoreStrategy("HIGH_WIN")
+                .name("Splendor").minPlayers(2).maxPlayers(4).scoreStrategy("RANK_ONLY")
                 .build();
 
         Game game = Game.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy(ScoreStrategy.HIGH_WIN).createdAt(Instant.now())
+                .scoreStrategy(ScoreStrategy.RANK_ONLY).createdAt(Instant.now())
                 .build();
 
         GameDto.Response response = GameDto.Response.builder()
                 .id(1L).name("Splendor").minPlayers(2).maxPlayers(4)
-                .scoreStrategy("HIGH_WIN").createdAt(Instant.now())
+                .scoreStrategy("RANK_ONLY").createdAt(Instant.now())
                 .build();
 
         given(gameCommandUseCase.createGame(any(String.class), anyInt(), anyInt(), any(ScoreStrategy.class)))

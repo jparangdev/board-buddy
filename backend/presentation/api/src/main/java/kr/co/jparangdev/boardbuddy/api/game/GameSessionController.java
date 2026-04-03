@@ -2,6 +2,7 @@ package kr.co.jparangdev.boardbuddy.api.game;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -46,11 +47,12 @@ public class GameSessionController {
             @Valid @RequestBody GameSessionDto.CreateRequest request) {
 
         List<GameSessionCommandUseCase.ResultInput> results = request.getResults().stream()
-                .map(r -> new GameSessionCommandUseCase.ResultInput(r.getUserId(), r.getScore(), r.getWon()))
+                .map(r -> new GameSessionCommandUseCase.ResultInput(r.getUserId(), r.getScore(), r.getWon(), r.getTeamId()))
                 .toList();
 
         ScoreStrategy scoreStrategy = ScoreStrategy.valueOf(request.getScoreStrategy());
-        SessionConfig config = new SessionConfig(scoreStrategy, request.getWinnerCount(), request.getWinPoints(), request.getLosePoints());
+        List<Integer> rankPoints = request.getRankPoints() != null ? request.getRankPoints() : List.of();
+        SessionConfig config = new SessionConfig(scoreStrategy, request.getWinnerCount(), request.getWinPoints(), request.getLosePoints(), rankPoints);
 
         GameSession session;
         String gameName;
@@ -118,7 +120,7 @@ public class GameSessionController {
         }
         String scoreStrategy = session.getScoreStrategy() != null
                 ? session.getScoreStrategy().name()
-                : ScoreStrategy.HIGH_WIN.name();
+                : ScoreStrategy.RANK_ONLY.name();
 
         List<Long> userIds = results.stream().map(GameResult::getUserId).toList();
         List<User> users = userIds.stream()

@@ -89,7 +89,7 @@ class GameSessionControllerTest {
                 .build();
 
         Game game = Game.builder()
-                .id(1L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+                .id(1L).name("Splendor").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
 
         GameSessionDto.Response response = GameSessionDto.Response.builder()
                 .id(1L).groupId(1L).gameId(1L).gameName("Splendor").playedAt(playedAt)
@@ -119,7 +119,7 @@ class GameSessionControllerTest {
                 .id(1L).groupId(1L).gameId(1L).playedAt(Instant.now()).createdAt(Instant.now())
                 .build();
 
-        Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+        Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
 
         GameSessionDto.Response sessionResponse = GameSessionDto.Response.builder()
                 .id(1L).groupId(1L).gameId(1L).gameName("Splendor")
@@ -147,7 +147,7 @@ class GameSessionControllerTest {
                 .id(1L).groupId(1L).gameId(1L).playedAt(Instant.now()).createdAt(Instant.now())
                 .build();
 
-        Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+        Game game = Game.builder().id(1L).name("Splendor").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
 
         GameResult result = GameResult.builder()
                 .id(1L).sessionId(1L).userId(1L).score(15).rank(1).build();

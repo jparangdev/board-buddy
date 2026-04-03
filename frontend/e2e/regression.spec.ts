@@ -318,16 +318,16 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
 
     // Record Session F: Custom Game (House Rules Chess)
     await page.getByRole('link', { name: /Record Game|기록/i }).click();
-    
+
     // Step 1: Create Custom Game
     await page.getByRole('button', { name: /\+ Add Custom Game|\+ 커스텀 게임/i }).click();
     await page.getByLabel(/Game|이름/i).first().fill('House Rules Chess');
     await page.getByLabel(/Min|최소/i).first().fill('2');
     await page.getByLabel(/Max|최대/i).first().fill('10');
-    // Select LOW_WIN strategy
-    await page.getByLabel(/Score Strategy|점수/i).selectOption('LOW_WIN');
+    // Select WIN_LOSE strategy
+    await page.getByLabel(/Score Strategy|점수/i).selectOption('WIN_LOSE');
     await page.locator('button[type="submit"]').filter({ hasText: /Add Game|Add|Submit|Save|추가|생성/i }).click();
-    
+
     // Select the newly created Custom Game
     await page.getByRole('heading', { name: /House Rules Chess/i }).click();
     await page.getByRole('button', { name: /Next|다음/i }).click();
@@ -337,14 +337,95 @@ test.describe('Core Flow (Login, Game, Group, Sessions)', () => {
     await page.locator('input[type="checkbox"]').nth(1).check();
     await page.getByRole('button', { name: /Next|다음/i }).click();
 
-    // Step 3: Enter Scores (Low wins)
-    await page.locator('input[type="number"]').nth(0).fill('2');
-    await page.locator('input[type="number"]').nth(1).fill('3');
+    // Step 3: Toggle win/lose
+    await page.locator('[class*="toggleBtn"]').first().click(); // P1 wins
     await page.getByRole('button', { name: /Next|다음/i }).click();
 
     // Step 4: Confirm
     await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+$/);
+
+    // Record Session H: Team vs Team (WIN_LOSE + Team Setup)
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
+
+    // Step 1: Select Game
+    await page.getByRole('heading', { name: /Love Letter|러브 레터/i }).first().click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 2: Select all 4 players
+    const allCheckboxes = await page.locator('input[type="checkbox"]').all();
+    for (const cb of allCheckboxes) {
+      await cb.check();
+    }
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 3: Enable Teams (checkbox must be enabled with 4 players)
+    const enableTeamsCheckbox = page.locator('#enableTeams');
+    await expect(enableTeamsCheckbox).toBeEnabled();
+    await enableTeamsCheckbox.check();
+
+    // Assign players to teams via team dropdowns (first 2 → Team 1, last 2 → Team 2)
+    // Team assignment selects have options like "Team 1", "Team 2" (not the score strategy select)
+    const teamSelects = page.locator('select').filter({ hasNot: page.locator('option[value="RANK_ONLY"]') });
+    const teamSelectCount = await teamSelects.count();
+    for (let i = 0; i < teamSelectCount; i++) {
+      await teamSelects.nth(i).selectOption(i < 2 ? '1' : '2');
+    }
+
+    // Change strategy to WIN_LOSE
+    await page.locator('#scoreStrategy').selectOption('WIN_LOSE');
+
+    // Toggle won/lost: first 2 players → Won, last 2 → Lost
+    const toggleBtns = page.locator('[class*="toggleBtn"]');
+    const toggleCount = await toggleBtns.count();
+    for (let i = 0; i < toggleCount; i++) {
+      const text = await toggleBtns.nth(i).textContent();
+      // If currently showing "Lost"/"패배" for the first two, click to switch to Won
+      if (i < 2 && /Lost|패배/i.test(text ?? '')) {
+        await toggleBtns.nth(i).click();
+      }
+      // If currently showing "Won"/"승리" for the last two, click to switch to Lost
+      if (i >= 2 && /Won|승리/i.test(text ?? '')) {
+        await toggleBtns.nth(i).click();
+      }
+    }
+
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 4: Confirm — verify team labels appear in summary
+    await expect(page.getByText(/Team 1|팀 1/i)).toBeVisible();
+    await expect(page.getByText(/Team 2|팀 2/i)).toBeVisible();
+
+    await page.getByRole('button', { name: /Save Session|저장|완료/i }).click();
+    await expect(page).toHaveURL(/\/groups\/\d+$/);
+  });
+
+  test('6-1. Team Setup — Enable Teams is disabled with fewer than 3 players', async () => {
+    await page.goto('/groups');
+    await page.getByRole('heading', { name: groupName }).first().click();
+    await page.getByRole('link', { name: /Record Game|기록/i }).click();
+
+    // Step 1: Select Game
+    await page.getByRole('heading', { name: /Catan|카탄/i }).first().click();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 2: Select only 2 players
+    const checkboxes = await page.locator('input[type="checkbox"]').all();
+    await checkboxes[0].check();
+    await checkboxes[1].check();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Step 3: Verify Enable Teams is disabled (< 3 players)
+    const enableTeamsCheckbox = page.locator('#enableTeams');
+    await expect(enableTeamsCheckbox).toBeDisabled();
+
+    // Go back and add a 3rd player
+    await page.getByRole('button', { name: /Previous|이전/i }).click();
+    await checkboxes[2].check();
+    await page.getByRole('button', { name: /Next|다음/i }).click();
+
+    // Verify Enable Teams is now enabled
+    await expect(enableTeamsCheckbox).toBeEnabled();
   });
 
   test('8. Dashboard Navigation & 10. Statistics', async () => {

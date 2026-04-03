@@ -2,6 +2,7 @@ package kr.co.jparangdev.boardbuddy.application.game.service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -113,44 +114,109 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
     }
 
     private List<GameResult> calculateRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy, SessionConfig config) {
+        boolean hasTeams = results.stream().anyMatch(r -> r.teamId() != null);
+        if (hasTeams) {
+            return calculateTeamRanks(sessionId, results, strategy, config);
+        }
         return switch (strategy) {
-            case HIGH_WIN, LOW_WIN -> calculateScoreBasedRanks(sessionId, results, strategy);
             case RANK_ONLY -> calculateRankOnly(sessionId, results, config.winnerCount());
             case WIN_LOSE -> calculateWinLoseRanks(sessionId, results, config.winPoints(), config.losePoints());
             case COOPERATIVE -> calculateCooperativeRanks(sessionId, results, config.winPoints(), config.losePoints());
+            case RANK_SCORE -> calculateRankScore(sessionId, results, config.winnerCount(), config.rankPoints());
         };
     }
 
     /**
-     * HIGH_WIN / LOW_WIN: sort by score, auto-derive won = (rank == 1).
+     * Team mode: players sharing the same teamId form a team.
+     * Teams compete against each other; all members in a team share the same rank, won, and score.
+     *
+     * <ul>
+     *   <li>WIN_LOSE / COOPERATIVE: team outcome determined by first member's {@code won} field.</li>
+     *   <li>RANK_ONLY / RANK_SCORE: teams ranked by order of first appearance in the results list.</li>
+     * </ul>
+     *
+     * Requires at least 3 participants total (validated on the frontend; backend applies the
+     * same logic regardless to keep the domain rule in one place).
      */
-    private List<GameResult> calculateScoreBasedRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy) {
-        boolean hasScores = results.stream().anyMatch(r -> r.score() != null);
+    private List<GameResult> calculateTeamRanks(Long sessionId, List<ResultInput> results, ScoreStrategy strategy, SessionConfig config) {
+        // Preserve team insertion order via LinkedHashMap
+        Map<Integer, List<ResultInput>> byTeam = results.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.teamId() != null ? r.teamId() : 0,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
 
-        if (!hasScores) {
-            List<GameResult> gameResults = new ArrayList<>();
-            for (int i = 0; i < results.size(); i++) {
-                ResultInput input = results.get(i);
-                gameResults.add(GameResult.create(sessionId, input.userId(), null, i == 0, i + 1));
+        // Build per-team rank, won, score
+        record TeamOutcome(int rank, boolean won, Integer score) {}
+        Map<Integer, TeamOutcome> teamOutcomes = new LinkedHashMap<>();
+
+        switch (strategy) {
+            case RANK_SCORE -> {
+                // Teams ranked by order of first appearance; per-rank points from config
+                int numTeams = byTeam.size();
+                List<Integer> pts = config.rankPoints();
+                int teamRank = 1;
+                for (Integer teamId : byTeam.keySet()) {
+                    boolean won = teamRank <= config.winnerCount();
+                    int score = (pts != null && teamRank - 1 < pts.size()) ? pts.get(teamRank - 1) : (numTeams - teamRank + 1);
+                    teamOutcomes.put(teamId, new TeamOutcome(teamRank, won, score));
+                    teamRank++;
+                }
             }
-            return gameResults;
+            case WIN_LOSE, COOPERATIVE -> {
+                // Each team wins or loses independently; rank 1 = won, 2 = lost
+                for (var entry : byTeam.entrySet()) {
+                    boolean teamWon = entry.getValue().stream()
+                            .findFirst()
+                            .map(r -> Boolean.TRUE.equals(r.won()))
+                            .orElse(false);
+                    int rank = teamWon ? 1 : 2;
+                    int score = teamWon ? config.winPoints() : config.losePoints();
+                    teamOutcomes.put(entry.getKey(), new TeamOutcome(rank, teamWon, score));
+                }
+            }
+            case RANK_ONLY -> {
+                // Teams ranked by order of first appearance; score = numTeams - rank + 1
+                int numTeams = byTeam.size();
+                int teamRank = 1;
+                for (Integer teamId : byTeam.keySet()) {
+                    boolean won = teamRank <= config.winnerCount();
+                    int score = numTeams - teamRank + 1;
+                    teamOutcomes.put(teamId, new TeamOutcome(teamRank, won, score));
+                    teamRank++;
+                }
+            }
         }
 
-        List<ResultInput> sorted = new ArrayList<>(results);
-        Comparator<ResultInput> comparator = Comparator.comparingInt(r -> r.score() != null ? r.score() : 0);
-        if (strategy == ScoreStrategy.HIGH_WIN) {
-            comparator = comparator.reversed();
-        }
-        sorted.sort(comparator);
-
+        // Build GameResult list — all members of a team share the same outcome
         List<GameResult> gameResults = new ArrayList<>();
-        int currentRank = 1;
-        for (int i = 0; i < sorted.size(); i++) {
-            if (i > 0 && !sameScore(sorted.get(i), sorted.get(i - 1))) {
-                currentRank = i + 1;
-            }
-            ResultInput input = sorted.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), input.score(), currentRank == 1, currentRank));
+        for (ResultInput input : results) {
+            Integer tid = input.teamId() != null ? input.teamId() : 0;
+            TeamOutcome outcome = teamOutcomes.get(tid);
+            Integer score = outcome != null ? outcome.score() : null;
+            int rank = outcome != null ? outcome.rank() : 1;
+            boolean won = outcome != null && outcome.won();
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank, tid));
+        }
+        return gameResults;
+    }
+
+    /**
+     * RANK_SCORE: rank by input order; assign per-rank points from the configured list.
+     * Top {@code winnerCount} ranks are marked as won.
+     * Falls back to (numPlayers - rank + 1) if {@code rankPoints} is shorter than the player list.
+     */
+    private List<GameResult> calculateRankScore(Long sessionId, List<ResultInput> results, int winnerCount, List<Integer> rankPoints) {
+        int numPlayers = results.size();
+        List<GameResult> gameResults = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            int rank = i + 1;
+            int score = (rankPoints != null && i < rankPoints.size())
+                    ? rankPoints.get(i)
+                    : (numPlayers - rank + 1);
+            boolean won = rank <= winnerCount;
+            gameResults.add(GameResult.create(sessionId, results.get(i).userId(), score, won, rank, null));
         }
         return gameResults;
     }
@@ -167,7 +233,7 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             int score = numPlayers - rank + 1;
             boolean won = rank <= winnerCount;
             ResultInput input = results.get(i);
-            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank, null));
         }
         return gameResults;
     }
@@ -181,13 +247,13 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
             boolean won = Boolean.TRUE.equals(input.won());
             int rank = won ? 1 : 2;
             int score = won ? winPoints : losePoints;
-            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, won, rank, null));
         }
         return gameResults;
     }
 
     /**
-     * COOPERATIVE: entire team shares the same outcome; assign configured points as score.
+     * COOPERATIVE: entire group shares the same outcome; assign configured points as score.
      */
     private List<GameResult> calculateCooperativeRanks(Long sessionId, List<ResultInput> results, int winPoints, int losePoints) {
         boolean teamWon = results.stream()
@@ -199,15 +265,9 @@ public class GameSessionManagementService implements GameSessionQueryUseCase, Ga
 
         List<GameResult> gameResults = new ArrayList<>();
         for (ResultInput input : results) {
-            gameResults.add(GameResult.create(sessionId, input.userId(), score, teamWon, rank));
+            gameResults.add(GameResult.create(sessionId, input.userId(), score, teamWon, rank, null));
         }
         return gameResults;
-    }
-
-    private boolean sameScore(ResultInput a, ResultInput b) {
-        if (a.score() == null && b.score() == null) return true;
-        if (a.score() == null || b.score() == null) return false;
-        return a.score().equals(b.score());
     }
 
     private Long getCurrentUserId() {

@@ -31,23 +31,23 @@ public class JpaGameDataSeeder implements GameDataSeeder {
         var existingGames = gameQueryUseCase.getGameList();
 
         List<SeedGame> seedGames = List.of(
-            new SeedGame("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN),
-            new SeedGame("Splendor", "스플렌더", "Splendor", 2, 4, ScoreStrategy.HIGH_WIN),
-            new SeedGame("Ticket to Ride", "티켓 투 라이드", "Ticket to Ride", 2, 5, ScoreStrategy.HIGH_WIN),
-            new SeedGame("Azul", "아줄", "Azul", 2, 4, ScoreStrategy.HIGH_WIN),
-            new SeedGame("7 Wonders", "7 원더스", "7 Wonders", 2, 7, ScoreStrategy.HIGH_WIN),
-            new SeedGame("Dominion", "도미니언", "Dominion", 2, 4, ScoreStrategy.HIGH_WIN),
+            new SeedGame("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_SCORE),
+            new SeedGame("Splendor", "스플렌더", "Splendor", 2, 4, ScoreStrategy.RANK_SCORE),
+            new SeedGame("Ticket to Ride", "티켓 투 라이드", "Ticket to Ride", 2, 5, ScoreStrategy.RANK_SCORE),
+            new SeedGame("Azul", "아줄", "Azul", 2, 4, ScoreStrategy.RANK_SCORE),
+            new SeedGame("7 Wonders", "7 원더스", "7 Wonders", 2, 7, ScoreStrategy.RANK_SCORE),
+            new SeedGame("Dominion", "도미니언", "Dominion", 2, 4, ScoreStrategy.RANK_SCORE),
             new SeedGame("Codenames", "코드네임", "Codenames", 4, 8, ScoreStrategy.WIN_LOSE),
             new SeedGame("Pandemic", "팬데믹", "Pandemic", 2, 4, ScoreStrategy.COOPERATIVE),
             new SeedGame("The Resistance", "레지스탕스", "The Resistance", 5, 10, ScoreStrategy.WIN_LOSE),
-            new SeedGame("Uno", "우노", "Uno", 2, 10, ScoreStrategy.LOW_WIN),
-            new SeedGame("Love Letter", "러브레터", "Love Letter", 2, 6, ScoreStrategy.HIGH_WIN),
+            new SeedGame("Uno", "우노", "Uno", 2, 10, ScoreStrategy.RANK_SCORE),
+            new SeedGame("Love Letter", "러브레터", "Love Letter", 2, 6, ScoreStrategy.RANK_SCORE),
             new SeedGame("Hanabi", "하나비", "Hanabi", 2, 5, ScoreStrategy.COOPERATIVE),
-            new SeedGame("Dixit", "딕싯", "Dixit", 3, 8, ScoreStrategy.HIGH_WIN),
-            new SeedGame("윷놀이", "윷놀이", "Yut Nori", 2, 4, ScoreStrategy.HIGH_WIN),
+            new SeedGame("Dixit", "딕싯", "Dixit", 3, 8, ScoreStrategy.RANK_SCORE),
+            new SeedGame("윷놀이", "윷놀이", "Yut Nori", 2, 4, ScoreStrategy.RANK_SCORE),
             new SeedGame("할리갈리", "할리갈리", "Halli Galli", 2, 6, ScoreStrategy.RANK_ONLY),
             new SeedGame("뱅!", "뱅!", "Bang!", 4, 7, ScoreStrategy.WIN_LOSE),
-            new SeedGame("루미큐브", "루미큐브", "Rummikub", 2, 4, ScoreStrategy.HIGH_WIN)
+            new SeedGame("루미큐브", "루미큐브", "Rummikub", 2, 4, ScoreStrategy.RANK_SCORE)
         );
 
         int inserted = 0;

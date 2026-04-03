@@ -1,7 +1,9 @@
 package kr.co.jparangdev.boardbuddy.api.game;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -61,9 +63,18 @@ public class GameDtoMapper {
                     .userTag(user != null ? user.getUserTag() : null)
                     .score(result.getScore())
                     .rank(result.getRank())
+                    .teamId(result.getTeamId())
                     .build();
             })
             .toList();
+
+        List<Integer> rankPoints = null;
+        if (session.getRankPoints() != null && !session.getRankPoints().isBlank()) {
+            rankPoints = Arrays.stream(session.getRankPoints().split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+        }
 
         return GameSessionDto.DetailResponse.builder()
             .id(session.getId())
@@ -75,6 +86,7 @@ public class GameDtoMapper {
             .playedAt(session.getPlayedAt())
             .createdAt(session.getCreatedAt())
             .results(resultResponses)
+            .rankPoints(rankPoints)
             .build();
     }
 

@@ -135,26 +135,31 @@
     "winnerCountHint": "Top {{count}} place(s) win.",
     "winPoints": "Win Points",
     "losePoints": "Lose Points",
-    "pointsHint": "Points are awarded based on win/lose result."
+    "pointsHint": "Points are awarded based on win/lose result.",
+    "teamSetup": "Team Setup",
+    "enableTeams": "Enable Teams",
+    "teamSetupHint": "Group players into teams to record results per team. (Available with 3+ players)",
+    "team": "Team {{num}}",
+    "assignToTeam": "Assign to Team",
+    "noTeam": "Unassigned"
   },
   "scoreStrategy": {
-    "HIGH_WIN": "High Wins",
-    "LOW_WIN": "Low Wins",
     "RANK_ONLY": "Rank Only",
     "WIN_LOSE": "Win/Lose",
+    "RANK_SCORE": "Custom Rank Points",
     "COOPERATIVE": "Co-op",
-    "highWinHint": "Highest score wins.",
-    "lowWinHint": "Lowest score wins.",
     "rankOnlyHint": "Players are ranked by the order listed below. Drag or reorder to set placement.",
     "winLoseHint": "Toggle each player as winner or loser.",
     "cooperativeHint": "The entire team wins or loses together.",
+    "rankScoreHint": "Drag to set player order, then enter the points each rank position earns.",
     "teamResult": "Team Result:",
     "won": "Won",
     "lost": "Lost",
     "score": "Score",
     "rank": "Rank",
     "result": "Result",
-    "rankedInOrder": "Players are ranked in the order selected."
+    "rankedInOrder": "Players are ranked in the order selected.",
+    "rankPointsLabel": "{{rank}}st/nd/rd place points"
   },
   "stats": {
     "title": "Group Stats",

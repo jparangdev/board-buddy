@@ -18,7 +18,8 @@ public class GameSessionMapper {
             session.getScoreStrategy(),
             session.getWinnerCount(),
             session.getWinPoints(),
-            session.getLosePoints()
+            session.getLosePoints(),
+            session.getRankPoints()
         );
     }
 
@@ -34,6 +35,7 @@ public class GameSessionMapper {
             .winnerCount(entity.getWinnerCount())
             .winPoints(entity.getWinPoints())
             .losePoints(entity.getLosePoints())
+            .rankPoints(entity.getRankPoints())
             .build();
     }
 }

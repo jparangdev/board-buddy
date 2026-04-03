@@ -7,9 +7,8 @@ import {getAllGameNames, getGameName} from '@/utils/game';
 import styles from './GameListPage.module.css';
 
 const STRATEGY_STYLES: Record<string, string> = {
-  HIGH_WIN: styles.highWin,
-  LOW_WIN: styles.lowWin,
   RANK_ONLY: styles.rankOnly,
+  RANK_SCORE: styles.rankOnly,
   WIN_LOSE: styles.winLose,
   COOPERATIVE: styles.cooperative,
 };
@@ -23,7 +22,7 @@ export function GameListPage() {
   const [formName, setFormName] = useState('');
   const [formMinPlayers, setFormMinPlayers] = useState(2);
   const [formMaxPlayers, setFormMaxPlayers] = useState(4);
-  const [formScoreStrategy, setFormScoreStrategy] = useState('HIGH_WIN');
+  const [formScoreStrategy, setFormScoreStrategy] = useState('RANK_ONLY');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export function GameListPage() {
       setFormName('');
       setFormMinPlayers(2);
       setFormMaxPlayers(4);
-      setFormScoreStrategy('HIGH_WIN');
+      setFormScoreStrategy('RANK_ONLY');
     } catch (error) {
       console.error('Failed to create game:', error);
     } finally {
@@ -202,9 +201,8 @@ export function GameListPage() {
                   value={formScoreStrategy}
                   onChange={(e) => setFormScoreStrategy(e.target.value)}
                 >
-                  <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
-                  <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
                   <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+                  <option value="RANK_SCORE">{t('scoreStrategy.RANK_SCORE')}</option>
                   <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
                   <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
                 </select>

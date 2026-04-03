@@ -36,12 +36,12 @@ export function CreateSessionPage() {
   const [customGameName, setCustomGameName] = useState('');
   const [customGameMinPlayers, setCustomGameMinPlayers] = useState(2);
   const [customGameMaxPlayers, setCustomGameMaxPlayers] = useState(4);
-  const [customGameStrategy, setCustomGameStrategy] = useState('HIGH_WIN');
+  const [customGameStrategy, setCustomGameStrategy] = useState('RANK_ONLY');
   const [isCreatingCustomGame, setIsCreatingCustomGame] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const [selectedGame, setSelectedGame] = useState<SelectedGame | null>(null);
-  const [scoreStrategy, setScoreStrategy] = useState<string>('HIGH_WIN');
+  const [scoreStrategy, setScoreStrategy] = useState<string>('RANK_ONLY');
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set());
   const [rankOrder, setRankOrder] = useState<typeof members>([]);
   const rankDragItem = useRef<number | null>(null);
@@ -53,6 +53,14 @@ export function CreateSessionPage() {
   const [winnerCount, setWinnerCount] = useState(1);
   const [winPoints, setWinPoints] = useState(3);
   const [losePoints, setLosePoints] = useState(0);
+
+  // Team setup state (enabled only when 3+ players selected)
+  const [teamsEnabled, setTeamsEnabled] = useState(false);
+  const [teamAssignments, setTeamAssignments] = useState<Map<number, number>>(new Map()); // userId → teamId (1-based)
+  const [teamCount, setTeamCount] = useState(2);
+
+  // RANK_SCORE: per-rank points, one entry per rank position
+  const [rankPoints, setRankPoints] = useState<string[]>([]);
 
   const strategy = scoreStrategy;
 
@@ -128,23 +136,33 @@ export function CreateSessionPage() {
     if (!groupId || !selectedGame) return;
     setIsSubmitting(true);
     try {
-      const results = strategy === 'RANK_ONLY'
-        ? rankOrder.map((member) => ({ userId: member.id, score: null }))
+      const getTeamId = (userId: number): number | null => {
+        if (!teamsEnabled || selectedMemberIds.size < 3) return null;
+        return teamAssignments.get(userId) ?? null;
+      };
+
+      const results = (strategy === 'RANK_ONLY' || strategy === 'RANK_SCORE')
+        ? rankOrder.map((member) => ({ userId: member.id, score: null, teamId: getTeamId(member.id) }))
         : Array.from(selectedMemberIds).map((userId) => {
             switch (strategy) {
               case 'WIN_LOSE':
-                return { userId, score: null, won: wonStatus.get(userId) ?? false };
+                return { userId, score: null, won: wonStatus.get(userId) ?? false, teamId: getTeamId(userId) };
               case 'COOPERATIVE':
-                return { userId, score: null, won: teamWon };
+                return { userId, score: null, won: teamWon, teamId: getTeamId(userId) };
               default:
                 return {
                   userId,
                   score: scores.get(userId) ? Number(scores.get(userId)) : null,
+                  teamId: getTeamId(userId),
                 };
             }
           });
 
-      const sessionConfig = { scoreStrategy, winnerCount, winPoints, losePoints };
+      const parsedRankPoints = strategy === 'RANK_SCORE'
+        ? rankPoints.map((v) => (v !== '' ? Number(v) : 0))
+        : undefined;
+
+      const sessionConfig = { scoreStrategy, winnerCount, winPoints, losePoints, rankPoints: parsedRankPoints };
       const request = selectedGame.isCustom
         ? { customGameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results, ...sessionConfig }
         : { gameId: selectedGame.id, playedAt: new Date(playedAt).toISOString(), results, ...sessionConfig };
@@ -182,7 +200,14 @@ export function CreateSessionPage() {
   const selectedMembers = members.filter((m) => selectedMemberIds.has(m.id));
 
   useEffect(() => {
-    setRankOrder(members.filter((m) => selectedMemberIds.has(m.id)));
+    const next = members.filter((m) => selectedMemberIds.has(m.id));
+    setRankOrder(next);
+    // Resize rankPoints to match player count, preserving existing entries
+    setRankPoints((prev) => {
+      const updated = [...prev];
+      while (updated.length < next.length) updated.push('');
+      return updated.slice(0, next.length);
+    });
   }, [selectedMemberIds, members]);
 
   const handleRankDragStart = (index: number) => {
@@ -207,7 +232,7 @@ export function CreateSessionPage() {
 
   const selectGame = (game: Game | CustomGame, isCustom: boolean) => {
     setSelectedGame({ ...game, isCustom });
-    setScoreStrategy(game.scoreStrategy ?? 'HIGH_WIN');
+    setScoreStrategy(game.scoreStrategy ?? 'RANK_ONLY');
   };
 
   const handleCreateCustomGame = async (e: React.FormEvent) => {
@@ -226,7 +251,7 @@ export function CreateSessionPage() {
       setCustomGameName('');
       setCustomGameMinPlayers(2);
       setCustomGameMaxPlayers(4);
-      setCustomGameStrategy('HIGH_WIN');
+      setCustomGameStrategy('RANK_ONLY');
     } catch (error) {
       console.error('Failed to create custom game:', error);
     } finally {
@@ -245,13 +270,29 @@ export function CreateSessionPage() {
 
   const getScoreHint = () => {
     switch (strategy) {
-      case 'HIGH_WIN': return t('scoreStrategy.highWinHint');
-      case 'LOW_WIN': return t('scoreStrategy.lowWinHint');
       case 'RANK_ONLY': return t('scoreStrategy.rankOnlyHint');
       case 'WIN_LOSE': return t('scoreStrategy.winLoseHint');
       case 'COOPERATIVE': return t('scoreStrategy.cooperativeHint');
+      case 'RANK_SCORE': return t('scoreStrategy.rankScoreHint');
       default: return '';
     }
+  };
+
+  const canUseTeams = selectedMemberIds.size >= 3;
+
+  const toggleTeamEnabled = () => {
+    if (!canUseTeams) return;
+    const next = !teamsEnabled;
+    setTeamsEnabled(next);
+    if (!next) {
+      setTeamAssignments(new Map());
+    }
+  };
+
+  const assignTeam = (userId: number, teamId: number) => {
+    const next = new Map(teamAssignments);
+    next.set(userId, teamId);
+    setTeamAssignments(next);
   };
 
   const getResultSummary = (memberId: number) => {
@@ -261,11 +302,14 @@ export function CreateSessionPage() {
       case 'COOPERATIVE':
         return teamWon ? t('scoreStrategy.won') : t('scoreStrategy.lost');
       case 'RANK_ONLY':
-        return `#${selectedMembers.findIndex(m => m.id === memberId) + 1}`;
-      default: {
-        const score = scores.get(memberId);
-        return score ? `(${score})` : '';
+      case 'RANK_SCORE': {
+        const idx = rankOrder.findIndex(m => m.id === memberId);
+        const rank = idx >= 0 ? idx + 1 : selectedMembers.findIndex(m => m.id === memberId) + 1;
+        const pts = strategy === 'RANK_SCORE' && rankPoints[idx] ? ` ${rankPoints[idx]}pt` : '';
+        return `#${rank}${pts}`;
       }
+      default:
+        return '';
     }
   };
 
@@ -429,6 +473,58 @@ export function CreateSessionPage() {
       {step === 'scores' && (
         <div className={styles.section}>
           <h2>{t('session.enterResults')}</h2>
+
+          {/* Team Setup - only available when 3+ players selected */}
+          <div className="form-group" style={{marginBottom: 'var(--spacing-md)'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)'}}>
+              <input
+                type="checkbox"
+                id="enableTeams"
+                checked={teamsEnabled}
+                disabled={!canUseTeams}
+                onChange={toggleTeamEnabled}
+              />
+              <label htmlFor="enableTeams" style={{cursor: canUseTeams ? 'pointer' : 'not-allowed', opacity: canUseTeams ? 1 : 0.5}}>
+                {t('session.enableTeams')}
+              </label>
+            </div>
+            <p className="text-muted" style={{fontSize: '0.85rem', marginTop: 'var(--spacing-xs)'}}>
+              {t('session.teamSetupHint')}
+            </p>
+          </div>
+
+          {teamsEnabled && canUseTeams && (
+            <div className={styles.scoreInputs} style={{marginBottom: 'var(--spacing-lg)'}}>
+              <div className={styles.configRow} style={{alignItems: 'center', gap: 'var(--spacing-sm)'}}>
+                <label>{t('session.teamSetup')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={2}
+                  max={selectedMemberIds.size}
+                  value={teamCount}
+                  onChange={(e) => setTeamCount(Math.max(2, Math.min(selectedMemberIds.size, Number(e.target.value))))}
+                />
+                <span className="text-muted" style={{fontSize: '0.85rem'}}>{t('session.teamSetup')}</span>
+              </div>
+              {selectedMembers.map((member) => (
+                <div key={member.id} className={styles.scoreRow}>
+                  <label>{member.nickname}</label>
+                  <select
+                    className={`input ${styles.configInput}`}
+                    value={teamAssignments.get(member.id) ?? ''}
+                    onChange={(e) => assignTeam(member.id, Number(e.target.value))}
+                  >
+                    <option value="">{t('session.noTeam')}</option>
+                    {Array.from({length: teamCount}, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>{t('session.team', {num: n})}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="form-group" style={{marginBottom: 'var(--spacing-md)'}}>
             <label htmlFor="scoreStrategy">{t('game.scoreStrategy')}</label>
             <select
@@ -437,9 +533,8 @@ export function CreateSessionPage() {
               value={scoreStrategy}
               onChange={(e) => setScoreStrategy(e.target.value)}
             >
-              <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
-              <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
               <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+              <option value="RANK_SCORE">{t('scoreStrategy.RANK_SCORE')}</option>
               <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
               <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
             </select>
@@ -503,23 +598,6 @@ export function CreateSessionPage() {
             </div>
           )}
 
-          {(strategy === 'HIGH_WIN' || strategy === 'LOW_WIN') && (
-            <div className={styles.scoreInputs}>
-              {selectedMembers.map((member) => (
-                <div key={member.id} className={styles.scoreRow}>
-                  <label>{member.nickname}</label>
-                  <input
-                    className={`input ${styles.scoreInput}`}
-                    type="number"
-                    placeholder={t('placeholder.score')}
-                    value={scores.get(member.id) ?? ''}
-                    onChange={(e) => updateScore(member.id, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
           {strategy === 'RANK_ONLY' && (
             <div className={styles.scoreInputs}>
               <div className={styles.configRow}>
@@ -548,6 +626,55 @@ export function CreateSessionPage() {
                 >
                   <span className={styles.rankNumber}>#{index + 1}</span>
                   <label>{member.nickname}</label>
+                  <span className={styles.dragHandle}>⠿</span>
+                </div>
+              ))}
+              <p className="text-muted" style={{marginTop: 'var(--spacing-sm)', fontSize: '0.85rem'}}>
+                {t('scoreStrategy.rankedInOrder')}
+              </p>
+            </div>
+          )}
+
+          {strategy === 'RANK_SCORE' && (
+            <div className={styles.scoreInputs}>
+              <div className={styles.configRow}>
+                <label>{t('session.winnerCount')}</label>
+                <input
+                  className={`input ${styles.configInput}`}
+                  type="number"
+                  min={1}
+                  max={rankOrder.length}
+                  value={winnerCount}
+                  onChange={(e) => setWinnerCount(Math.max(1, Number(e.target.value)))}
+                />
+                <span className="text-muted" style={{fontSize: '0.85rem'}}>
+                  {t('session.winnerCountHint', { count: winnerCount })}
+                </span>
+              </div>
+              {rankOrder.map((member, index) => (
+                <div
+                  key={member.id}
+                  className={styles.scoreRow}
+                  draggable
+                  onDragStart={() => handleRankDragStart(index)}
+                  onDragEnter={() => handleRankDragEnter(index)}
+                  onDragEnd={handleRankDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <span className={styles.rankNumber}>#{index + 1}</span>
+                  <label>{member.nickname}</label>
+                  <input
+                    className={`input ${styles.scoreInput}`}
+                    type="number"
+                    min={0}
+                    placeholder={t('scoreStrategy.rankPointsLabel', { rank: index + 1 })}
+                    value={rankPoints[index] ?? ''}
+                    onChange={(e) => {
+                      const next = [...rankPoints];
+                      next[index] = e.target.value;
+                      setRankPoints(next);
+                    }}
+                  />
                   <span className={styles.dragHandle}>⠿</span>
                 </div>
               ))}
@@ -618,7 +745,9 @@ export function CreateSessionPage() {
                 <td style={{padding: '8px'}}>
                   {selectedMembers.map((m) => {
                     const summary = getResultSummary(m.id);
-                    return `${m.nickname}${summary ? ` ${summary}` : ''}`;
+                    const teamId = teamsEnabled ? teamAssignments.get(m.id) : undefined;
+                    const teamLabel = teamId ? ` [${t('session.team', {num: teamId})}]` : '';
+                    return `${m.nickname}${teamLabel}${summary ? ` ${summary}` : ''}`;
                   }).join(', ')}
                 </td>
               </tr>
@@ -706,9 +835,8 @@ export function CreateSessionPage() {
                   value={customGameStrategy}
                   onChange={(e) => setCustomGameStrategy(e.target.value)}
                 >
-                  <option value="HIGH_WIN">{t('scoreStrategy.HIGH_WIN')}</option>
-                  <option value="LOW_WIN">{t('scoreStrategy.LOW_WIN')}</option>
                   <option value="RANK_ONLY">{t('scoreStrategy.RANK_ONLY')}</option>
+                  <option value="RANK_SCORE">{t('scoreStrategy.RANK_SCORE')}</option>
                   <option value="WIN_LOSE">{t('scoreStrategy.WIN_LOSE')}</option>
                   <option value="COOPERATIVE">{t('scoreStrategy.COOPERATIVE')}</option>
                 </select>
