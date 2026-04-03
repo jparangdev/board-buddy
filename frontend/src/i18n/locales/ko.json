@@ -161,6 +161,14 @@
     "rankedInOrder": "플레이어는 선택된 순서대로 순위가 매겨집니다.",
     "rankPointsLabel": "{{rank}}위 점수"
   },
+  "preset": {
+    "defaultsApplied": "게임 기본 설정이 자동으로 적용되었습니다.",
+    "playerCountAdjusted": "{{count}}명 기준으로 기본값이 조정되었습니다.",
+    "rankOnly": "순위 방식",
+    "rankScore": "순위별 점수",
+    "winLose": "승/패 방식",
+    "cooperative": "협동 방식"
+  },
   "stats": {
     "title": "그룹 통계",
     "dashboard": "대시보드",

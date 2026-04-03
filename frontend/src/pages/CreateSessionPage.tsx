@@ -5,7 +5,15 @@ import type {CustomGame, Game, GroupMember} from '@/types';
 import {customGameService, gameService, gameSessionService, groupService} from '@/services';
 import {matchesSearch, sortAlphabetically} from '@/utils/korean';
 import {getAllGameNames, getGameName} from '@/utils/game';
+import {defaultRankPoints, getSessionDefaults} from '@/utils/presets';
 import styles from './CreateSessionPage.module.css';
+
+const STRATEGY_STYLES: Record<string, string> = {
+  RANK_ONLY:   styles.strategyRankOnly,
+  RANK_SCORE:  styles.strategyRankScore,
+  WIN_LOSE:    styles.strategyWinLose,
+  COOPERATIVE: styles.strategyCooperative,
+};
 
 type Step = 'game' | 'members' | 'scores' | 'confirm';
 
@@ -202,13 +210,21 @@ export function CreateSessionPage() {
   useEffect(() => {
     const next = members.filter((m) => selectedMemberIds.has(m.id));
     setRankOrder(next);
-    // Resize rankPoints to match player count, preserving existing entries
     setRankPoints((prev) => {
+      const n = next.length;
+      if (scoreStrategy === 'RANK_SCORE') {
+        // Fill new rank slots with default point values (N, N-1, ...) rather than empty strings
+        const defaults = defaultRankPoints(n);
+        return Array.from({ length: n }, (_, i) =>
+          i < prev.length && prev[i] !== '' ? prev[i] : String(defaults[i])
+        );
+      }
+      // For other strategies just resize, preserving existing values
       const updated = [...prev];
-      while (updated.length < next.length) updated.push('');
-      return updated.slice(0, next.length);
+      while (updated.length < n) updated.push('');
+      return updated.slice(0, n);
     });
-  }, [selectedMemberIds, members]);
+  }, [selectedMemberIds, members, scoreStrategy]);
 
   const handleRankDragStart = (index: number) => {
     rankDragItem.current = index;
@@ -232,7 +248,14 @@ export function CreateSessionPage() {
 
   const selectGame = (game: Game | CustomGame, isCustom: boolean) => {
     setSelectedGame({ ...game, isCustom });
-    setScoreStrategy(game.scoreStrategy ?? 'RANK_ONLY');
+    // Auto-apply preset defaults based on the game's strategy and current player count
+    const playerCount = selectedMemberIds.size || 2;
+    const defaults = getSessionDefaults(game.scoreStrategy ?? 'RANK_ONLY', playerCount);
+    setScoreStrategy(defaults.scoreStrategy);
+    setWinnerCount(defaults.winnerCount);
+    setWinPoints(defaults.winPoints);
+    setLosePoints(defaults.losePoints);
+    setRankPoints(defaults.rankPoints.map(String));
   };
 
   const handleCreateCustomGame = async (e: React.FormEvent) => {
@@ -395,6 +418,11 @@ export function CreateSessionPage() {
                       <h4>{getGameName(game, i18n.language)}</h4>
                       <div className={styles.gameCardMeta}>
                         {game.minPlayers}-{game.maxPlayers} {t('game.players')}
+                        {game.scoreStrategy && (
+                          <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? ''}`}>
+                            {t(`scoreStrategy.${game.scoreStrategy}`)}
+                          </span>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -415,6 +443,11 @@ export function CreateSessionPage() {
                       <h4>{getGameName(game, i18n.language)}</h4>
                       <div className={styles.gameCardMeta}>
                         {game.minPlayers}-{game.maxPlayers} {t('game.players')}
+                        {game.scoreStrategy && (
+                          <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? ''}`}>
+                            {t(`scoreStrategy.${game.scoreStrategy}`)}
+                          </span>
+                        )}
                       </div>
                     </button>
                   ))}

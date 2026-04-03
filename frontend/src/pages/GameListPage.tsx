@@ -138,7 +138,7 @@ export function GameListPage() {
                   <h3>{getGameName(game, i18n.language)}</h3>
                   <div className={styles.cardMeta}>
                     <span>{game.minPlayers}-{game.maxPlayers} {t('game.players')}</span>
-                    <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? styles.highWin}`}>
+                    <span className={`${styles.strategyBadge} ${STRATEGY_STYLES[game.scoreStrategy] ?? styles.rankOnly}`}>
                       {t(`scoreStrategy.${game.scoreStrategy}`)}
                     </span>
                   </div>

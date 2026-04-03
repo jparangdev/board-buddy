@@ -161,6 +161,14 @@
     "rankedInOrder": "Players are ranked in the order selected.",
     "rankPointsLabel": "{{rank}}st/nd/rd place points"
   },
+  "preset": {
+    "defaultsApplied": "Default settings have been automatically applied.",
+    "playerCountAdjusted": "Defaults adjusted for {{count}} players.",
+    "rankOnly": "Rank-based",
+    "rankScore": "Rank Points",
+    "winLose": "Win/Lose",
+    "cooperative": "Co-op"
+  },
   "stats": {
     "title": "Group Stats",
     "dashboard": "Dashboard",
