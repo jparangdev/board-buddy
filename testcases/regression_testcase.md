@@ -73,7 +73,7 @@ report created by korean
     *   **Note for Automation**: "Catan", "Splendor", "Love Letter", and "Hanabi" are pre-seeded in the database as Official Games. Verify they appear in the list. DO NOT attempt to create them again as it will cause a Duplicate Error. Only create "Terraforming Mars" which is not seeded.
     2.  **Add Terraforming Mars**:
         *   Click "+ Add Game" (or equivalent)
-        *   Name: `Terraforming Mars`, Min: `1`, Max: `5`, Score: `High Score Wins` (HIGH_WIN)
+        *   Name: `Terraforming Mars`, Min: `1`, Max: `5`, Score: `Custom Rank Points` (RANK_SCORE)
     3.  Verify all 5 games appear in the official list.
 
 ## 4-1. Game Creation — Duplicate Name
@@ -82,7 +82,7 @@ report created by korean
 *   **Steps**:
     1.  Navigate to `/games`.
     2.  Click "+ Add Game".
-    3.  Enter Name: `Catan`, Min: `2`, Max: `6`, Score: `HIGH_WIN`.
+    3.  Enter Name: `Catan`, Min: `2`, Max: `6`, Score: `RANK_ONLY`.
     4.  Submit.
     5.  Verify an error message is displayed (e.g. "Game already exists").
     6.  Verify no duplicate entry appears in the game list.
@@ -227,13 +227,13 @@ report created by korean
 *   **Details**: Create a custom game within the group, then record a session for it.
 *   **Steps**:
     1.  Click "Record Game" -> Click "+ Add Custom Game".
-    2.  In the modal: Name: `House Rules Chess`, Min: `2`, Max: `10`, Score Strategy: `Low Wins` (or `LOW_WIN`).
+    2.  In the modal: Name: `House Rules Chess`, Min: `2`, Max: `10`, Score Strategy: `Win/Lose` (or `WIN_LOSE`).
     3.  Click "Add Game" (creates Custom Game and appears under "Custom Games").
     4.  Select `House Rules Chess` under the "Custom Games" section.
     5.  Select: `PlayerOne#PLY1`, `PlayerTwo#PLY2` for the session.
-    6.  Scores (Low Wins):
-        *   P1 (`PlayerOne#PLY1`): `2` (Won - lowest score)
-        *   P2 (`PlayerTwo#PLY2`): `3`
+    6.  Win/Lose:
+        *   P1 (`PlayerOne#PLY1`): Won
+        *   P2 (`PlayerTwo#PLY2`): Lost
     7.  Save Session.
 
 ### Session G: Rank Only (RANK_ONLY)
@@ -251,6 +251,41 @@ report created by korean
     6.  Verify the drag handle (⠿) is visible for each player row.
     7.  Save Session.
     8.  Verify the session appears in the group session list.
+
+### Session H: Team vs Team (WIN_LOSE + Team Setup)
+*   **Details**: 4 players divided into 2 teams. Team 1 (P1 + P3) wins; Team 2 (P2 + P4) loses.
+*   **Steps**:
+    1.  Click "Record Game" -> Select `Love Letter`.
+    2.  Select: All Players (`PlayerOne#PLY1`, `PlayerTwo#PLY2`, `PlayerThree#PLY3`, `PlayerFour#PLY4`).
+    3.  In the "Enter Results" step:
+        *   Verify the **"Enable Teams"** checkbox is enabled (4 players ≥ 3).
+        *   Check **"Enable Teams"**.
+        *   Set Team Count to `2`.
+        *   Assign players via the team dropdown next to each name:
+            *   `PlayerOne` → Team 1
+            *   `PlayerThree` → Team 1
+            *   `PlayerTwo` → Team 2
+            *   `PlayerFour` → Team 2
+        *   Set Score Strategy to **Win/Lose** (`WIN_LOSE`).
+        *   Toggle: `PlayerOne` → Won, `PlayerThree` → Won, `PlayerTwo` → Lost, `PlayerFour` → Lost.
+    4.  Proceed to Confirm step.
+    5.  Verify the summary shows team labels, e.g. `PlayerOne [Team 1]`, `PlayerTwo [Team 2]`.
+    6.  Save Session.
+*   **Expected result**:
+    *   P1 and P3: rank = 1, won = true, teamId = 1.
+    *   P2 and P4: rank = 2, won = false, teamId = 2.
+    *   Session appears in group session list.
+
+### 6-1. Team Setup — Conditional Activation (2 Players)
+*   **Goal**: Verify "Enable Teams" is disabled when fewer than 3 players are selected.
+*   **Steps**:
+    1.  Click "Record Game" -> Select any game.
+    2.  Select only **2 players**.
+    3.  Proceed to the "Enter Results" step.
+    4.  Verify the **"Enable Teams"** checkbox is **disabled** (grayed out, not interactive).
+    5.  Go back and select **3 or more players**.
+    6.  Proceed to the "Enter Results" step again.
+    7.  Verify the **"Enable Teams"** checkbox is now **enabled** and can be checked.
 
 ## 7. Group Reordering
 *   **Goal**: Verify drag-and-drop persistence.

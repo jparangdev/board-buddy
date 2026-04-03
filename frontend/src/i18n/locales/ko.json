@@ -135,26 +135,39 @@
     "winnerCountHint": "상위 {{count}}등까지 승리로 기록됩니다.",
     "winPoints": "승리 점수",
     "losePoints": "패배 점수",
-    "pointsHint": "승패에 따라 누적 점수가 부여됩니다."
+    "pointsHint": "승패에 따라 누적 점수가 부여됩니다.",
+    "teamSetup": "팀 구성",
+    "enableTeams": "팀 구성 활성화",
+    "teamSetupHint": "플레이어를 팀으로 묶어서 팀별로 결과를 기록합니다. (3명 이상일 때만 가능)",
+    "team": "팀 {{num}}",
+    "assignToTeam": "팀 배정",
+    "noTeam": "미배정"
   },
   "scoreStrategy": {
-    "HIGH_WIN": "높은 점수 승리",
-    "LOW_WIN": "낮은 점수 승리",
     "RANK_ONLY": "순위만",
     "WIN_LOSE": "승/패",
     "COOPERATIVE": "협동",
-    "highWinHint": "가장 높은 점수가 승리합니다.",
-    "lowWinHint": "가장 낮은 점수가 승리합니다.",
+    "RANK_SCORE": "순위별 점수 설정",
     "rankOnlyHint": "플레이어는 아래 나열된 순서대로 순위가 매겨집니다. 드래그하거나 순서를 변경하여 순위를 설정하세요.",
     "winLoseHint": "각 플레이어를 승자 또는 패자로 토글하세요.",
     "cooperativeHint": "전체 팀이 함께 승리하거나 패배합니다.",
+    "rankScoreHint": "플레이어 순서를 드래그로 정렬하고, 각 순위별 획득 점수를 직접 입력하세요.",
     "teamResult": "팀 결과:",
     "won": "승리",
     "lost": "패배",
     "score": "점수",
     "rank": "순위",
     "result": "결과",
-    "rankedInOrder": "플레이어는 선택된 순서대로 순위가 매겨집니다."
+    "rankedInOrder": "플레이어는 선택된 순서대로 순위가 매겨집니다.",
+    "rankPointsLabel": "{{rank}}위 점수"
+  },
+  "preset": {
+    "defaultsApplied": "게임 기본 설정이 자동으로 적용되었습니다.",
+    "playerCountAdjusted": "{{count}}명 기준으로 기본값이 조정되었습니다.",
+    "rankOnly": "순위 방식",
+    "rankScore": "순위별 점수",
+    "winLose": "승/패 방식",
+    "cooperative": "협동 방식"
   },
   "stats": {
     "title": "그룹 통계",

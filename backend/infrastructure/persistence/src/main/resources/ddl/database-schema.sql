@@ -82,7 +82,7 @@ CREATE TABLE games (
     name_en VARCHAR2(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'RANK_ONLY',
     created_at TIMESTAMP NOT NULL
 );
 
@@ -95,7 +95,7 @@ CREATE TABLE custom_games (
     name_en VARCHAR2(100),
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'RANK_ONLY',
     created_at TIMESTAMP NOT NULL,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     UNIQUE (group_id, name)
@@ -109,10 +109,11 @@ CREATE TABLE game_sessions (
     custom_game_id BIGINT,
     played_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'RANK_ONLY',
     winner_count INT NOT NULL DEFAULT 1,
     win_points INT NOT NULL DEFAULT 3,
     lose_points INT NOT NULL DEFAULT 0,
+    rank_points VARCHAR2(255),
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (game_id) REFERENCES games(id),
     FOREIGN KEY (custom_game_id) REFERENCES custom_games(id),
@@ -132,6 +133,7 @@ CREATE TABLE game_results (
     score INT,
     won BOOLEAN NOT NULL DEFAULT FALSE,
     rank INT NOT NULL,
+    team_id INT,
     FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE (session_id, user_id)

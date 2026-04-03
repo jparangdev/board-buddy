@@ -14,7 +14,8 @@ public class GameResultMapper {
             result.getUserId(),
             result.getScore(),
             result.isWon(),
-            result.getRank()
+            result.getRank(),
+            result.getTeamId()
         );
     }
 
@@ -26,6 +27,7 @@ public class GameResultMapper {
             .score(entity.getScore())
             .won(entity.isWon())
             .rank(entity.getRank())
+            .teamId(entity.getTeamId())
             .build();
     }
 }

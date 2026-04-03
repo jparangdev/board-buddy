@@ -215,6 +215,41 @@
 .gameCardMeta {
   font-size: 0.8rem;
   color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.strategyBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.strategyRankOnly {
+  background: rgba(250, 168, 26, 0.15);
+  color: #faa81a;
+}
+
+.strategyRankScore {
+  background: rgba(250, 168, 26, 0.15);
+  color: #faa81a;
+}
+
+.strategyWinLose {
+  background: rgba(237, 66, 69, 0.15);
+  color: #ed4245;
+}
+
+.strategyCooperative {
+  background: rgba(45, 186, 230, 0.15);
+  color: #2dbae6;
 }
 
 .memberList {

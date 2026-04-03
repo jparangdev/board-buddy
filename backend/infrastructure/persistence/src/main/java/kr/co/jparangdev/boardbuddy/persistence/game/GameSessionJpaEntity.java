@@ -47,6 +47,10 @@ public class GameSessionJpaEntity {
     @Column(name = "lose_points", nullable = false)
     private int losePoints;
 
+    /** Comma-separated points per rank for RANK_SCORE strategy (e.g. "10,7,5,3"). Nullable. */
+    @Column(name = "rank_points")
+    private String rankPoints;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -56,7 +60,8 @@ public class GameSessionJpaEntity {
 
     public GameSessionJpaEntity(Long id, Long groupId, Long gameId, Long customGameId,
                                 Instant playedAt, Instant createdAt,
-                                ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints) {
+                                ScoreStrategy scoreStrategy, int winnerCount, int winPoints, int losePoints,
+                                String rankPoints) {
         this.id = id;
         this.groupId = groupId;
         this.gameId = gameId;
@@ -67,5 +72,6 @@ public class GameSessionJpaEntity {
         this.winnerCount = winnerCount;
         this.winPoints = winPoints;
         this.losePoints = losePoints;
+        this.rankPoints = rankPoints;
     }
 }

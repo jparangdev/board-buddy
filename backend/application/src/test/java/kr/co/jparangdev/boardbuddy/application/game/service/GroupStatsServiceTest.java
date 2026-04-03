@@ -129,7 +129,7 @@ class GroupStatsServiceTest {
             given(userRepository.findById(1L)).willReturn(Optional.of(user1));
             given(userRepository.findById(2L)).willReturn(Optional.of(user2));
 
-            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
             given(gameRepository.findById(1L)).willReturn(Optional.of(game));
 
             // when
@@ -165,7 +165,7 @@ class GroupStatsServiceTest {
             given(userRepository.findById(1L)).willReturn(Optional.of(user1));
             given(userRepository.findById(2L)).willReturn(Optional.of(user2));
 
-            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
             given(gameRepository.findById(1L)).willReturn(Optional.of(game));
 
             // when
@@ -197,7 +197,7 @@ class GroupStatsServiceTest {
             User user1 = User.builder().id(1L).nickname("Alice").discriminator("AA01").build();
             given(userRepository.findById(1L)).willReturn(Optional.of(user1));
 
-            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.HIGH_WIN).build();
+            Game game = Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.RANK_ONLY).build();
             given(gameRepository.findById(1L)).willReturn(Optional.of(game));
 
             // when
@@ -229,9 +229,9 @@ class GroupStatsServiceTest {
             given(userRepository.findById(1L)).willReturn(Optional.of(user1));
 
             given(gameRepository.findById(1L)).willReturn(Optional.of(
-                Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.HIGH_WIN).build()));
+                Game.builder().id(1L).name("Catan").scoreStrategy(ScoreStrategy.RANK_ONLY).build()));
             given(gameRepository.findById(2L)).willReturn(Optional.of(
-                Game.builder().id(2L).name("Splendor").scoreStrategy(ScoreStrategy.HIGH_WIN).build()));
+                Game.builder().id(2L).name("Splendor").scoreStrategy(ScoreStrategy.RANK_ONLY).build()));
 
             // when
             GroupStats stats = groupStatsService.getGroupStats(10L);

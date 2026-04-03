@@ -53,104 +53,6 @@ class GameSessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("Create Session - High Win Strategy")
-    void createSessionHighWin() {
-        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
-            // given
-            Authentication authentication = mock(Authentication.class);
-            SecurityContext securityContext = mock(SecurityContext.class);
-            given(securityContext.getAuthentication()).willReturn(authentication);
-            given(authentication.getPrincipal()).willReturn(1L);
-            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-
-            Long groupId = 1L;
-            Long gameId = 1L;
-            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
-
-            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.HIGH_WIN).build();
-            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
-
-            ResultInput user1 = new ResultInput(2L, 100, null);
-            ResultInput user2 = new ResultInput(3L, 200, null);
-            List<ResultInput> results = List.of(user1, user2);
-
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
-
-            GameSession session = GameSession.builder().id(10L).build();
-            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
-
-            // when
-            SessionConfig config = new SessionConfig(ScoreStrategy.HIGH_WIN, 1, 3, 0);
-            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
-
-            // then
-            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
-            verify(gameResultRepository).saveAll(captor.capture());
-
-            List<GameResult> savedResults = captor.getValue();
-            assertThat(savedResults).hasSize(2);
-
-            // user2 (200) -> rank 1, won = true
-            GameResult result2 = savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get();
-            assertThat(result2.getRank()).isEqualTo(1);
-            assertThat(result2.isWon()).isTrue();
-
-            // user1 (100) -> rank 2, won = false
-            GameResult result1 = savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get();
-            assertThat(result1.getRank()).isEqualTo(2);
-            assertThat(result1.isWon()).isFalse();
-        }
-    }
-
-    @Test
-    @DisplayName("Create Session - Low Win Strategy")
-    void createSessionLowWin() {
-        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
-            // given
-            Authentication authentication = mock(Authentication.class);
-            SecurityContext securityContext = mock(SecurityContext.class);
-            given(securityContext.getAuthentication()).willReturn(authentication);
-            given(authentication.getPrincipal()).willReturn(1L);
-            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-
-            Long groupId = 1L;
-            Long gameId = 1L;
-            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
-
-            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.LOW_WIN).build();
-            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
-
-            ResultInput user1 = new ResultInput(2L, 10, null);
-            ResultInput user2 = new ResultInput(3L, 20, null);
-            List<ResultInput> results = List.of(user1, user2);
-
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
-            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
-
-            GameSession session = GameSession.builder().id(10L).build();
-            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
-
-            // when
-            SessionConfig config = new SessionConfig(ScoreStrategy.LOW_WIN, 1, 3, 0);
-            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
-
-            // then
-            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
-            verify(gameResultRepository).saveAll(captor.capture());
-
-            List<GameResult> savedResults = captor.getValue();
-
-            // user1 (10) -> rank 1, won = true (Low Win)
-            GameResult result1 = savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get();
-            assertThat(result1.getRank()).isEqualTo(1);
-            assertThat(result1.isWon()).isTrue();
-        }
-    }
-
-    @Test
     @DisplayName("Create Session - Rank Only: score by rank inversion, top winnerCount wins")
     void createSessionRankOnly() {
         try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
@@ -170,9 +72,9 @@ class GameSessionManagementServiceTest {
 
             // Input order = ranking order (1st, 2nd, 3rd)
             List<ResultInput> results = List.of(
-                    new ResultInput(2L, null, null),
-                    new ResultInput(3L, null, null),
-                    new ResultInput(4L, null, null)
+                    new ResultInput(2L, null, null, null),
+                    new ResultInput(3L, null, null, null),
+                    new ResultInput(4L, null, null, null)
             );
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
@@ -182,7 +84,7 @@ class GameSessionManagementServiceTest {
             given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
 
             // winnerCount = 2 (top 2 win)
-            SessionConfig config = new SessionConfig(ScoreStrategy.RANK_ONLY, 2, 3, 0);
+            SessionConfig config = new SessionConfig(ScoreStrategy.RANK_ONLY, 2, 3, 0, List.of());
             gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
@@ -225,8 +127,8 @@ class GameSessionManagementServiceTest {
             given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
 
             List<ResultInput> results = List.of(
-                    new ResultInput(2L, null, true),
-                    new ResultInput(3L, null, false)
+                    new ResultInput(2L, null, true, null),
+                    new ResultInput(3L, null, false, null)
             );
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
             given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
@@ -234,7 +136,7 @@ class GameSessionManagementServiceTest {
             GameSession session = GameSession.builder().id(10L).build();
             given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
 
-            SessionConfig config = new SessionConfig(ScoreStrategy.WIN_LOSE, 1, 5, 1);
+            SessionConfig config = new SessionConfig(ScoreStrategy.WIN_LOSE, 1, 5, 1, List.of());
             gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
 
             ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
@@ -250,6 +152,217 @@ class GameSessionManagementServiceTest {
             assertThat(loser.isWon()).isFalse();
             assertThat(loser.getScore()).isEqualTo(1);
             assertThat(loser.getRank()).isEqualTo(2);
+        }
+    }
+
+    @Test
+    @DisplayName("Team Mode - WIN_LOSE: members in same team share won status and rank")
+    void createSessionTeamWinLose() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(authentication);
+            given(authentication.getPrincipal()).willReturn(1L);
+            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            Long groupId = 1L;
+            Long gameId = 1L;
+            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
+
+            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.WIN_LOSE).build();
+            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
+
+            // Team 1 (users 2, 3) wins; Team 2 (users 4, 5) loses
+            List<ResultInput> results = List.of(
+                    new ResultInput(2L, null, true, 1),
+                    new ResultInput(3L, null, true, 1),
+                    new ResultInput(4L, null, false, 2),
+                    new ResultInput(5L, null, false, 2)
+            );
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 4L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 5L)).willReturn(true);
+
+            GameSession session = GameSession.builder().id(10L).build();
+            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
+
+            SessionConfig config = new SessionConfig(ScoreStrategy.WIN_LOSE, 1, 3, 0, List.of());
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
+
+            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
+            verify(gameResultRepository).saveAll(captor.capture());
+            List<GameResult> savedResults = captor.getValue();
+
+            // Team 1 members: rank 1, won, score 3
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().getRank()).isEqualTo(1);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().isWon()).isTrue();
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get().getRank()).isEqualTo(1);
+
+            // Team 2 members: rank 2, lost, score 0
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().getRank()).isEqualTo(2);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().isWon()).isFalse();
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(5L)).findFirst().get().getRank()).isEqualTo(2);
+
+            // teamId stored
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().getTeamId()).isEqualTo(1);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().getTeamId()).isEqualTo(2);
+        }
+    }
+
+    @Test
+    @DisplayName("Team Mode - RANK_ONLY: teams ordered by appearance, members share team rank and score")
+    void createSessionTeamRankOnly() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(authentication);
+            given(authentication.getPrincipal()).willReturn(1L);
+            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            Long groupId = 1L;
+            Long gameId = 1L;
+            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
+
+            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.RANK_ONLY).build();
+            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
+
+            // Team 1 first (rank 1), Team 2 second (rank 2)
+            List<ResultInput> results = List.of(
+                    new ResultInput(2L, null, null, 1),
+                    new ResultInput(3L, null, null, 1),
+                    new ResultInput(4L, null, null, 2),
+                    new ResultInput(5L, null, null, 2)
+            );
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 4L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 5L)).willReturn(true);
+
+            GameSession session = GameSession.builder().id(10L).build();
+            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
+
+            // winnerCount = 1 (top team wins)
+            SessionConfig config = new SessionConfig(ScoreStrategy.RANK_ONLY, 1, 3, 0, List.of());
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
+
+            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
+            verify(gameResultRepository).saveAll(captor.capture());
+            List<GameResult> savedResults = captor.getValue();
+
+            // Team 1: rank 1, won, score = numTeams(2) - rank(1) + 1 = 2
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().getRank()).isEqualTo(1);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().isWon()).isTrue();
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get().getScore()).isEqualTo(2);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get().getRank()).isEqualTo(1);
+
+            // Team 2: rank 2, not won, score 1
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().getRank()).isEqualTo(2);
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().isWon()).isFalse();
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().getScore()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    @DisplayName("RANK_SCORE: each rank earns configured points, top winnerCount wins")
+    void createSessionRankScore() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(authentication);
+            given(authentication.getPrincipal()).willReturn(1L);
+            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            Long groupId = 1L;
+            Long gameId = 1L;
+            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
+
+            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.RANK_SCORE).build();
+            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
+
+            // Input order = ranking: user2 = 1st, user3 = 2nd, user4 = 3rd
+            List<ResultInput> results = List.of(
+                    new ResultInput(2L, null, null, null),
+                    new ResultInput(3L, null, null, null),
+                    new ResultInput(4L, null, null, null)
+            );
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 4L)).willReturn(true);
+
+            GameSession session = GameSession.builder().id(10L).build();
+            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
+
+            // rankPoints: 1st=10, 2nd=6, 3rd=3; winnerCount=1
+            SessionConfig config = new SessionConfig(ScoreStrategy.RANK_SCORE, 1, 0, 0, List.of(10, 6, 3));
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
+
+            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
+            verify(gameResultRepository).saveAll(captor.capture());
+            List<GameResult> savedResults = captor.getValue();
+
+            GameResult first = savedResults.stream().filter(r -> r.getUserId().equals(2L)).findFirst().get();
+            assertThat(first.getRank()).isEqualTo(1);
+            assertThat(first.getScore()).isEqualTo(10);
+            assertThat(first.isWon()).isTrue();
+
+            GameResult second = savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get();
+            assertThat(second.getRank()).isEqualTo(2);
+            assertThat(second.getScore()).isEqualTo(6);
+            assertThat(second.isWon()).isFalse();
+
+            GameResult third = savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get();
+            assertThat(third.getRank()).isEqualTo(3);
+            assertThat(third.getScore()).isEqualTo(3);
+            assertThat(third.isWon()).isFalse();
+        }
+    }
+
+    @Test
+    @DisplayName("RANK_SCORE: falls back to (numPlayers - rank + 1) when rankPoints list is shorter")
+    void createSessionRankScoreFallback() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolder = mockStatic(SecurityContextHolder.class)) {
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            given(securityContext.getAuthentication()).willReturn(authentication);
+            given(authentication.getPrincipal()).willReturn(1L);
+            securityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+
+            Long groupId = 1L;
+            Long gameId = 1L;
+            given(groupRepository.findById(groupId)).willReturn(Optional.of(Group.builder().id(groupId).build()));
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 1L)).willReturn(true);
+
+            Game game = Game.builder().id(gameId).scoreStrategy(ScoreStrategy.RANK_SCORE).build();
+            given(gameRepository.findById(gameId)).willReturn(Optional.of(game));
+
+            List<ResultInput> results = List.of(
+                    new ResultInput(2L, null, null, null),
+                    new ResultInput(3L, null, null, null),
+                    new ResultInput(4L, null, null, null)
+            );
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 2L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 3L)).willReturn(true);
+            given(groupMemberRepository.existsByGroupIdAndUserId(groupId, 4L)).willReturn(true);
+
+            GameSession session = GameSession.builder().id(10L).build();
+            given(gameSessionRepository.save(any(GameSession.class))).willReturn(session);
+
+            // Only 1 rankPoint provided for 3 players — remaining ranks fall back
+            SessionConfig config = new SessionConfig(ScoreStrategy.RANK_SCORE, 1, 0, 0, List.of(10));
+            gameSessionManagementService.createSession(groupId, gameId, Instant.now(), results, config);
+
+            ArgumentCaptor<List<GameResult>> captor = ArgumentCaptor.forClass(List.class);
+            verify(gameResultRepository).saveAll(captor.capture());
+            List<GameResult> savedResults = captor.getValue();
+
+            // Rank 2 fallback: 3 - 2 + 1 = 2
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(3L)).findFirst().get().getScore()).isEqualTo(2);
+            // Rank 3 fallback: 3 - 3 + 1 = 1
+            assertThat(savedResults.stream().filter(r -> r.getUserId().equals(4L)).findFirst().get().getScore()).isEqualTo(1);
         }
     }
 

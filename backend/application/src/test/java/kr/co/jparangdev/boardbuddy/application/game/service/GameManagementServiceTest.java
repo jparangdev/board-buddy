@@ -43,7 +43,7 @@ class GameManagementServiceTest {
         given(gameRepository.save(any(Game.class))).willReturn(game);
 
         // when
-        Game result = gameManagementService.createGame(name, 2, 2, ScoreStrategy.HIGH_WIN);
+        Game result = gameManagementService.createGame(name, 2, 2, ScoreStrategy.RANK_ONLY);
 
         // then
         assertThat(result.getId()).isEqualTo(1L);
@@ -58,7 +58,7 @@ class GameManagementServiceTest {
         given(gameRepository.existsByName(name)).willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> gameManagementService.createGame(name, 2, 2, ScoreStrategy.HIGH_WIN))
+        assertThatThrownBy(() -> gameManagementService.createGame(name, 2, 2, ScoreStrategy.RANK_ONLY))
             .isInstanceOf(DuplicateGameNameException.class);
     }
 

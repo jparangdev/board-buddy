@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameSessionDto {
@@ -27,8 +28,8 @@ public class GameSessionDto {
         @Valid
         private List<ResultInput> results;
 
-        /** Scoring strategy for this session. Default HIGH_WIN. */
-        private String scoreStrategy = "HIGH_WIN";
+        /** Scoring strategy for this session. Default RANK_ONLY. */
+        private String scoreStrategy = "RANK_ONLY";
 
         /** RANK_ONLY: how many top ranks count as a win. Default 1. */
         private int winnerCount = 1;
@@ -38,6 +39,12 @@ public class GameSessionDto {
 
         /** WIN_LOSE / COOPERATIVE: points awarded to losers. Default 0. */
         private int losePoints = 0;
+
+        /**
+         * RANK_SCORE: points per rank position (index 0 = 1st place).
+         * E.g. [10, 7, 5, 3] means 1st gets 10 pts, 2nd gets 7 pts, etc.
+         */
+        private List<Integer> rankPoints;
     }
 
     @Getter
@@ -51,6 +58,9 @@ public class GameSessionDto {
         private Integer score;
 
         private Boolean won;
+
+        /** Optional team number. Players sharing the same teamId form a team (requires 3+ players). */
+        private Integer teamId;
     }
 
     @Getter
@@ -77,6 +87,9 @@ public class GameSessionDto {
         private Instant playedAt;
         private Instant createdAt;
         private List<ResultResponse> results;
+        /** RANK_SCORE only: points per rank position (index 0 = 1st place). */
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        private List<Integer> rankPoints;
     }
 
     @Getter
@@ -87,6 +100,7 @@ public class GameSessionDto {
         private String userTag;
         private Integer score;
         private int rank;
+        private Integer teamId;
     }
 
     @Getter

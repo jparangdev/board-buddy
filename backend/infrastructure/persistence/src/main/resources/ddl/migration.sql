@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.custom_games (
     name VARCHAR2(100) NOT NULL,
     min_players INT NOT NULL DEFAULT 1,
     max_players INT NOT NULL DEFAULT 10,
-    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'HIGH_WIN',
+    score_strategy VARCHAR2(20) NOT NULL DEFAULT 'RANK_ONLY',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE CASCADE,
     UNIQUE (group_id, name)

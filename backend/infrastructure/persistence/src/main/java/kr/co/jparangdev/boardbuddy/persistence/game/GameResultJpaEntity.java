@@ -29,12 +29,16 @@ public class GameResultJpaEntity {
     @Column(nullable = false)
     private int rank;
 
-    public GameResultJpaEntity(Long id, Long sessionId, Long userId, Integer score, boolean won, int rank) {
+    @Column(name = "team_id")
+    private Integer teamId;
+
+    public GameResultJpaEntity(Long id, Long sessionId, Long userId, Integer score, boolean won, int rank, Integer teamId) {
         this.id = id;
         this.sessionId = sessionId;
         this.userId = userId;
         this.score = score;
         this.won = won;
         this.rank = rank;
+        this.teamId = teamId;
     }
 }

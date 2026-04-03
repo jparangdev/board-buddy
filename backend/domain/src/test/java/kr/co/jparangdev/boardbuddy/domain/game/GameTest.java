@@ -8,33 +8,33 @@ class GameTest {
 
     @Test
     void create_sets_all_fields() {
-        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN);
+        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_ONLY);
 
         assertThat(game.getName()).isEqualTo("Catan");
         assertThat(game.getNameKo()).isEqualTo("카탄");
         assertThat(game.getNameEn()).isEqualTo("Catan");
         assertThat(game.getMinPlayers()).isEqualTo(3);
         assertThat(game.getMaxPlayers()).isEqualTo(4);
-        assertThat(game.getScoreStrategy()).isEqualTo(ScoreStrategy.HIGH_WIN);
+        assertThat(game.getScoreStrategy()).isEqualTo(ScoreStrategy.RANK_ONLY);
     }
 
     @Test
     void create_sets_createdAt_automatically() {
-        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN);
+        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_ONLY);
 
         assertThat(game.getCreatedAt()).isNotNull();
     }
 
     @Test
     void create_does_not_assign_id() {
-        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN);
+        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_ONLY);
 
         assertThat(game.getId()).isNull();
     }
 
     @Test
     void update_changes_nameKo_and_nameEn() {
-        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN);
+        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_ONLY);
 
         game.update("카탄 (신판)", "Catan (New Edition)");
 
@@ -44,11 +44,11 @@ class GameTest {
 
     @Test
     void update_does_not_change_name_or_strategy() {
-        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.HIGH_WIN);
+        Game game = Game.create("Catan", "카탄", "Catan", 3, 4, ScoreStrategy.RANK_ONLY);
 
         game.update("카탄 (신판)", "Catan (New Edition)");
 
         assertThat(game.getName()).isEqualTo("Catan");
-        assertThat(game.getScoreStrategy()).isEqualTo(ScoreStrategy.HIGH_WIN);
+        assertThat(game.getScoreStrategy()).isEqualTo(ScoreStrategy.RANK_ONLY);
     }
 }

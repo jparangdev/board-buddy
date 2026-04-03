@@ -140,7 +140,7 @@ class CustomGameManagementServiceTest {
             given(customGameRepository.save(any(CustomGame.class))).willReturn(saved);
 
             // when
-            CustomGame result = customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN);
+            CustomGame result = customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.RANK_ONLY);
 
             // then
             assertThat(result.getId()).isEqualTo(1L);
@@ -159,7 +159,7 @@ class CustomGameManagementServiceTest {
             given(customGameRepository.existsByGroupIdAndName(10L, "House Chess")).willReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.RANK_ONLY))
                 .isInstanceOf(DuplicateCustomGameNameException.class);
         }
     }
@@ -174,7 +174,7 @@ class CustomGameManagementServiceTest {
             given(groupMemberRepository.existsByGroupIdAndUserId(10L, 1L)).willReturn(false);
 
             // when & then
-            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.RANK_ONLY))
                 .isInstanceOf(UserNotGroupMemberException.class);
         }
     }
@@ -188,7 +188,7 @@ class CustomGameManagementServiceTest {
             given(groupRepository.findById(10L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.RANK_ONLY))
                 .isInstanceOf(GroupNotFoundException.class);
         }
     }
@@ -219,7 +219,7 @@ class CustomGameManagementServiceTest {
             holder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
 
             // when & then
-            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.HIGH_WIN))
+            assertThatThrownBy(() -> customGameManagementService.createCustomGame(10L, "House Chess", 2, 4, ScoreStrategy.RANK_ONLY))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Authentication is missing");
         }
