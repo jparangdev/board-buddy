@@ -1,8 +1,8 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import type { Group, GroupStats, ScoreStatEntry } from '@/types';
-import { gameSessionService, groupService } from '@/services';
+import {type ReactNode, useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
+import type {Group, GroupStats, ScoreStatEntry} from '@/types';
+import {gameSessionService, groupService} from '@/services';
 import styles from './GroupDashboardPage.module.css';
 
 
@@ -62,6 +62,9 @@ export function GroupDashboardPage() {
   }
 
   const hasStats = stats && stats.totalSessions > 0;
+  const averagePlayers = stats && stats.totalSessions > 0
+    ? (stats.totalParticipations / stats.totalSessions)
+    : 0;
 
   return (
     <div className="container">
@@ -91,8 +94,10 @@ export function GroupDashboardPage() {
               <span className={styles.summaryLabel}>{t('stats.sessionsLabel')}</span>
             </div>
             <div className={styles.summaryCard}>
-              <span className={styles.summaryNumber}>{stats.totalParticipations}</span>
-              <span className={styles.summaryLabel}>{t('stats.participationsLabel')}</span>
+              <span className={styles.summaryNumber}>
+                {Number.isFinite(averagePlayers) ? averagePlayers.toFixed(1) : '0.0'}
+              </span>
+              <span className={styles.summaryLabel}>{t('stats.avgPlayersLabel')}</span>
             </div>
           </div>
 

@@ -1,8 +1,18 @@
 import {useEffect, useState} from 'react';
-import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
+import {BrowserRouter, Navigate, Route, Routes, useNavigate} from 'react-router-dom';
 import {AuthProvider} from '@/hooks';
 import {ErrorBanner, Layout, ProtectedRoute, ServerErrorModal} from '@/components';
-import {CreateSessionPage, GameListPage, GroupDashboardPage, GroupDetailPage, GroupListPage, InvitationsPage, LoginPage, RegisterPage, SessionDetailPage} from '@/pages';
+import {
+  CreateSessionPage,
+  GameListPage,
+  GroupDashboardPage,
+  GroupDetailPage,
+  GroupListPage,
+  InvitationsPage,
+  LoginPage,
+  RegisterPage,
+  SessionDetailPage
+} from '@/pages';
 import type {ApiError} from '@/types';
 
 function App() {
@@ -23,6 +33,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <AuthErrorListener />
       <AuthProvider>
         {clientError && (
           <ErrorBanner error={clientError} onClose={() => setClientError(null)} />
@@ -52,6 +63,23 @@ function App() {
       </AuthProvider>
     </BrowserRouter>
   );
+}
+
+function AuthErrorListener() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onAuthError = () => {
+      navigate('/login', { replace: true });
+    };
+
+    window.addEventListener('boardbuddy:auth-error', onAuthError);
+    return () => {
+      window.removeEventListener('boardbuddy:auth-error', onAuthError);
+    };
+  }, [navigate]);
+
+  return null;
 }
 
 export default App;

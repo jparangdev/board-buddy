@@ -80,6 +80,8 @@ export function InvitationsPage() {
     }
   };
 
+  const pendingSentInvitations = sentInvitations.filter((inv) => inv.status === 'PENDING');
+
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -141,14 +143,14 @@ export function InvitationsPage() {
         <h1>{t('invitation.sentInvitations')}</h1>
       </div>
 
-      {sentInvitations.length === 0 ? (
+      {pendingSentInvitations.length === 0 ? (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>&#x1F4EC;</span>
           <p>{t('invitation.noSentInvitations')}</p>
         </div>
       ) : (
         <div className={styles.list}>
-          {sentInvitations.map((inv) => (
+          {pendingSentInvitations.map((inv) => (
             <div key={inv.id} className={styles.card}>
               <div className={styles.cardInfo}>
                 <div className={styles.groupName}>{inv.groupName}</div>

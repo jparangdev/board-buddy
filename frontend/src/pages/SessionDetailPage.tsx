@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import type {GameSessionDetail} from '@/types';
@@ -61,7 +61,8 @@ export function SessionDetailPage() {
 
   const isBinaryStrategy = BINARY_STRATEGIES.includes(session.scoreStrategy);
   const isRankOnly = session.scoreStrategy === 'RANK_ONLY';
-  const sortedResults = [...session.results].sort((a, b) => a.rank - b.rank);
+  const results = Array.isArray(session.results) ? session.results : [];
+  const sortedResults = [...results].sort((a, b) => a.rank - b.rank);
 
   const rankClass = (rank: number) => {
     if (rank === 1) return styles.rank1;
@@ -77,7 +78,7 @@ export function SessionDetailPage() {
     return null;
   };
 
-  const sessionGameName = useMemo(() => {
+  const sessionGameName = (() => {
     if (!session) return '';
     if (session.customGameId && customGameNames.has(session.customGameId)) {
       return customGameNames.get(session.customGameId) ?? session.gameName;
@@ -86,7 +87,7 @@ export function SessionDetailPage() {
       return gameNames.get(session.gameId) ?? session.gameName;
     }
     return session.gameName;
-  }, [customGameNames, gameNames, session]);
+  })();
 
   return (
     <div className="container">
@@ -101,7 +102,7 @@ export function SessionDetailPage() {
         </div>
         <div className={styles.meta}>
           <span>{t('session.playedOn', { date: new Date(session.playedAt).toLocaleString(i18n.language) })}</span>
-          <span>{t('session.playerCount', { count: session.results.length })}</span>
+          <span>{t('session.playerCount', { count: results.length })}</span>
         </div>
       </div>
 

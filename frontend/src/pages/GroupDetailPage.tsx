@@ -1,8 +1,8 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import type {GameSession, Group, GroupMember} from '@/types';
-import {customGameService, gameService, gameSessionService, groupService} from '@/services';
+import type {GameSession, Group, GroupMember, Invitation} from '@/types';
+import {customGameService, gameService, gameSessionService, groupService, invitationService} from '@/services';
 import {useAuth} from '@/hooks/useAuth';
 import {getGameName} from '@/utils/game';
 import styles from './GroupDetailPage.module.css';
@@ -13,6 +13,7 @@ export function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [sessions, setSessions] = useState<GameSession[]>([]);
+  const [rejectedInvitations, setRejectedInvitations] = useState<Invitation[]>([]);
   const [gameNames, setGameNames] = useState<Map<number, string>>(new Map());
   const [customGameNames, setCustomGameNames] = useState<Map<number, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
@@ -27,18 +28,29 @@ export function GroupDetailPage() {
     const fetchData = async () => {
       if (!id) return;
       try {
-        const [groupData, membersData, sessionsData, gamesData, customGamesData] = await Promise.all([
+        const [groupData, membersData, sessionsData, gamesData, customGamesData, sentInvitations] = await Promise.all([
           groupService.getById(Number(id)),
           groupService.getMembers(Number(id)),
           gameSessionService.getSessionsByGroup(Number(id)),
           gameService.getGames(),
           customGameService.getCustomGames(Number(id)),
+          invitationService.getSentInvitations(),
         ]);
         setGroup(groupData);
         setMembers(membersData);
         setSessions(sessionsData);
         setGameNames(new Map(gamesData.map((game) => [game.id, getGameName(game, i18n.language)])));
         setCustomGameNames(new Map(customGamesData.map((game) => [game.id, getGameName(game, i18n.language)])));
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        setRejectedInvitations(
+          sentInvitations.filter((inv) => {
+            if (inv.groupId !== groupData.id || inv.status !== 'REJECTED') return false;
+            const createdAtMs = new Date(inv.createdAt).getTime();
+            if (Number.isNaN(createdAtMs)) return false;
+            return now - createdAtMs <= oneWeekMs;
+          })
+        );
       } catch (error) {
         console.error('Failed to fetch group:', error);
       } finally {
@@ -138,6 +150,24 @@ export function GroupDetailPage() {
             </div>
           ))}
         </div>
+        {isOwner && rejectedInvitations.length > 0 && (
+          <div className={styles.rejectedSection}>
+            <h3 className={styles.rejectedTitle}>{t('group.rejectedInvites')}</h3>
+            <div className={styles.rejectedList}>
+              {rejectedInvitations.map((inv) => (
+                <div key={inv.id} className={styles.rejectedItem}>
+                  <div className={styles.rejectedInfo}>
+                    <span className={styles.rejectedName}>{inv.inviteeNickname ?? inv.inviteeId}</span>
+                    <span className={styles.rejectedDate}>
+                      {new Date(inv.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <span className="badge badge-red">{t('invitation.statusRejected')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={styles.section} style={{marginTop: 'var(--spacing-lg)'}}>

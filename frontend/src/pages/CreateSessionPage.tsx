@@ -336,6 +336,15 @@ export function CreateSessionPage() {
     }
   };
 
+  const getSummaryTone = (summary: string) => {
+    if (!summary) return 'neutral';
+    if (summary.includes(t('scoreStrategy.won'))) return 'win';
+    if (summary.includes(t('scoreStrategy.lost'))) return 'loss';
+    if (summary.trim().startsWith('#1')) return 'top';
+    if (summary.trim().startsWith('#')) return 'rank';
+    return 'neutral';
+  };
+
   return (
     <div className="container">
       <Link to={`/groups/${groupId}`} className={styles.backLink}>
@@ -575,17 +584,6 @@ export function CreateSessionPage() {
           <p className="text-muted" style={{marginBottom: 'var(--spacing-md)'}}>
             {getScoreHint()}
           </p>
-          <div className="form-group" style={{marginBottom: 'var(--spacing-lg)'}}>
-            <label htmlFor="playedAt">{t('session.playedAt')}</label>
-            <input
-              id="playedAt"
-              className="input"
-              type="datetime-local"
-              value={playedAt}
-              onChange={(e) => setPlayedAt(e.target.value)}
-            />
-          </div>
-
           {strategy === 'COOPERATIVE' && (
             <div className={styles.scoreInputs} style={{marginBottom: 'var(--spacing-md)'}}>
               <div className={styles.configRow}>
@@ -650,7 +648,7 @@ export function CreateSessionPage() {
               {rankOrder.map((member, index) => (
                 <div
                   key={member.id}
-                  className={styles.scoreRow}
+                  className={`${styles.scoreRow} ${styles.rankRow}`}
                   draggable
                   onDragStart={() => handleRankDragStart(index)}
                   onDragEnter={() => handleRankDragEnter(index)}
@@ -687,7 +685,7 @@ export function CreateSessionPage() {
               {rankOrder.map((member, index) => (
                 <div
                   key={member.id}
-                  className={styles.scoreRow}
+                  className={`${styles.scoreRow} ${styles.rankRow}`}
                   draggable
                   onDragStart={() => handleRankDragStart(index)}
                   onDragEnter={() => handleRankDragEnter(index)}
@@ -754,6 +752,17 @@ export function CreateSessionPage() {
               ))}
             </div>
           )}
+
+          <div className="form-group" style={{marginBottom: 'var(--spacing-lg)'}}>
+            <label htmlFor="playedAt">{t('session.playedAt')}</label>
+            <input
+              id="playedAt"
+              className="input"
+              type="datetime-local"
+              value={playedAt}
+              onChange={(e) => setPlayedAt(e.target.value)}
+            />
+          </div>
         </div>
       )}
 
@@ -774,14 +783,29 @@ export function CreateSessionPage() {
                 <td style={{padding: '8px'}}>{new Date(playedAt).toLocaleString()}</td>
               </tr>
               <tr>
-                <td style={{padding: '8px', fontWeight: 500}}>{t('session.players')}</td>
+                <td style={{padding: '8px', fontWeight: 500, verticalAlign: 'top'}}>{t('session.players')}</td>
                 <td style={{padding: '8px'}}>
-                  {selectedMembers.map((m) => {
-                    const summary = getResultSummary(m.id);
-                    const teamId = teamsEnabled ? teamAssignments.get(m.id) : undefined;
-                    const teamLabel = teamId ? ` [${t('session.team', {num: teamId})}]` : '';
-                    return `${m.nickname}${teamLabel}${summary ? ` ${summary}` : ''}`;
-                  }).join(', ')}
+                  <ul className={styles.playerSummaryList}>
+                    {selectedMembers.map((m) => {
+                      const summary = getResultSummary(m.id);
+                      const summaryTone = getSummaryTone(summary);
+                      const teamId = teamsEnabled ? teamAssignments.get(m.id) : undefined;
+                      const teamLabel = teamId ? t('session.team', {num: teamId}) : '';
+                      return (
+                        <li key={m.id} className={styles.playerSummaryItem}>
+                          <span className={styles.playerSummaryName}>{m.nickname}</span>
+                          {teamLabel && <span className={styles.playerSummaryBadge}>{teamLabel}</span>}
+                          {summary && (
+                            <span
+                              className={`${styles.playerSummaryBadge} ${styles[`playerSummaryBadge${summaryTone}`] ?? ''}`}
+                            >
+                              {summary}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </td>
               </tr>
             </tbody>

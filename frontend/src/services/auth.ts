@@ -3,13 +3,21 @@ import type {LoginRequest, RegisterRequest, TokenResponse} from '@/types';
 
 export const authService = {
   async login(request: LoginRequest): Promise<TokenResponse> {
-    const response = await api.post<TokenResponse>('/auth/login', request, { skipAuth: true });
+    const response = await api.post<TokenResponse>(
+      '/auth/login',
+      request,
+      { skipAuth: true, suppressErrorEvent: true, suppressAuthError: true },
+    );
     setTokens(response.accessToken, response.refreshToken);
     return response;
   },
 
   async register(request: RegisterRequest): Promise<void> {
-    await api.post<void>('/auth/register', request, { skipAuth: true });
+    await api.post<void>(
+      '/auth/register',
+      request,
+      { skipAuth: true, suppressErrorEvent: true, suppressAuthError: true },
+    );
   },
 
   async refresh(): Promise<TokenResponse> {

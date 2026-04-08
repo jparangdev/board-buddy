@@ -5,6 +5,8 @@ const API_BASE_URL = '/api/v1';
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
   skipAuth?: boolean;
+  suppressErrorEvent?: boolean;
+  suppressAuthError?: boolean;
 }
 
 function getAccessToken(): string | null {
@@ -26,7 +28,7 @@ export function getRefreshToken(): string | null {
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const { params, skipAuth, ...init } = options;
+  const { params, skipAuth, suppressErrorEvent, suppressAuthError, ...init } = options;
 
   let url = `${API_BASE_URL}${endpoint}`;
   if (params) {
@@ -60,10 +62,19 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     }));
     const errorBody: ApiError = { ...body, status: response.status };
 
-    if (response.status >= 500) {
-      window.dispatchEvent(new CustomEvent('boardbuddy:server-error', { detail: errorBody }));
-    } else {
-      window.dispatchEvent(new CustomEvent('boardbuddy:client-error', { detail: errorBody }));
+    if (response.status === 401 || response.status === 403) {
+      if (!suppressAuthError) {
+        clearTokens();
+        if (!suppressErrorEvent) {
+          window.dispatchEvent(new CustomEvent('boardbuddy:auth-error', { detail: errorBody }));
+        }
+      }
+    } else if (!suppressErrorEvent) {
+      if (response.status >= 500) {
+        window.dispatchEvent(new CustomEvent('boardbuddy:server-error', { detail: errorBody }));
+      } else {
+        window.dispatchEvent(new CustomEvent('boardbuddy:client-error', { detail: errorBody }));
+      }
     }
 
     throw errorBody;
