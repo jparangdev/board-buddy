@@ -7,3 +7,4 @@ export { GameListPage } from './GameListPage';
 export { CreateSessionPage } from './CreateSessionPage';
 export { SessionDetailPage } from './SessionDetailPage';
 export { InvitationsPage } from './InvitationsPage';
+export { MyPage } from './MyPage';

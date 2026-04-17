@@ -2,7 +2,7 @@ import {Link, Outlet, useNavigate} from 'react-router-dom';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
-import {authService, invitationService} from '@/services';
+import {invitationService} from '@/services';
 import styles from './Layout.module.css';
 
 export function Layout() {
@@ -15,7 +15,6 @@ export function Layout() {
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
   };
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -42,23 +41,6 @@ export function Layout() {
     } finally {
       setIsLoggingOut(false);
       setShowLogoutModal(false);
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!globalThis.confirm(t('auth.deleteAccountConfirm') || 'Are you sure you want to delete your account? This cannot be undone.')) return;
-
-    setIsDeleting(true);
-    try {
-      await authService.deleteAccount();
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Failed to delete account:', error);
-      alert(t('auth.deleteFailed') || 'Failed to delete account. Please try again.');
-    } finally {
-      setIsDeleting(false);
-      setShowMenu(false);
     }
   };
 
@@ -113,19 +95,19 @@ export function Layout() {
                       <span className={styles.dropdownTag}>{user.userTag}</span>
                     </div>
                     <div className={styles.dropdownDivider} />
+                    <Link
+                      to="/profile"
+                      className={styles.dropdownItem}
+                      onClick={() => setShowMenu(false)}
+                    >
+                      {t('nav.profile')}
+                    </Link>
                     <button className={styles.dropdownItem} onClick={() => { toggleLanguage(); setShowMenu(false); }}>
                       {i18n.language === 'ko' ? '🌐 한국어' : '🌐 English'}
                     </button>
                     <div className={styles.dropdownDivider} />
                     <button className={styles.dropdownItem} onClick={handleLogout}>
                       {t('nav.logout')}
-                    </button>
-                    <button
-                      className={`${styles.dropdownItem} ${styles.dropdownDanger}`}
-                      onClick={handleDeleteAccount}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? t('common.deleting') : t('auth.deleteAccount')}
                     </button>
                   </div>
                 )}

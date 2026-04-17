@@ -27,7 +27,8 @@
     "groups": "Groups",
     "games": "Games",
     "invitations": "Invitations",
-    "logout": "Logout"
+    "logout": "Logout",
+    "profile": "My Profile"
   },
   "auth": {
     "login": "Login",
@@ -211,6 +212,18 @@
     "inviteHint": "Invited users will join after accepting. e.g. Nickname#AB12 or email",
     "inviteSent": "Invitations sent to {{count}} member(s)",
     "inviteFailed": "Failed to send invitation"
+  },
+  "profile": {
+    "title": "My Profile",
+    "accountInfo": "Account Info",
+    "connectedAccounts": "Connected Accounts",
+    "editNickname": "Edit Nickname",
+    "dangerZone": "Danger Zone",
+    "deleteAccountDesc": "Deleting your account permanently removes all your data and cannot be undone.",
+    "nicknameSaved": "Nickname updated successfully.",
+    "nicknameSaveFailed": "Failed to update nickname. Please try again.",
+    "providerLocal": "Email / Password",
+    "connected": "Connected"
   },
   "placeholder": {
     "gameName": "e.g. Splendor, Catan",

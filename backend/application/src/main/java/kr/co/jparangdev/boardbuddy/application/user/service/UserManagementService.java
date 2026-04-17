@@ -67,4 +67,24 @@ public class UserManagementService implements UserQueryUseCase, kr.co.jparangdev
         }
         userRepository.deleteById(userId);
     }
+
+    @Override
+    @Transactional
+    public void updateNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
+        String discriminator = user.getDiscriminator();
+        if (!user.getNickname().equals(nickname)) {
+            boolean taken = userRepository.findByNicknameAndDiscriminator(nickname, discriminator)
+                .filter(found -> !found.getId().equals(userId))
+                .isPresent();
+            if (taken) {
+                discriminator = userRepository.generateUniqueDiscriminator(nickname);
+            }
+        }
+
+        user.updateNickname(nickname, discriminator);
+        userRepository.save(user);
+    }
 }

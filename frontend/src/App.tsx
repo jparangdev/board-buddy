@@ -10,6 +10,7 @@ import {
   GroupListPage,
   InvitationsPage,
   LoginPage,
+  MyPage,
   RegisterPage,
   SessionDetailPage
 } from '@/pages';
@@ -54,6 +55,7 @@ function App() {
               <Route path="/groups/:groupId/sessions/:sessionId" element={<SessionDetailPage />} />
               <Route path="/games" element={<GameListPage />} />
               <Route path="/invitations" element={<InvitationsPage />} />
+              <Route path="/profile" element={<MyPage />} />
               <Route path="/" element={<Navigate to="/groups" replace />} />
             </Route>
           </Route>

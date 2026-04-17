@@ -27,7 +27,8 @@
     "groups": "그룹",
     "games": "게임",
     "invitations": "초대",
-    "logout": "로그아웃"
+    "logout": "로그아웃",
+    "profile": "내 프로필"
   },
   "auth": {
     "login": "로그인",
@@ -211,6 +212,18 @@
     "inviteHint": "초대받은 유저가 수락 후 그룹에 참여합니다. 예: 닉네임#AB12 또는 이메일",
     "inviteSent": "{{count}}명에게 초대장을 보냈습니다",
     "inviteFailed": "초대에 실패했습니다"
+  },
+  "profile": {
+    "title": "내 프로필",
+    "accountInfo": "계정 정보",
+    "connectedAccounts": "연동된 계정",
+    "editNickname": "닉네임 수정",
+    "dangerZone": "위험 구역",
+    "deleteAccountDesc": "계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.",
+    "nicknameSaved": "닉네임이 변경되었습니다.",
+    "nicknameSaveFailed": "닉네임 변경에 실패했습니다. 다시 시도해주세요.",
+    "providerLocal": "이메일/비밀번호",
+    "connected": "연결됨"
   },
   "placeholder": {
     "gameName": "예: 스플렌더, 카탄",
