@@ -6,7 +6,7 @@ import {userService, authService} from '@/services';
 import styles from './MyPage.module.css';
 
 export function MyPage() {
-  const {user, refreshUser, logout} = useAuth();
+  const {user, refreshUser, clearSession} = useAuth();
   const navigate = useNavigate();
   const {t} = useTranslation();
 
@@ -47,7 +47,7 @@ export function MyPage() {
     setIsDeleting(true);
     try {
       await authService.deleteAccount();
-      await logout();
+      clearSession();
       navigate('/login');
     } catch {
       setIsDeleting(false);

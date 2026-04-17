@@ -1,7 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.user;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -52,7 +51,7 @@ public class UserController {
     @PatchMapping("/me/nickname")
     public ResponseEntity<UserDto.Response> updateNickname(@Valid @RequestBody UserDto.UpdateNicknameRequest request) {
         User user = userQueryUseCase.getCurrentUser();
-        userCommandUseCase.updateNickname(user.getId(), request.getNickname());
+        userCommandUseCase.updateNickname(user.getId(), request.getNickname().trim());
         User updated = userQueryUseCase.getUserById(user.getId())
             .orElseThrow(() -> new IllegalStateException("User not found after update"));
         return ResponseEntity.ok(mapper.toResponse(updated));
