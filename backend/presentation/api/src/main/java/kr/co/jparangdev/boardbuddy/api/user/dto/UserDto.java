@@ -2,6 +2,8 @@ package kr.co.jparangdev.boardbuddy.api.user.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,11 +17,19 @@ public class UserDto {
         private String nickname;
         private String discriminator;
         private String userTag;
+        private String provider;
     }
 
     @Getter
     @Builder
     public static class SearchResponse {
         private List<Response> users;
+    }
+
+    @Getter
+    public static class UpdateNicknameRequest {
+        @NotBlank
+        @Size(min = 2, max = 50)
+        private String nickname;
     }
 }

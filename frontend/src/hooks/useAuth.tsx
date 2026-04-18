@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  clearSession: () => void;
   refreshUser: () => Promise<void>;
 }
 
@@ -47,6 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const clearSession = () => {
+    authService.clearSession();
+    setUser(null);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -55,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
+        clearSession,
         refreshUser,
       }}
     >

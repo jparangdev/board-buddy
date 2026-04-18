@@ -20,4 +20,8 @@ export const userService = {
     });
     return response.users;
   },
+
+  async updateNickname(nickname: string): Promise<User> {
+    return api.patch<User>('/users/me/nickname', { nickname });
+  },
 };

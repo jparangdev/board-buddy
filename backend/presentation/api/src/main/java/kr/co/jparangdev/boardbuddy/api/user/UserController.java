@@ -3,6 +3,7 @@ package kr.co.jparangdev.boardbuddy.api.user;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import kr.co.jparangdev.boardbuddy.api.user.dto.UserDto;
 import kr.co.jparangdev.boardbuddy.application.user.usecase.UserQueryUseCase;
 import kr.co.jparangdev.boardbuddy.domain.user.User;
@@ -44,6 +45,18 @@ public class UserController {
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
+    /**
+     * Update current user's nickname
+     */
+    @PatchMapping("/me/nickname")
+    public ResponseEntity<UserDto.Response> updateNickname(@Valid @RequestBody UserDto.UpdateNicknameRequest request) {
+        User user = userQueryUseCase.getCurrentUser();
+        userCommandUseCase.updateNickname(user.getId(), request.getNickname().trim());
+        User updated = userQueryUseCase.getUserById(user.getId())
+            .orElseThrow(() -> new IllegalStateException("User not found after update"));
+        return ResponseEntity.ok(mapper.toResponse(updated));
+    }
+
     /**
      * Delete current user account
      */

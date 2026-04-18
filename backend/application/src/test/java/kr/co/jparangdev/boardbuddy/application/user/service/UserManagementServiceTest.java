@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.Optional;
@@ -186,5 +188,60 @@ class UserManagementServiceTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Update Nickname - keeps discriminator when nickname is unchanged")
+    void updateNicknameUnchanged() {
+        // given
+        User user = User.builder().id(1L).nickname("tester").discriminator("AB12").build();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        // when
+        userManagementService.updateNickname(1L, "tester");
+
+        // then
+        assertThat(user.getNickname()).isEqualTo("tester");
+        assertThat(user.getDiscriminator()).isEqualTo("AB12");
+        verify(userRepository, never()).generateUniqueDiscriminator("tester");
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Update Nickname - generates new discriminator when current one is taken")
+    void updateNicknameGeneratesNewDiscriminatorWhenTaken() {
+        // given
+        User user = User.builder().id(1L).nickname("tester").discriminator("AB12").build();
+        User otherUser = User.builder().id(2L).nickname("alice").discriminator("AB12").build();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findByNicknameAndDiscriminator("alice", "AB12")).willReturn(Optional.of(otherUser));
+        given(userRepository.generateUniqueDiscriminator("alice")).willReturn("CD34");
+
+        // when
+        userManagementService.updateNickname(1L, "alice");
+
+        // then
+        assertThat(user.getNickname()).isEqualTo("alice");
+        assertThat(user.getDiscriminator()).isEqualTo("CD34");
+        verify(userRepository).generateUniqueDiscriminator("alice");
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Update Nickname - reuses discriminator when available")
+    void updateNicknameReusesDiscriminatorWhenAvailable() {
+        // given
+        User user = User.builder().id(1L).nickname("tester").discriminator("AB12").build();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findByNicknameAndDiscriminator("alice", "AB12")).willReturn(Optional.empty());
+
+        // when
+        userManagementService.updateNickname(1L, "alice");
+
+        // then
+        assertThat(user.getNickname()).isEqualTo("alice");
+        assertThat(user.getDiscriminator()).isEqualTo("AB12");
+        verify(userRepository, never()).generateUniqueDiscriminator("alice");
+        verify(userRepository).save(user);
     }
 }

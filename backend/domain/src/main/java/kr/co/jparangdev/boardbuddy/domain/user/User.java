@@ -30,6 +30,11 @@ public class User {
         return nickname + "#" + discriminator;
     }
 
+    public void updateNickname(String nickname, String discriminator) {
+        this.nickname = nickname;
+        this.discriminator = discriminator;
+    }
+
     public static User fromOAuth(String email, String provider, String providerId,
                                  String initialNickname, String discriminator) {
         return User.builder()

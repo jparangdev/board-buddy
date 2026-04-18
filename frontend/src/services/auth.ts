@@ -42,6 +42,10 @@ export const authService = {
     clearTokens();
   },
 
+  clearSession(): void {
+    clearTokens();
+  },
+
   isAuthenticated(): boolean {
     return !!getRefreshToken();
   },

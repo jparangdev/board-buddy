@@ -17,6 +17,7 @@ public class UserDtoMapper {
             .nickname(user.getNickname())
             .discriminator(user.getDiscriminator())
             .userTag(user.getUserTag())
+            .provider(user.getProvider())
             .build();
     }
 
