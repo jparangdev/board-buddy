@@ -6,3 +6,8 @@ export interface User {
   userTag: string;
   provider: string;
 }
+
+export interface SocialAccountResponse {
+  provider: string;
+  linkedAt: string;
+}

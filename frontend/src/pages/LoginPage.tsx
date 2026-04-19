@@ -2,7 +2,10 @@ import {type FormEvent, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/hooks/useAuth';
+import {authService} from '@/services';
 import styles from './LoginPage.module.css';
+
+const OAUTH_REDIRECT_URI = window.location.origin + '/oauth/callback';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +15,7 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [isKakaoLoading, setIsKakaoLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -71,6 +75,27 @@ export function LoginPage() {
             {isLoading ? t('auth.loggingIn') : t('auth.loginButton')}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <span>또는</span>
+        </div>
+
+        <button
+          type="button"
+          className={styles.kakaoButton}
+          disabled={isKakaoLoading}
+          onClick={async () => {
+            setIsKakaoLoading(true);
+            try {
+              const {authorizeUrl} = await authService.getOAuthAuthorizeUrl('kakao', OAUTH_REDIRECT_URI);
+              window.location.href = authorizeUrl;
+            } catch {
+              setIsKakaoLoading(false);
+            }
+          }}
+        >
+          {isKakaoLoading ? '이동 중...' : '💬 카카오로 로그인'}
+        </button>
 
         <div className={styles.footer}>
           <p className={styles.hint}>

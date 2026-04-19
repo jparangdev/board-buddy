@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS invitations;
 DROP TABLE IF EXISTS group_members;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS refresh_tokens;
+DROP TABLE IF EXISTS user_social_accounts;
 DROP TABLE IF EXISTS users;
 
 -- Users table
@@ -25,6 +26,19 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_nickname_discriminator ON users(nickname, discriminator);
+
+-- Social Accounts table (OAuth provider links per user)
+CREATE TABLE user_social_accounts (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    provider VARCHAR2(20) NOT NULL,
+    provider_id VARCHAR2(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    UNIQUE (provider, provider_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_social_accounts_user_id ON user_social_accounts(user_id);
 
 -- Refresh Tokens table
 CREATE TABLE refresh_tokens (

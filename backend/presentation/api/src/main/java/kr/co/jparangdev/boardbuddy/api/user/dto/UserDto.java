@@ -1,5 +1,6 @@
 package kr.co.jparangdev.boardbuddy.api.user.dto;
 
+import java.time.Instant;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -31,5 +32,30 @@ public class UserDto {
         @NotBlank
         @Size(min = 2, max = 50)
         private String nickname;
+    }
+
+    @Getter
+    @Builder
+    public static class SocialAccountResponse {
+        private String provider;
+        private Instant linkedAt;
+    }
+
+    @Getter
+    @Builder
+    public static class SocialAccountListResponse {
+        private List<SocialAccountResponse> accounts;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LinkAccountRequest {
+        @NotBlank
+        private String code;
+
+        @NotBlank
+        private String redirectUri;
     }
 }

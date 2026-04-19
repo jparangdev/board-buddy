@@ -2,6 +2,23 @@ import {api, clearTokens, getRefreshToken, setTokens} from './api';
 import type {LoginRequest, RegisterRequest, TokenResponse} from '@/types';
 
 export const authService = {
+  async getOAuthAuthorizeUrl(provider: string, redirectUri: string): Promise<{authorizeUrl: string}> {
+    return api.get<{authorizeUrl: string}>(`/auth/oauth/${provider}/authorize-url`, {
+      params: {redirectUri},
+      skipAuth: true,
+    } as any);
+  },
+
+  async loginWithOAuth(provider: string, code: string, redirectUri: string): Promise<TokenResponse> {
+    const response = await api.post<TokenResponse>(
+      `/auth/oauth/${provider}/login`,
+      {code, redirectUri},
+      {skipAuth: true},
+    );
+    setTokens(response.accessToken, response.refreshToken);
+    return response;
+  },
+
   async login(request: LoginRequest): Promise<TokenResponse> {
     const response = await api.post<TokenResponse>(
       '/auth/login',

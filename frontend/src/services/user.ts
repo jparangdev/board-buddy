@@ -1,8 +1,12 @@
 import {api} from './api';
-import type {User} from '@/types';
+import type {SocialAccountResponse, User} from '@/types';
 
 interface SearchResponse {
   users: User[];
+}
+
+interface SocialAccountListResponse {
+  accounts: SocialAccountResponse[];
 }
 
 export const userService = {
@@ -23,5 +27,18 @@ export const userService = {
 
   async updateNickname(nickname: string): Promise<User> {
     return api.patch<User>('/users/me/nickname', { nickname });
+  },
+
+  async getLinkedAccounts(): Promise<SocialAccountResponse[]> {
+    const response = await api.get<SocialAccountListResponse>('/users/me/social-accounts');
+    return response.accounts;
+  },
+
+  async linkAccount(provider: string, code: string, redirectUri: string): Promise<void> {
+    await api.post(`/users/me/social-accounts/${provider}/link`, {code, redirectUri});
+  },
+
+  async unlinkAccount(provider: string): Promise<void> {
+    await api.delete(`/users/me/social-accounts/${provider}`);
   },
 };

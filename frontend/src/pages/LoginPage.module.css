@@ -56,6 +56,45 @@
   font-size: 0.875rem;
 }
 
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.kakaoButton {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: 1rem;
+  background: #FEE500;
+  color: #3C1E1E;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.kakaoButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.kakaoButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .footer {
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-md);

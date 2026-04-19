@@ -11,6 +11,7 @@ import {
   InvitationsPage,
   LoginPage,
   MyPage,
+  OAuthCallbackPage,
   RegisterPage,
   SessionDetailPage
 } from '@/pages';
@@ -45,6 +46,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
